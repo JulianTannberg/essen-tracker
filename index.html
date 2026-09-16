@@ -72,11 +72,58 @@ input,select{width:100%;border:1px solid var(--line);background:#fff;border-radi
 .weight-month-head h3{margin:0 0 4px}
 #weightChart{width:100%;max-width:100%;display:block}
 
+
+.entry-card.editable{cursor:pointer}
+.danger-btn{
+  border:1px solid #c98b8b;background:#fff;color:var(--danger);
+  border-radius:12px;padding:11px 14px;font-weight:800;margin-right:auto
+}
+.day.no-beer{background:#e6f3e8;border-color:#b8d6bd}
+.print-day.no-beer{background:#e6f3e8}
+.print-filter-list{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}
+.print-filter-option{
+  display:flex;grid-template-columns:22px 1fr;align-items:center;gap:8px;
+  border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:600
+}
+.print-filter-option input{width:auto;margin:0;accent-color:var(--accent)}
+.print-filter-group-title{
+  font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;
+  letter-spacing:.05em;margin:8px 2px 1px
+}
+
 @media(min-width:620px){.quick-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* Kompakte Druckansicht: Kalenderwochen untereinander, Wochentage nebeneinander */
+.print-week-grid{display:none}
+.print-week-head,.print-week-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.print-week-head{margin-bottom:3px}
+.print-week-head>div{font-size:10px;font-weight:800;text-align:center;padding:4px 2px}
+.print-day{border:1px solid var(--line);border-radius:8px;padding:5px;min-height:74px;background:#fff;overflow:hidden}
+.print-day.out{opacity:.28}
+.print-date{font-size:9px;font-weight:800;margin-bottom:4px}
+.print-entry{font-size:8px;line-height:1.2;margin:0 0 2px;overflow-wrap:anywhere}
+.print-time{font-weight:800}
+.print-empty{font-size:8px;color:var(--muted)}
+
 @media print{
-  .topbar,.bottom-nav,.fab,.filter-card,.month-controls button{display:none!important}
-  body{background:#fff;padding:0}.view{display:none!important}#monthView{display:block!important}
-  main{max-width:none;padding:0}.calendar{gap:2px}.day{break-inside:avoid;min-height:80px}
+  @page{size:A4 landscape;margin:7mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body.print-no-weight .weight-month-card{display:none!important}
+  .topbar,.bottom-nav,.fab,.filter-card,.month-controls button,.calendar-head,.calendar,.month-list{display:none!important}
+  body{background:#fff;padding:0;font-size:9px}
+  .view{display:none!important}#monthView{display:block!important}
+  main{max-width:none;padding:0}
+  #monthLabel{font-size:18px;margin:0 0 6px;text-align:left}
+  .month-controls{display:block;text-align:left}
+  .print-week-grid{display:block!important}
+  .print-week-row{break-inside:avoid;page-break-inside:avoid;margin-bottom:3px}
+  .print-day{min-height:72px;border-radius:6px;padding:4px}
+  .print-date{font-size:8.5px}
+  .print-entry{font-size:7.5px}
+  .weight-month-card{margin-top:7px;padding:8px;border-radius:8px;break-inside:avoid;page-break-inside:avoid}
+  .weight-month-head h3{font-size:11px;margin:0}
+  .weight-month-card small{font-size:8px}
+  #weightChart{height:115px!important}
 }
 
 </style>
@@ -144,6 +191,8 @@ input,select{width:100%;border:1px solid var(--line);background:#fff;border-radi
       </div>
       <div id="calendar" class="calendar"></div>
 
+      <div id="printWeekGrid" class="print-week-grid" aria-hidden="true"></div>
+
       <div id="weightMonthCard" class="weight-month-card">
         <div class="weight-month-head">
           <div>
@@ -199,10 +248,26 @@ input,select{width:100%;border:1px solid var(--line);background:#fff;border-radi
     <button data-view="settingsView" class="nav">Einstellungen</button>
   </nav>
 
+
+  <dialog id="printDialog">
+    <form method="dialog" id="printForm">
+      <div class="dialog-head">
+        <h2>Drucken / PDF</h2>
+        <button type="button" id="closePrintDialog" class="icon-btn">×</button>
+      </div>
+      <div class="hint">Mehrere Bereiche können gleichzeitig ausgewählt werden.</div>
+      <div id="printFilterList" class="print-filter-list"></div>
+      <div class="dialog-actions">
+        <button type="button" id="cancelPrintDialog" class="secondary-btn">Abbrechen</button>
+        <button type="button" id="startPrint" class="primary-btn">Drucken</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="entryDialog">
     <form method="dialog" id="entryForm">
       <div class="dialog-head">
-        <h2>Eintrag</h2>
+        <h2 id="entryDialogTitle">Eintrag</h2>
         <button type="button" id="closeEntryDialog" class="icon-btn">×</button>
       </div>
 
@@ -232,6 +297,7 @@ input,select{width:100%;border:1px solid var(--line);background:#fff;border-radi
       </label>
 
       <div class="dialog-actions">
+        <button type="button" id="deleteEntry" class="danger-btn" style="display:none">Löschen</button>
         <button type="button" id="cancelEntryDialog" class="secondary-btn">Abbrechen</button>
         <button id="saveEntry" value="default" class="primary-btn">Speichern</button>
       </div>
@@ -254,6 +320,10 @@ const DEFAULT={
 let state=load();
 let shownMonth=startMonth(new Date());
 let selectedDate=localDate();
+let editingIds=[];
+let editingDate=null;
+let printFilters=["all"];
+const NO_BEER_START="2026-09-10";
 
 function load(){
   try{
@@ -268,6 +338,27 @@ function localTime(d=new Date()){return `${pad(d.getHours())}:${pad(d.getMinutes
 function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()}
 function startMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
 function typeLabel(t){return ({food:"Essen",drink:"Getränk",symptom:"Beschwerde",medicine:"Mittel",weight:"Gewicht"})[t]||t}
+
+function isBeerEntry(e){
+  return e.type==="drink" && String(e.value||"").trim().toLowerCase()==="bier";
+}
+function isBeerFreePastDay(ds){
+  if(ds<NO_BEER_START || ds>=localDate())return false;
+  return !state.entries.some(e=>e.date===ds && isBeerEntry(e));
+}
+function updateEntryTypeUI(){
+  const t=document.querySelector("#entryType").value;
+  document.querySelector("#foodHint").style.display=t==="food"?"block":"none";
+  const inp=document.querySelector("#entryValue");
+  inp.placeholder=t==="weight"?"z. B. 82,4":(t==="food"?"z. B. Schweinesteak, Kartoffeln, Rucola":"Was?");
+  inp.inputMode=t==="weight"?"decimal":"text";
+}
+function clearEditing(){
+  editingIds=[];
+  editingDate=null;
+  document.querySelector("#entryDialogTitle").textContent="Eintrag";
+  document.querySelector("#deleteEntry").style.display="none";
+}
 
 function addEntry(type,value, opts={}){
   const now=new Date();
@@ -433,11 +524,16 @@ function renderTimeline(){
     const meta=[...new Set(g.items.map(e=>typeLabel(e.type)))].join(", ");
     const notes=g.items.map(e=>e.note).filter(Boolean).join(" · ");
     return `<div class="timeline-item"><div class="time">${g.time}</div>
-      <div class="entry-card ${g.items.length>1?"grouped":""}">
+      <div class="entry-card editable ${g.items.length>1?"grouped":""}" data-edit-id="${g.items[0].id}" role="button" tabindex="0">
         <div class="entry-title">${vals}</div>
         <div class="entry-meta">${meta}${notes?" · "+escapeHtml(notes):""}</div>
       </div></div>`
   }).join("");
+  box.querySelectorAll("[data-edit-id]").forEach(card=>{
+    const open=()=>openEditDialog(card.dataset.editId);
+    card.onclick=open;
+    card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};
+  });
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function knownItems(){
@@ -449,10 +545,32 @@ function renderKnown(){
   document.querySelector("#knownItems").innerHTML=knownItems().map(x=>`<option value="${escapeHtml(x)}"></option>`).join("")
 }
 function openDialog(){
+  clearEditing();
+  document.querySelector("#entryType").value="food";
   document.querySelector("#entryTime").value=localTime();
   document.querySelector("#entryValue").value="";
   document.querySelector("#entryNote").value="";
+  updateEntryTypeUI();
   document.querySelector("#entryDialog").showModal()
+}
+function openEditDialog(id){
+  const first=state.entries.find(e=>e.id===id);
+  if(!first)return;
+  const items=first.mealId
+    ? state.entries.filter(e=>e.mealId===first.mealId && e.date===first.date)
+    : [first];
+  editingIds=items.map(e=>e.id);
+  editingDate=first.date;
+
+  document.querySelector("#entryDialogTitle").textContent=items.length>1?"Mahlzeit ändern":"Eintrag ändern";
+  document.querySelector("#entryType").value=first.type;
+  document.querySelector("#entryTime").value=first.time;
+  document.querySelector("#entryValue").value=
+    first.type==="food" && items.length>1 ? items.map(e=>e.value).join(", ") : first.value;
+  document.querySelector("#entryNote").value=first.note||"";
+  document.querySelector("#deleteEntry").style.display="block";
+  updateEntryTypeUI();
+  document.querySelector("#entryDialog").showModal();
 }
 function saveDialog(ev){
   ev.preventDefault();
@@ -461,16 +579,46 @@ function saveDialog(ev){
   const raw=document.querySelector("#entryValue").value.trim();
   const note=document.querySelector("#entryNote").value.trim();
   if(!raw)return;
+
+  let weightNum=null;
+  if(type==="weight"){
+    weightNum=parseFloat(raw.replace(",",".").replace(/[^0-9.]/g,""));
+    if(!Number.isFinite(weightNum)){alert("Bitte ein Gewicht eingeben, z. B. 82,4");return;}
+  }
+
+  const oldItems=editingIds.length ? state.entries.filter(e=>editingIds.includes(e.id)) : [];
+  const date=editingIds.length ? (editingDate||selectedDate) : selectedDate;
+  const oldMealId=oldItems.find(e=>e.mealId)?.mealId||null;
+  const preservedTags=oldItems.length===1 ? (oldItems[0].tags||[]) : [];
+  const preservedAmount=oldItems.length===1 ? (oldItems[0].amountMl||null) : null;
+
+  if(editingIds.length){
+    state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
+  }
+
   if(type==="food"){
-    const mealId=uid();
-    raw.split(",").map(x=>x.trim()).filter(Boolean).forEach(v=>addEntry("food",v,{date:selectedDate,time,note,mealId}));
+    const mealId=oldMealId||uid();
+    raw.split(",").map(x=>x.trim()).filter(Boolean).forEach(v=>addEntry("food",v,{date,time,note,mealId}));
   }else if(type==="weight"){
-    const num=parseFloat(raw.replace(",",".").replace(/[^0-9.]/g,""));
-    if(!Number.isFinite(num)){alert("Bitte ein Gewicht eingeben, z. B. 82,4");return;}
-    addEntry("weight",String(num).replace(".",",")+" kg",{date:selectedDate,time,note});
-    state.entries[state.entries.length-1].weightKg=num;
-  }else addEntry(type,raw,{date:selectedDate,time,note});
-  document.querySelector("#entryDialog").close(); save()
+    addEntry("weight",String(weightNum).replace(".",",")+" kg",{date,time,note});
+    state.entries[state.entries.length-1].weightKg=weightNum;
+  }else{
+    addEntry(type,raw,{date,time,note,tags:preservedTags,amountMl:preservedAmount});
+  }
+
+  clearEditing();
+  document.querySelector("#entryDialog").close();
+  save();
+}
+function deleteCurrentEntry(){
+  if(!editingIds.length)return;
+  const many=editingIds.length>1;
+  const ok=confirm(many?"Diese ganze Mahlzeit wirklich löschen?":"Diesen Eintrag wirklich löschen?");
+  if(!ok)return;
+  state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
+  clearEditing();
+  document.querySelector("#entryDialog").close();
+  save();
 }
 function setView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
@@ -504,6 +652,132 @@ function matchesFilter(e,f){
   if(f.startsWith("type:"))return e.type===f.slice(5);
   const [t,v]=f.split(":"); return e.type===t && e.value===v;
 }
+function compactPrintEntries(dayEntries){
+  const byTime=new Map();
+  dayEntries.forEach(e=>{
+    if(!byTime.has(e.time))byTime.set(e.time,[]);
+    byTime.get(e.time).push(e);
+  });
+  return [...byTime.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,items])=>{
+    const parts=[];
+    const foodMeals=new Map();
+    const rest=[];
+    items.forEach(e=>{
+      if(e.type==="food" && e.mealId){
+        if(!foodMeals.has(e.mealId))foodMeals.set(e.mealId,[]);
+        foodMeals.get(e.mealId).push(e.value);
+      }else rest.push(e);
+    });
+    foodMeals.forEach(values=>parts.push(values.join(", ")));
+    const counts=new Map();
+    rest.forEach(e=>{
+      const key=`${e.type}|${e.value}`;
+      const x=counts.get(key)||{entry:e,count:0};
+      x.count++; counts.set(key,x);
+    });
+    counts.forEach(({entry,count})=>{
+      let value=entry.value;
+      if(entry.type==="weight") value=`Gew. ${value}`;
+      parts.push(value+(count>1?` ×${count}`:""));
+    });
+    return {time,text:parts.join("; ")};
+  });
+}
+
+function printFilterOptions(){
+  const opts=[
+    ["all","Alles"],
+    ["type:food","Essen"],
+    ["drink:Wasser","Wasser"],
+    ["symptom:Bauchschmerzen","Bauchschmerzen"],
+    ["symptom:Durchfall","Durchfall"],
+    ["medicine:Sodbrennenmittel","Sodbrennenmittel"],
+    ["type:weight","Gewicht"],
+    ["drink:Bier","Bier"]
+  ];
+  knownItems().forEach(v=>opts.push(["value:"+v,v]));
+  const seen=new Set();
+  return opts.filter(([v])=>{
+    if(seen.has(v))return false;
+    seen.add(v);
+    return true;
+  });
+}
+function renderPrintFilterDialog(){
+  const box=document.querySelector("#printFilterList");
+  const opts=printFilterOptions();
+  const fixed=opts.slice(0,8), individual=opts.slice(8);
+
+  let out='<div class="print-filter-group-title">Auswahl</div>';
+  fixed.forEach(([v,l])=>{
+    out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`;
+  });
+  if(individual.length){
+    out+='<div class="print-filter-group-title">Einzelne Einträge</div>';
+    individual.forEach(([v,l])=>{
+      out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`;
+    });
+  }
+  box.innerHTML=out;
+
+  const checks=[...box.querySelectorAll('input[type="checkbox"]')];
+  checks.forEach(cb=>cb.onchange=()=>{
+    if(cb.value==="all" && cb.checked){
+      checks.forEach(x=>{if(x.value!=="all")x.checked=false});
+    }else if(cb.checked){
+      const all=checks.find(x=>x.value==="all");
+      if(all)all.checked=false;
+    }
+    if(!checks.some(x=>x.checked)){
+      const all=checks.find(x=>x.value==="all");
+      if(all)all.checked=true;
+    }
+  });
+}
+function selectedPrintFilters(){
+  const vals=[...document.querySelectorAll('#printFilterList input[type="checkbox"]:checked')].map(x=>x.value);
+  return vals.length?vals:["all"];
+}
+function openPrintDialog(){
+  renderPrintFilterDialog();
+  document.querySelector("#printDialog").showModal();
+}
+function startPrint(){
+  printFilters=selectedPrintFilters();
+  document.querySelector("#printDialog").close();
+  renderMonth();
+  const showWeight=printFilters.includes("all")||printFilters.includes("type:weight");
+  document.body.classList.toggle("print-no-weight",!showWeight);
+  setTimeout(()=>window.print(),80);
+}
+
+function renderPrintWeekGrid(start, entries, filters, monthIndex){
+  const box=document.querySelector("#printWeekGrid");
+  if(!box)return;
+  const labels=["Mo","Di","Mi","Do","Fr","Sa","So"];
+  let out=`<div class="print-week-head">${labels.map(x=>`<div>${x}</div>`).join("")}</div>`;
+  for(let week=0;week<6;week++){
+    let row="";
+    for(let dow=0;dow<7;dow++){
+      const d=new Date(start); d.setDate(start.getDate()+week*7+dow);
+      const ds=localDate(d);
+      const dayEntries=entries.filter(e=>{
+        if(e.date!==ds)return false;
+        if(!filters || !filters.length || filters.includes("all"))return true;
+        return filters.some(f=>matchesFilter(e,f));
+      });
+      const compact=compactPrintEntries(dayEntries);
+      const outside=d.getMonth()!==monthIndex;
+      const beerFree=!outside && isBeerFreePastDay(ds);
+      row+=`<div class="print-day${outside?" out":""}${beerFree?" no-beer":""}">`+
+        `<div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>`+
+        (compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):`<div class="print-empty">–</div>`)+
+        `</div>`;
+    }
+    out+=`<div class="print-week-row">${row}</div>`;
+  }
+  box.innerHTML=out;
+}
 function renderMonth(){
   buildFilter();
   const y=shownMonth.getFullYear(),m=shownMonth.getMonth(), filter=document.querySelector("#monthFilter").value||"all";
@@ -515,7 +789,8 @@ function renderMonth(){
     const d=new Date(start);d.setDate(start.getDate()+i);
     const ds=localDate(d), all=entries.filter(e=>e.date===ds), filtered=all.filter(e=>matchesFilter(e,filter));
     const cell=document.createElement("div");
-    cell.className="day"+(d.getMonth()!==m?" out":"")+(ds===localDate()?" today":"")+(all.length?" has":"")+(filtered.length&&filter!=="all"?" filtered":"");
+    const beerFree=d.getMonth()===m && isBeerFreePastDay(ds);
+    cell.className="day"+(d.getMonth()!==m?" out":"")+(ds===localDate()?" today":"")+(all.length?" has":"")+(filtered.length&&filter!=="all"?" filtered":"")+(beerFree?" no-beer":"");
     cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div>`;
     if(d.getMonth()===m){
       cell.tabIndex=0;
@@ -530,6 +805,7 @@ function renderMonth(){
     }
     cal.appendChild(cell);
   }
+  renderPrintWeekGrid(start,entries,printFilters,m);
   const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   const by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));
   renderWeightChart();
@@ -539,14 +815,18 @@ function renderMonth(){
   }).join("") || '<div class="empty">Für diesen Filter keine Einträge.</div>';
 }
 function renderPatterns(){
-  const syms=["Bauchschmerzen","Durchfall"];
+  const signals=[
+    {type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},
+    {type:"symptom",value:"Durchfall",label:"Durchfall"},
+    {type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}
+  ];
   const foods=state.entries.filter(e=>e.type==="food");
   const box=document.querySelector("#patternList");
   const rows=[];
-  syms.forEach(sym=>{
-    const symptoms=state.entries.filter(e=>e.type==="symptom"&&e.value===sym);
+  signals.forEach(signal=>{
+    const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value);
     const counts=new Map();
-    symptoms.forEach(s=>{
+    events.forEach(s=>{
       const st=new Date(`${s.date}T${s.time}`);
       foods.forEach(f=>{
         const ft=new Date(`${f.date}T${f.time}`);
@@ -555,10 +835,10 @@ function renderPatterns(){
       })
     });
     [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>{
-      rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${sym}“ erfasst.</small></div>`)
+      rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`)
     })
   });
-  box.innerHTML=rows.join("")||'<div class="empty">Noch nicht genug Einträge für eine Musterübersicht.</div>';
+  box.innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
 }
 function renderSettings(){
   document.querySelector("#waterLabel").value=state.settings.waterLabel;
@@ -575,19 +855,18 @@ document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{
 });
 document.querySelector("#fab").onclick=openDialog;
 document.querySelector("#entryForm").addEventListener("submit",saveDialog);
-document.querySelector("#closeEntryDialog").onclick=()=>document.querySelector("#entryDialog").close();
-document.querySelector("#cancelEntryDialog").onclick=()=>document.querySelector("#entryDialog").close();
-document.querySelector("#entryType").onchange=e=>{
-  const t=e.target.value;
-  document.querySelector("#foodHint").style.display=t==="food"?"block":"none";
-  const inp=document.querySelector("#entryValue");
-  inp.placeholder=t==="weight"?"z. B. 82,4":(t==="food"?"z. B. Schweinesteak, Kartoffeln, Rucola":"Was?");
-  inp.inputMode=t==="weight"?"decimal":"text";
-};
+document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};
+document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};
+document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
+document.querySelector("#entryType").onchange=updateEntryTypeUI;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};
 document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};
 document.querySelector("#monthFilter").onchange=renderMonth;
-document.querySelector("#printMonth").onclick=()=>window.print();
+document.querySelector("#printMonth").onclick=openPrintDialog;
+document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();
+document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();
+document.querySelector("#startPrint").onclick=startPrint;
+window.addEventListener("afterprint",()=>document.body.classList.remove("print-no-weight"));
 document.querySelector("#saveSettings").onclick=()=>{
   state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"1 Flasche";
   state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;
