@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f8f5ee">
+  <title>Essen tracken</title>
+  <style>
+
+:root{
+  --bg:#f7f4ed; --card:#ffffff; --ink:#252525; --muted:#747474;
+  --line:#e6e0d6; --soft:#eee8de; --accent:#2f5f50; --danger:#8d4141;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);padding-bottom:86px}
+button,input,select{font:inherit}
+.topbar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:18px 18px 10px;background:rgba(247,244,237,.95);backdrop-filter:blur(10px)}
+.eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+h1{font-size:30px;margin:2px 0} h2{font-size:20px;margin:18px 0 10px} h3{margin:0 0 12px}
+main{max-width:760px;margin:0 auto;padding:0 14px}
+.view{display:none}.view.active{display:block}
+.icon-btn{border:0;background:var(--card);width:38px;height:38px;border-radius:12px;box-shadow:0 1px 5px #00000012}
+.summary-card{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.summary-card>div,.info-card,.settings-card,.filter-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.summary-card span{display:block;font-weight:800;font-size:28px}.summary-card small{color:var(--muted)}
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.quick-btn{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:15px 12px;text-align:left;font-weight:700}
+.quick-btn small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.text-btn{border:0;background:transparent;color:var(--accent);font-weight:800}
+.timeline{position:relative;padding-left:6px}
+.timeline-item{display:grid;grid-template-columns:58px 1fr;gap:10px;margin:10px 0}
+.time{font-size:13px;color:var(--muted);padding-top:13px}
+.entry-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.entry-title{font-weight:800}.entry-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.grouped{border-left:4px solid var(--soft)}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:8;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.nav{border:0;background:transparent;padding:10px 3px;color:var(--muted);font-size:12px}.nav.active{color:var(--accent);font-weight:800}
+.fab{position:fixed;right:18px;bottom:82px;z-index:9;width:58px;height:58px;border:0;border-radius:50%;background:var(--accent);color:#fff;font-size:34px;box-shadow:0 8px 22px #0003}
+dialog{width:min(92vw,520px);border:0;border-radius:22px;padding:0;box-shadow:0 20px 60px #0004}
+dialog::backdrop{background:#0006}
+#entryForm{padding:18px;display:grid;gap:13px}.dialog-head{display:flex;justify-content:space-between;align-items:center}
+label{display:grid;gap:7px;font-size:13px;font-weight:700}
+input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px}
+.hint{font-size:12px;color:var(--muted);margin-top:-7px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+.primary-btn,.secondary-btn{border-radius:12px;padding:11px 14px;font-weight:800}
+.primary-btn{border:0;background:var(--accent);color:#fff}.secondary-btn{background:#fff;border:1px solid var(--line)}
+.month-controls{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center}.month-controls h2{margin:14px 0}
+.filter-card{display:flex;gap:10px;align-items:end;justify-content:space-between}.filter-card label{flex:1}
+.calendar-head,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calendar-head{padding:14px 2px 5px;color:var(--muted);font-size:11px;text-align:center}
+.day{min-height:68px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;position:relative}.day.out{opacity:.25}.day.today{outline:2px solid var(--accent)}.day.has::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:var(--accent);bottom:7px;right:7px}.day.filtered{background:#efe4e1}
+.day:not(.out){cursor:pointer}.day-num{font-weight:800;font-size:13px}.day-count{font-size:10px;color:var(--muted);margin-top:3px}
+.month-list{margin-top:14px}.month-day{margin:12px 0}.month-day h3{font-size:14px;color:var(--muted);margin-bottom:6px}
+.settings-card{margin:12px 0;display:grid;gap:12px}
+.file-label{border:1px solid var(--line);border-radius:12px;padding:11px 14px;display:block}.file-label input{display:none}
+.pattern-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.pattern-card strong{font-size:18px}.pattern-card small{color:var(--muted)}
+
+.weight-today-card{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px
+}
+.weight-today-card>div,.weight-month-card{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px
+}
+.weight-today-card small,.weight-month-card small{display:block;color:var(--muted);margin-bottom:4px}
+.weight-today-card strong{font-size:22px}
+.weight-month-card{margin-top:14px}
+.weight-month-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.weight-month-head h3{margin:0 0 4px}
+#weightChart{width:100%;max-width:100%;display:block}
+
+@media(min-width:620px){.quick-grid{grid-template-columns:repeat(3,1fr)}}
+@media print{
+  .topbar,.bottom-nav,.fab,.filter-card,.month-controls button{display:none!important}
+  body{background:#fff;padding:0}.view{display:none!important}#monthView{display:block!important}
+  main{max-width:none;padding:0}.calendar{gap:2px}.day{break-inside:avoid;min-height:80px}
+}
+
+</style>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">Mein Tracker</div>
+      <h1 id="pageTitle">Heute</h1>
+    </div>
+    
+  </header>
+
+  <main>
+    <section id="todayView" class="view active">
+      <div class="summary-card">
+        <div><span id="waterCount">0</span><small>Flaschen Wasser</small></div>
+        <div><span id="entryCount">0</span><small>Einträge heute</small></div>
+      </div>
+      <div id="weightTodayCard" class="weight-today-card" style="display:none">
+        <div>
+          <small>Letzte Gewichtsmessung</small>
+          <strong id="weightTodayValue">–</strong>
+        </div>
+        <div>
+          <small>Veränderung zur vorherigen Messung</small>
+          <strong id="weightTodayDelta">–</strong>
+        </div>
+      </div>
+
+      <div class="quick-wrap">
+        <h2>Schnell eintragen</h2>
+        <div id="quickGrid" class="quick-grid"></div>
+      </div>
+
+      <div class="section-row">
+        <h2>Zeitleiste</h2>
+        
+      </div>
+      <div id="timeline" class="timeline"></div>
+    </section>
+
+    <section id="monthView" class="view">
+      <div class="month-controls">
+        <button class="icon-btn" id="prevMonth">‹</button>
+        <h2 id="monthLabel"></h2>
+        <button class="icon-btn" id="nextMonth">›</button>
+      </div>
+
+      <div class="filter-card">
+        <label>Filter
+          <select id="monthFilter"></select>
+        </label>
+        <button id="printMonth" class="secondary-btn">Drucken / PDF</button>
+      </div>
+
+      <div class="calendar-head">
+        <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+      </div>
+      <div id="calendar" class="calendar"></div>
+
+      <div id="weightMonthCard" class="weight-month-card">
+        <div class="weight-month-head">
+          <div>
+            <h3>Gewichtsverlauf</h3>
+            <small id="weightMonthSummary">Nur Morgenmessungen vor 12:00 Uhr.</small>
+          </div>
+        </div>
+        <canvas id="weightChart" height="180"></canvas>
+      </div>
+
+      <div id="monthList" class="month-list"></div>
+    </section>
+
+    <section id="analysisView" class="view">
+      <h2>Muster</h2>
+      <div class="info-card">
+        Diese Ansicht zählt zunächst nur Zusammenhänge. Sie stellt keine medizinische Diagnose.
+      </div>
+      <div id="patternList"></div>
+    </section>
+
+    <section id="settingsView" class="view">
+      <h2>Einstellungen</h2>
+      <div class="settings-card">
+        <label>Name für Wasser-Schnellbutton
+          <input id="waterLabel" value="1 Flasche">
+        </label>
+        <label>Flaschengröße (ml)
+          <input id="waterMl" type="number" min="50" step="50" value="700">
+        </label>
+        <button id="saveSettings" class="primary-btn">Speichern</button>
+      </div>
+      <div class="settings-card">
+        <h3>Daten</h3>
+        <button id="exportData" class="secondary-btn">Sicherung exportieren</button>
+        <label class="file-label">Sicherung importieren
+          <input id="importData" type="file" accept=".json,application/json">
+        </label>
+      </div>
+      <div class="settings-card">
+        <h3>Später</h3>
+        <p>Spracheingabe/API kann später ergänzt werden. Die Datenstruktur ist dafür vorbereitet.</p>
+      </div>
+    </section>
+  </main>
+
+  <button id="fab" class="fab" aria-label="Eintrag hinzufügen">+</button>
+
+  <nav class="bottom-nav">
+    <button data-view="todayView" class="nav active">Heute</button>
+    <button data-view="monthView" class="nav">Monat</button>
+    <button data-view="analysisView" class="nav">Muster</button>
+    <button data-view="settingsView" class="nav">Einstellungen</button>
+  </nav>
+
+  <dialog id="entryDialog">
+    <form method="dialog" id="entryForm">
+      <div class="dialog-head">
+        <h2>Eintrag</h2>
+        <button type="button" id="closeEntryDialog" class="icon-btn">×</button>
+      </div>
+
+      <label>Art
+        <select id="entryType">
+          <option value="food">Essen</option>
+          <option value="drink">Getränk</option>
+          <option value="symptom">Beschwerde</option>
+          <option value="medicine">Mittel/Medikament</option>
+          <option value="weight">Gewicht</option>
+        </select>
+      </label>
+
+      <label>Uhrzeit
+        <input id="entryTime" type="time" required>
+      </label>
+
+      <label id="entryValueLabel">Was?
+        <input id="entryValue" list="knownItems" placeholder="z. B. Schweinesteak, Kartoffeln, Rucola">
+        <datalist id="knownItems"></datalist>
+      </label>
+
+      <div id="foodHint" class="hint">Bei Essen mehrere Bestandteile mit Komma trennen. Sie werden einzeln zur gleichen Uhrzeit gespeichert.</div>
+
+      <label>Notiz (optional)
+        <input id="entryNote" placeholder="z. B. sehr fettig / Restaurant">
+      </label>
+
+      <div class="dialog-actions">
+        <button type="button" id="cancelEntryDialog" class="secondary-btn">Abbrechen</button>
+        <button id="saveEntry" value="default" class="primary-btn">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+
+const KEY="essenTracker.v01";
+const DEFAULT={
+  entries:[],
+  settings:{waterLabel:"1 Flasche",waterMl:700},
+  quick:[
+    {label:"Wasser",sub:"700 ml",type:"drink",value:"Wasser",tag:"water",amountMl:700},
+    {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
+    {label:"Durchfall",sub:"jetzt",type:"symptom",value:"Durchfall"},
+    {label:"Sodbrennenmittel",sub:"genommen",type:"medicine",value:"Sodbrennenmittel"}
+  ]
+};
+let state=load();
+let shownMonth=startMonth(new Date());
+let selectedDate=localDate();
+
+function load(){
+  try{
+    const x=JSON.parse(localStorage.getItem(KEY));
+    return x?{...DEFAULT,...x,settings:{...DEFAULT.settings,...x.settings}}:structuredClone(DEFAULT);
+  }catch(e){return structuredClone(DEFAULT)}
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
+function pad(n){return String(n).padStart(2,"0")}
+function localDate(d=new Date()){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function localTime(d=new Date()){return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()}
+function startMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
+function typeLabel(t){return ({food:"Essen",drink:"Getränk",symptom:"Beschwerde",medicine:"Mittel",weight:"Gewicht"})[t]||t}
+
+function addEntry(type,value, opts={}){
+  const now=new Date();
+  state.entries.push({
+    id:uid(), date:opts.date||localDate(now), time:opts.time||localTime(now),
+    type, value:value.trim(), note:opts.note||"", mealId:opts.mealId||null,
+    createdAt:new Date().toISOString(), tags:opts.tags||[], amountMl:opts.amountMl||null
+  });
+}
+function quickAdd(q){
+  addEntry(q.type,q.value,{date:selectedDate,tags:q.tag?[q.tag]:[],amountMl:q.amountMl||null});
+  save();
+}
+function renderQuick(){
+  const g=document.querySelector("#quickGrid");g.innerHTML="";
+  state.quick.forEach(q=>{
+    const b=document.createElement("button");
+    b.className="quick-btn"; b.innerHTML=`${q.label}<small>${q.sub||"jetzt"}</small>`;
+    b.onclick=()=>quickAdd(q); g.appendChild(b);
+  });
+}
+function todayEntries(){
+  return state.entries.filter(e=>e.date===selectedDate).sort((a,b)=>a.time.localeCompare(b.time));
+}
+
+function weightEntriesSorted(){
+  return state.entries
+    .filter(e=>e.type==="weight" && Number.isFinite(Number(e.weightKg)))
+    .slice()
+    .sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
+}
+function renderWeightToday(){
+  const all=weightEntriesSorted();
+  const card=document.querySelector("#weightTodayCard");
+  if(!card)return;
+
+  const dayEntries=all.filter(e=>e.date===selectedDate);
+  if(!dayEntries.length){card.style.display="none";return;}
+
+  const latest=dayEntries[dayEntries.length-1];
+  const latestKey=latest.date+"T"+latest.time;
+  const prev=[...all].reverse().find(e=>(e.date+"T"+e.time)<latestKey);
+
+  card.style.display="grid";
+  document.querySelector("#weightTodayValue").textContent=
+    `${String(latest.weightKg).replace(".",",")} kg · ${latest.time}`;
+
+  if(prev){
+    const d=latest.weightKg-prev.weightKg;
+    const sign=d>0?"+":"";
+    document.querySelector("#weightTodayDelta").textContent=`${sign}${d.toFixed(1).replace(".",",")} kg`;
+  }else{
+    document.querySelector("#weightTodayDelta").textContent="–";
+  }
+}
+function monthWeightEntries(){
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
+  const morning=weightEntriesSorted().filter(e=>{
+    const d=new Date(e.date+"T12:00");
+    return d.getFullYear()===y && d.getMonth()===m && e.time<"12:00";
+  });
+
+  // Für die Kurve pro Tag nur die erste Morgenmessung verwenden.
+  const firstPerDay=new Map();
+  morning.forEach(e=>{
+    if(!firstPerDay.has(e.date)) firstPerDay.set(e.date,e);
+  });
+  return [...firstPerDay.values()];
+}
+function renderWeightChart(){
+  const canvas=document.querySelector("#weightChart");
+  const summary=document.querySelector("#weightMonthSummary");
+  if(!canvas||!summary)return;
+  const pts=monthWeightEntries();
+  const ctx=canvas.getContext("2d");
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  const w=Math.max(280,rect.width||canvas.parentElement.clientWidth||320);
+  const h=180;
+  canvas.width=w*dpr; canvas.height=h*dpr;
+  canvas.style.height=h+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  if(!pts.length){
+    summary.textContent="Noch keine Morgenmessungen (vor 12:00 Uhr) in diesem Monat.";
+    ctx.font="13px system-ui";
+    ctx.fillStyle="#747474";
+    ctx.fillText("Noch keine Morgenmessungen",16,40);
+    return;
+  }
+
+  const vals=pts.map(p=>Number(p.weightKg));
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const padY=Math.max(0.5,(max-min)*0.25);
+  const lo=min-padY, hi=max+padY;
+  const left=40,right=12,top=16,bottom=28;
+  const cw=w-left-right, ch=h-top-bottom;
+  const y=v=>top+(hi-v)/(hi-lo||1)*ch;
+  const x=i=>pts.length===1?left+cw/2:left+i*cw/(pts.length-1);
+
+  // grid
+  ctx.strokeStyle="#e6e0d6";
+  ctx.lineWidth=1;
+  ctx.font="11px system-ui";
+  ctx.fillStyle="#747474";
+  for(let i=0;i<4;i++){
+    const yy=top+i*ch/3;
+    const val=hi-i*(hi-lo)/3;
+    ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();
+    ctx.fillText(val.toFixed(1).replace(".",","),2,yy+4);
+  }
+
+  // line
+  ctx.strokeStyle="#2f5f50";
+  ctx.lineWidth=2.5;
+  ctx.beginPath();
+  pts.forEach((p,i)=>{const xx=x(i),yy=y(p.weightKg); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});
+  ctx.stroke();
+
+  // points
+  ctx.fillStyle="#2f5f50";
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(x(i),y(p.weightKg),3.5,0,Math.PI*2);ctx.fill();
+  });
+
+  // first/last date labels
+  ctx.fillStyle="#747474";
+  ctx.font="11px system-ui";
+  const firstDate=new Date(pts[0].date+"T12:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+  const lastDate=new Date(pts[pts.length-1].date+"T12:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+  ctx.fillText(firstDate,left,h-8);
+  const tw=ctx.measureText(lastDate).width;
+  ctx.fillText(lastDate,w-right-tw,h-8);
+
+  const delta=vals[vals.length-1]-vals[0];
+  const sign=delta>0?"+":"";
+  summary.textContent=`${pts.length} Morgenmessung${pts.length===1?"":"en"} · erste → letzte Messung: ${sign}${delta.toFixed(1).replace(".",",")} kg`;
+}
+
+function renderTimeline(){
+  const list=todayEntries(), box=document.querySelector("#timeline");
+  const title=document.querySelector("#pageTitle");
+  if(selectedDate===localDate()){
+    title.textContent="Heute";
+  }else{
+    const d=new Date(selectedDate+"T12:00");
+    title.textContent=d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
+  }
+  document.querySelector("#entryCount").textContent=list.length;
+  const wc=list.filter(e=>e.tags?.includes("water") || (e.type==="drink"&&e.value.toLowerCase()==="wasser")).length;
+  document.querySelector("#waterCount").textContent=wc;
+  renderWeightToday();
+  if(!list.length){box.innerHTML='<div class="empty">Heute ist noch nichts eingetragen.</div>';return}
+  const groups=[];
+  for(const e of list){
+    let last=groups[groups.length-1];
+    if(e.mealId && last?.mealId===e.mealId){last.items.push(e)}
+    else groups.push({mealId:e.mealId,time:e.time,items:[e]});
+  }
+  box.innerHTML=groups.map(g=>{
+    const vals=g.items.map(e=>escapeHtml(e.value)).join(g.items.length>1?" · ":"");
+    const meta=[...new Set(g.items.map(e=>typeLabel(e.type)))].join(", ");
+    const notes=g.items.map(e=>e.note).filter(Boolean).join(" · ");
+    return `<div class="timeline-item"><div class="time">${g.time}</div>
+      <div class="entry-card ${g.items.length>1?"grouped":""}">
+        <div class="entry-title">${vals}</div>
+        <div class="entry-meta">${meta}${notes?" · "+escapeHtml(notes):""}</div>
+      </div></div>`
+  }).join("");
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function knownItems(){
+  const m=new Map();
+  state.entries.forEach(e=>m.set(e.value,(m.get(e.value)||0)+1));
+  return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]).slice(0,60)
+}
+function renderKnown(){
+  document.querySelector("#knownItems").innerHTML=knownItems().map(x=>`<option value="${escapeHtml(x)}"></option>`).join("")
+}
+function openDialog(){
+  document.querySelector("#entryTime").value=localTime();
+  document.querySelector("#entryValue").value="";
+  document.querySelector("#entryNote").value="";
+  document.querySelector("#entryDialog").showModal()
+}
+function saveDialog(ev){
+  ev.preventDefault();
+  const type=document.querySelector("#entryType").value;
+  const time=document.querySelector("#entryTime").value||localTime();
+  const raw=document.querySelector("#entryValue").value.trim();
+  const note=document.querySelector("#entryNote").value.trim();
+  if(!raw)return;
+  if(type==="food"){
+    const mealId=uid();
+    raw.split(",").map(x=>x.trim()).filter(Boolean).forEach(v=>addEntry("food",v,{date:selectedDate,time,note,mealId}));
+  }else if(type==="weight"){
+    const num=parseFloat(raw.replace(",",".").replace(/[^0-9.]/g,""));
+    if(!Number.isFinite(num)){alert("Bitte ein Gewicht eingeben, z. B. 82,4");return;}
+    addEntry("weight",String(num).replace(".",",")+" kg",{date:selectedDate,time,note});
+    state.entries[state.entries.length-1].weightKg=num;
+  }else addEntry(type,raw,{date:selectedDate,time,note});
+  document.querySelector("#entryDialog").close(); save()
+}
+function setView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+  document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+  if(id==="todayView"){
+    renderTimeline();
+  }else{
+    document.querySelector("#pageTitle").textContent=({monthView:"Monat",analysisView:"Muster",settingsView:"Einstellungen"})[id];
+  }
+  document.querySelector("#fab").style.display=id==="todayView"?"block":"none";
+  if(id==="monthView")renderMonth();
+  if(id==="analysisView")renderPatterns();
+}
+function monthEntries(){
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
+  return state.entries.filter(e=>{const d=new Date(e.date+"T12:00");return d.getFullYear()===y&&d.getMonth()===m})
+}
+function buildFilter(){
+  const s=document.querySelector("#monthFilter");
+  const prev=s.value||"all";
+  const opts=[["all","Alles"],["symptom:Bauchschmerzen","Bauchschmerzen"],["symptom:Durchfall","Durchfall"],["drink:Bier","Bier"],["medicine:Sodbrennenmittel","Sodbrennenmittel"],["drink:Wasser","Wasser"],["type:weight","Gewicht"]];
+  knownItems().forEach(v=>opts.push(["value:"+v,v]));
+  const uniq=[]; const seen=new Set();
+  opts.forEach(o=>{if(!seen.has(o[0])){seen.add(o[0]);uniq.push(o)}});
+  s.innerHTML=uniq.map(([v,l])=>`<option value="${escapeHtml(v)}">${escapeHtml(l)}</option>`).join("");
+  if([...s.options].some(o=>o.value===prev))s.value=prev;
+}
+function matchesFilter(e,f){
+  if(f==="all")return true;
+  if(f.startsWith("value:"))return e.value===f.slice(6);
+  if(f.startsWith("type:"))return e.type===f.slice(5);
+  const [t,v]=f.split(":"); return e.type===t && e.value===v;
+}
+function renderMonth(){
+  buildFilter();
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth(), filter=document.querySelector("#monthFilter").value||"all";
+  document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+  const first=new Date(y,m,1), shift=(first.getDay()+6)%7;
+  const start=new Date(y,m,1-shift);
+  const entries=monthEntries(), cal=document.querySelector("#calendar"); cal.innerHTML="";
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const ds=localDate(d), all=entries.filter(e=>e.date===ds), filtered=all.filter(e=>matchesFilter(e,filter));
+    const cell=document.createElement("div");
+    cell.className="day"+(d.getMonth()!==m?" out":"")+(ds===localDate()?" today":"")+(all.length?" has":"")+(filtered.length&&filter!=="all"?" filtered":"");
+    cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div>`;
+    if(d.getMonth()===m){
+      cell.tabIndex=0;
+      cell.setAttribute("role","button");
+      cell.setAttribute("aria-label",`Tagesübersicht ${d.toLocaleDateString("de-DE")}`);
+      const openDay=()=>{
+        selectedDate=ds;
+        setView("todayView");
+      };
+      cell.onclick=openDay;
+      cell.onkeydown=(ev)=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();openDay();}};
+    }
+    cal.appendChild(cell);
+  }
+  const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));
+  renderWeightChart();
+  document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>{
+    const label=new Date(date+"T12:00").toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
+    return `<div class="month-day"><h3>${label}</h3>${by[date].map(e=>`<div class="entry-card"><b>${e.time}</b> · ${escapeHtml(e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`
+  }).join("") || '<div class="empty">Für diesen Filter keine Einträge.</div>';
+}
+function renderPatterns(){
+  const syms=["Bauchschmerzen","Durchfall"];
+  const foods=state.entries.filter(e=>e.type==="food");
+  const box=document.querySelector("#patternList");
+  const rows=[];
+  syms.forEach(sym=>{
+    const symptoms=state.entries.filter(e=>e.type==="symptom"&&e.value===sym);
+    const counts=new Map();
+    symptoms.forEach(s=>{
+      const st=new Date(`${s.date}T${s.time}`);
+      foods.forEach(f=>{
+        const ft=new Date(`${f.date}T${f.time}`);
+        const h=(st-ft)/36e5;
+        if(h>=0 && h<=8)counts.set(f.value,(counts.get(f.value)||0)+1);
+      })
+    });
+    [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>{
+      rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${sym}“ erfasst.</small></div>`)
+    })
+  });
+  box.innerHTML=rows.join("")||'<div class="empty">Noch nicht genug Einträge für eine Musterübersicht.</div>';
+}
+function renderSettings(){
+  document.querySelector("#waterLabel").value=state.settings.waterLabel;
+  document.querySelector("#waterMl").value=state.settings.waterMl;
+}
+function renderAll(){renderQuick();renderTimeline();renderKnown();renderSettings(); if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
+
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{
+  if(b.dataset.view==="todayView"){
+    selectedDate=localDate();
+    shownMonth=startMonth(new Date());
+  }
+  setView(b.dataset.view);
+});
+document.querySelector("#fab").onclick=openDialog;
+document.querySelector("#entryForm").addEventListener("submit",saveDialog);
+document.querySelector("#closeEntryDialog").onclick=()=>document.querySelector("#entryDialog").close();
+document.querySelector("#cancelEntryDialog").onclick=()=>document.querySelector("#entryDialog").close();
+document.querySelector("#entryType").onchange=e=>{
+  const t=e.target.value;
+  document.querySelector("#foodHint").style.display=t==="food"?"block":"none";
+  const inp=document.querySelector("#entryValue");
+  inp.placeholder=t==="weight"?"z. B. 82,4":(t==="food"?"z. B. Schweinesteak, Kartoffeln, Rucola":"Was?");
+  inp.inputMode=t==="weight"?"decimal":"text";
+};
+document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};
+document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};
+document.querySelector("#monthFilter").onchange=renderMonth;
+document.querySelector("#printMonth").onclick=()=>window.print();
+document.querySelector("#saveSettings").onclick=()=>{
+  state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"1 Flasche";
+  state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;
+  const q=state.quick.find(x=>x.tag==="water"); if(q){q.label="Wasser";q.sub=state.settings.waterMl+" ml";q.amountMl=state.settings.waterMl}
+  save()
+};
+document.querySelector("#exportData").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();URL.revokeObjectURL(a.href)
+};
+document.querySelector("#importData").onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{state=JSON.parse(await f.text());save()}catch(err){alert("Datei konnte nicht gelesen werden.")}
+};
+
+if(location.protocol==="http:"||location.protocol==="https:"){if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");}
+window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();});
+renderAll();
+
+
+
+async function requestPersistentStorage(){
+  try{
+    if(navigator.storage && navigator.storage.persist) await navigator.storage.persist();
+  }catch(e){}
+}
+requestPersistentStorage();
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>

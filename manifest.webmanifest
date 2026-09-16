@@ -1,0 +1,15 @@
+{
+  "name": "Essen Tracker",
+  "short_name": "Essen",
+  "description": "Privater Tracker für Essen, Trinken, Beschwerden und Gewicht.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f4ed",
+  "theme_color": "#f7f4ed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
