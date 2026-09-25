@@ -67,6 +67,9 @@ input,select{width:100%;border:1px solid var(--line);background:#fff;border-radi
 }
 .weight-today-card small,.weight-month-card small{display:block;color:var(--muted);margin-bottom:4px}
 .weight-today-card strong{font-size:22px}
+.weight-delta-title{margin-bottom:8px!important}
+.weight-delta-label{font-size:12px;margin-top:8px!important;margin-bottom:1px!important}
+.weight-delta-value{display:block;font-size:18px!important;line-height:1.15}
 .weight-month-card{margin-top:14px}
 .weight-month-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .weight-month-head h3{margin:0 0 4px}
@@ -155,8 +158,11 @@ input,select{width:100%;border:1px solid var(--line);background:#fff;border-radi
           <strong id="weightTodayValue">–</strong>
         </div>
         <div>
-          <small>Veränderung zur vorherigen Messung</small>
-          <strong id="weightTodayDelta">–</strong>
+          <small class="weight-delta-title">Veränderung</small>
+          <small class="weight-delta-label">zur letzten Messung</small>
+          <strong id="weightTodayDelta" class="weight-delta-value">–</strong>
+          <small class="weight-delta-label">zur ersten Messung</small>
+          <strong id="weightTodayDeltaFirst" class="weight-delta-value">–</strong>
         </div>
       </div>
 
@@ -390,6 +396,10 @@ function weightEntriesSorted(){
     .slice()
     .sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
 }
+function formatWeightDelta(d){
+  const sign=d>0?"+":"";
+  return `${sign}${d.toFixed(1).replace(".",",")} kg`;
+}
 function renderWeightToday(){
   const all=weightEntriesSorted();
   const card=document.querySelector("#weightTodayCard");
@@ -401,18 +411,16 @@ function renderWeightToday(){
   const latest=dayEntries[dayEntries.length-1];
   const latestKey=latest.date+"T"+latest.time;
   const prev=[...all].reverse().find(e=>(e.date+"T"+e.time)<latestKey);
+  const first=all[0];
 
   card.style.display="grid";
   document.querySelector("#weightTodayValue").textContent=
     `${String(latest.weightKg).replace(".",",")} kg · ${latest.time}`;
 
-  if(prev){
-    const d=latest.weightKg-prev.weightKg;
-    const sign=d>0?"+":"";
-    document.querySelector("#weightTodayDelta").textContent=`${sign}${d.toFixed(1).replace(".",",")} kg`;
-  }else{
-    document.querySelector("#weightTodayDelta").textContent="–";
-  }
+  document.querySelector("#weightTodayDelta").textContent=
+    prev ? formatWeightDelta(latest.weightKg-prev.weightKg) : "–";
+  document.querySelector("#weightTodayDeltaFirst").textContent=
+    first ? formatWeightDelta(latest.weightKg-first.weightKg) : "–";
 }
 function monthWeightEntries(){
   const y=shownMonth.getFullYear(),m=shownMonth.getMonth();

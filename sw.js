@@ -1,4 +1,4 @@
-const CACHE="essen-tracker-pages-v3";
+const CACHE="essen-tracker-pages-v4";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./icon.svg"];
 
 self.addEventListener("install",event=>{

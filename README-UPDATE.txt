@@ -1,14 +1,15 @@
-Essen Tracker – Update v3
+ESSEN TRACKER – UPDATE v5
 
-Neu:
-- Einträge in der Tagesansicht antippen und nachträglich bearbeiten
-- Einträge löschen (mit Bestätigung)
-- Mehrfachauswahl für Drucken/PDF
-- Druckansicht wochenweise, Montag bis Sonntag nebeneinander
-- Ab 10.09.2026 werden vollständig vergangene Tage ohne eingetragenes Bier grün markiert
-- Sodbrennenmittel wird in der Musteransicht ebenfalls berücksichtigt
-- Service Worker aktualisiert, damit neue Versionen zuverlässiger geladen werden
+WICHTIG FÜR GITHUB:
+1. Diese ZIP zuerst entpacken.
+2. In GitHub im Repository essen-tracker die Dateien index.html und sw.js durch die Dateien aus diesem Ordner ERSETZEN.
+3. Nicht die ZIP-Datei selbst in das Repository hochladen.
+4. Warten, bis GitHub Pages neu veröffentlicht hat.
+5. App danach einmal vollständig schließen und neu öffnen. Falls nötig im Browser einmal neu laden.
 
-Für GitHub:
-Am einfachsten alle vier Dateien im Repository ersetzen/hochladen.
-Mindestens index.html und sw.js müssen ersetzt werden.
+ÄNDERUNG:
+Die Gewichtskachel zeigt jetzt gleichzeitig:
+- Veränderung zur letzten Messung
+- Veränderung zur ersten gespeicherten Messung
+
+Zusätzlich wurde die Cache-Version erhöht, damit die neue Oberfläche nicht an der alten Offline-Version hängen bleibt.
