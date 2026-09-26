@@ -103,7 +103,7 @@
     .day{min-height:73px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:12px;padding:7px;position:relative;cursor:pointer}
     .day.out{opacity:.28}.day.today{outline:2px solid var(--accent)}.day.no-beer{background:#e9f4ec;border-color:#bfd9c6}.day.filtered{box-shadow:inset 0 0 0 2px #d9c8a6}
     .day-num{font-weight:850;font-size:13px}.day-count{font-size:9px;color:var(--muted);margin-top:3px}.day-dot-row{position:absolute;left:7px;bottom:7px;display:flex;gap:4px;align-items:center}
-    .dot{width:7px;height:7px;border-radius:50%;display:inline-block}.dot.entry{background:var(--accent)}.dot.period{background:var(--period);width:8px;height:8px}.dot.weight{background:var(--gold)}
+    .dot{width:7px;height:7px;border-radius:50%;display:inline-block}.dot.entry{background:var(--accent)}.dot.period{background:var(--period);width:8px;height:8px}
     .calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin:9px 2px 0;font-size:11px;color:var(--muted)}.calendar-legend span{display:flex;align-items:center;gap:5px}
     .month-list{margin-top:14px}.month-day{margin:12px 0}.month-day h3{font-size:13px;color:var(--muted);margin:0 0 6px}
     .weight-month-card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px;box-shadow:var(--shadow)}
@@ -136,7 +136,7 @@
       .print-day.out{opacity:.28}.print-day.no-beer{background:#e9f4ec}.print-day.period-day{box-shadow:inset 0 0 0 .55mm #c65a5a}
       .print-date{font-size:7.3pt;font-weight:700;margin-bottom:1mm}.print-entry{font-size:6.4pt;line-height:1.16;margin-bottom:.7mm;overflow-wrap:anywhere}.print-time{font-weight:700}.print-empty{font-size:6.3pt;color:#aaa}
       .print-side{border-left:.35mm solid #ded7cc;padding-left:3mm;min-height:160mm}.print-side h2{font-size:10.5pt;margin:0 0 2mm}.print-box{border:.35mm solid #ddd5c9;border-radius:2mm;padding:2.2mm;margin-bottom:2.5mm;break-inside:avoid}.print-box h3{font-size:8.2pt;margin:0 0 1.2mm}.print-box p{font-size:7pt;margin:.8mm 0}.print-box strong{font-size:9pt}
-      #printWeightChart{width:100%;height:43mm;display:block}.print-legend{font-size:6.5pt;color:#666;display:grid;gap:1mm}.print-legend span{display:flex;align-items:center;gap:1.3mm}.print-dot{width:2.2mm;height:2.2mm;border-radius:50%;display:inline-block}.print-dot.period{background:#b74444}.print-dot.beer{background:#cfe3d6;border:.2mm solid #89b197}.print-dot.weight{background:#a47b31}
+      #printWeightChart{width:100%;height:43mm;display:block}.print-legend{font-size:6.5pt;color:#666;display:grid;gap:1mm}.print-legend span{display:flex;align-items:center;gap:1.3mm}.print-dot{width:2.2mm;height:2.2mm;border-radius:50%;display:inline-block}.print-dot.period{background:#b74444}.print-dot.beer{background:#cfe3d6;border:.2mm solid #89b197}
     }
   </style>
 </head>
@@ -147,16 +147,14 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <div class="version">v6</div>
+    <div class="version">v7</div>
   </header>
 
   <main>
     <section id="todayView" class="view active">
       <div class="summary-card">
         <div><small>Wasser heute</small><span id="waterCount" class="big">0</span><small id="waterSub">Flaschen</small></div>
-        <div><small>Einträge heute</small><span id="entryCount" class="big">0</span><small>im Tagesplan</small></div>
         <div class="beer-card"><small>Ohne Bier</small><span id="beerStreak" class="big">0</span><small id="beerStreakSub">Tage am Stück</small></div>
-        <div><small>Gewicht erfasst</small><span id="weightCount" class="big">0</span><small>Messungen insgesamt</small></div>
       </div>
 
       <div id="weightTodayCard" class="weight-card">
@@ -171,14 +169,6 @@
             <div class="delta-row"><span class="label">zur ersten Messung</span><strong id="weightTodayDeltaFirst">–</strong></div>
           </div>
         </div>
-      </div>
-
-      <div id="achievementCard" class="achievement-card">
-        <div class="achievement-row">
-          <div><div id="achievementTitle" class="achievement-title">Meilenstein</div><div id="achievementSub" class="achievement-sub"></div></div>
-          <div id="achievementBadge" class="badge"></div>
-        </div>
-        <div class="progress"><span id="achievementProgress" style="width:0%"></span></div>
       </div>
 
       <div class="section-title"><h2>Schnell eintragen</h2><small>1 Tipp</small></div>
@@ -202,7 +192,6 @@
       <div id="calendar" class="calendar"></div>
       <div class="calendar-legend">
         <span><i class="dot period"></i> Periode</span>
-        <span><i class="dot weight"></i> Gewicht</span>
         <span><i style="width:10px;height:10px;border-radius:3px;background:#e9f4ec;border:1px solid #bfd9c6"></i> ohne Bier</span>
       </div>
       <div class="weight-month-card">
@@ -296,7 +285,7 @@
       <aside class="print-side">
         <div class="print-box"><h3>Gewicht</h3><p>Letzte Messung</p><strong id="printWeightLatest">–</strong><p id="printWeightDelta">–</p><canvas id="printWeightChart" width="280" height="180"></canvas></div>
         <div class="print-box"><h3>Ohne Bier</h3><strong id="printBeerStreak">–</strong><p id="printBeerInfo"></p></div>
-        <div class="print-box"><h3>Legende</h3><div class="print-legend"><span><i class="print-dot period"></i> Periode</span><span><i class="print-dot weight"></i> Gewicht</span><span><i class="print-dot beer"></i> bierfreier Tag</span></div></div>
+        <div class="print-box"><h3>Legende</h3><div class="print-legend"><span><i class="print-dot period"></i> Periode</span><span><i class="print-dot beer"></i> bierfreier Tag</span></div></div>
       </aside>
     </div>
   </section>
@@ -381,13 +370,14 @@ function renderHeader(){
 }
 function renderSummary(){
   const list=todayEntries();
-  document.querySelector("#entryCount").textContent=list.length;
   const waters=list.filter(e=>e.tags?.includes("water")||(e.type==="drink"&&String(e.value).toLowerCase()==="wasser"));
   const totalMl=waters.reduce((s,e)=>s+(Number(e.amountMl)||Number(state.settings.waterMl)||0),0);
   document.querySelector("#waterCount").textContent=waters.length;
   document.querySelector("#waterSub").textContent=totalMl?`${totalMl} ml insgesamt`:"Flaschen / Einträge";
-  const beer=beerStreakInfo();document.querySelector("#beerStreak").textContent=beer.days;document.querySelector("#beerStreakSub").textContent=beer.days===1?"Tag am Stück":"Tage am Stück";
-  const wc=weightEntriesSorted().length;document.querySelector("#weightCount").textContent=wc;maybeCelebrateWeight(wc);
+  const beer=beerStreakInfo();
+  document.querySelector("#beerStreak").textContent=beer.days;
+  document.querySelector("#beerStreakSub").textContent=beer.days===1?"Tag am Stück":"Tage am Stück";
+  maybeCelebrateBeer(beer.days);
 }
 function renderWeightToday(){
   const all=weightEntriesSorted(),card=document.querySelector("#weightTodayCard");
@@ -400,17 +390,6 @@ function renderWeightToday(){
   document.querySelector("#weightTodayDelta").textContent=prev?formatWeightDelta(Number(latest.weightKg)-Number(prev.weightKg)):"–";
   document.querySelector("#weightTodayDeltaFirst").textContent=first?formatWeightDelta(Number(latest.weightKg)-Number(first.weightKg)):"–";
 }
-function renderAchievement(){
-  const box=document.querySelector("#achievementCard"),info=beerStreakInfo();
-  if(!info.days){box.style.display="none";return}
-  box.style.display="block";
-  const weekly=info.days<30;
-  document.querySelector("#achievementTitle").textContent=weekly?"Bierfreie Serie":"Bierfreier Meilenstein";
-  document.querySelector("#achievementSub").textContent=weekly?`Noch ${Math.max(0,info.next-info.days)} Tag${info.next-info.days===1?"":"e"} bis zur nächsten vollen Woche.`:`Nächster Monats-Meilenstein bei ${info.next} Tagen.`;
-  document.querySelector("#achievementBadge").textContent=`${info.days} Tage`;
-  document.querySelector("#achievementProgress").style.width=`${info.progress}%`;
-  maybeCelebrateBeer(info.days);
-}
 function celebrationState(){try{return JSON.parse(localStorage.getItem(CELEBRATION_KEY))||{beer:[],weight:[]}}catch(e){return {beer:[],weight:[]}}}
 function maybeCelebrateBeer(days){
   const milestones=[];for(let d=7;d<=28;d+=7)milestones.push(d);for(let d=30;d<=720;d+=30)milestones.push(d);
@@ -419,12 +398,6 @@ function maybeCelebrateBeer(days){
   setTimeout(()=>{confetti(reached%30===0?70:34);showToast(reached%30===0?`${reached} Tage ohne Bier – Monatsmeilenstein!`:`${reached} Tage ohne Bier – volle Woche!`)},350);
 }
 
-function maybeCelebrateWeight(count){
-  const milestones=[5,10,25,50,100];
-  const reached=milestones.filter(m=>m<=count).sort((a,b)=>b-a)[0];if(!reached)return;
-  const c=celebrationState();c.weight=c.weight||[];if(c.weight.includes(reached))return;c.weight.push(reached);localStorage.setItem(CELEBRATION_KEY,JSON.stringify(c));
-  setTimeout(()=>{confetti(28);showToast(`${reached} Gewichtsmessungen dokumentiert!`)},550);
-}
 function confetti(count){
   const colors=["#2f6555","#c9a75e","#d57575","#8caf9c","#e1cfae"];
   for(let i=0;i<count;i++){
@@ -524,7 +497,7 @@ function renderWeightChart(){
 }
 function renderMonth(){
   buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
-  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),all=entries.filter(e=>e.date===ds),filtered=all.filter(e=>matchesFilter(e,filter)),outside=d.getMonth()!==m,period=all.some(e=>e.type==="period"),weight=all.some(e=>e.type==="weight"),other=all.some(e=>!["period","weight"].includes(e.type));const cell=document.createElement("div");cell.className="day"+(outside?" out":"")+(ds===localDate()?" today":"")+(!outside&&isBeerFreeDay(ds)?" no-beer":"")+(filtered.length&&filter!=="all"?" filtered":"");cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div><div class="day-dot-row">${period?'<i class="dot period"></i>':""}${weight?'<i class="dot weight"></i>':""}${other?'<i class="dot entry"></i>':""}</div>`;if(!outside){cell.tabIndex=0;cell.setAttribute("role","button");const open=()=>{selectedDate=ds;setView("todayView")};cell.onclick=open;cell.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}}cal.appendChild(cell)}
+  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),all=entries.filter(e=>e.date===ds),filtered=all.filter(e=>matchesFilter(e,filter)),outside=d.getMonth()!==m,period=all.some(e=>e.type==="period"),other=all.some(e=>!["period","weight"].includes(e.type));const cell=document.createElement("div");cell.className="day"+(outside?" out":"")+(ds===localDate()?" today":"")+(!outside&&isBeerFreeDay(ds)?" no-beer":"")+(filtered.length&&filter!=="all"?" filtered":"");cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div><div class="day-dot-row">${period?'<i class="dot period"></i>':""}${other?'<i class="dot entry"></i>':""}</div>`;if(!outside){cell.tabIndex=0;cell.setAttribute("role","button");const open=()=>{selectedDate=ds;setView("todayView")};cell.onclick=open;cell.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}}cal.appendChild(cell)}
   const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)),by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));renderWeightChart();document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>`<div class="month-day"><h3>${parseDate(date).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</h3>${by[date].map(e=>`<div class="entry-card ${e.type==="period"?"period-entry":e.type==="weight"?"weight-entry":""}"><b>${e.time}</b> · ${escapeHtml(e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Für diesen Filter keine Einträge.</div>';
 }
 function renderPatterns(){
@@ -545,7 +518,7 @@ function renderPrintPage(){
 }
 function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();setTimeout(()=>window.print(),100)}
 
-function renderAll(){renderSummary();renderWeightToday();renderAchievement();renderQuick();renderTimeline();renderKnown();renderSettings();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
+function renderAll(){renderSummary();renderWeightToday();renderQuick();renderTimeline();renderKnown();renderSettings();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
 
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
 document.querySelector("#fab").onclick=openTypeDialog;document.querySelector("#closeTypeDialog").onclick=()=>document.querySelector("#typeDialog").close();document.querySelectorAll("[data-type-choice]").forEach(b=>b.onclick=()=>openNewEntry(b.dataset.typeChoice));
@@ -557,7 +530,7 @@ document.querySelector("#exportData").onclick=()=>{const blob=new Blob([JSON.str
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=6");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=7");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

@@ -1,21 +1,19 @@
-MEIN TRACKER – UPDATE v6
+ESSEN TRACKER – UPDATE v7
 
-Neu:
-- Plus öffnet direkte große Buttons: Essen, Trinken, Gewicht, Beschwerde, Mittel, Periode.
-- Passende Eingabemasken je Kategorie (ml bzw. kg).
-- Periode wird im Kalender mit rotem Punkt markiert.
-- Ruhiger Planer-Look für tägliche Nutzung.
-- Monatsdruck neu aufgebaut: Kalender deutlich größer, Gewicht bleibt auf derselben A4-Querformat-Seite.
-- Gewicht zeigt weiterhin Veränderung zur letzten und zur ersten Messung.
-- Bierfreie Serie mit Wochen-/Monats-Meilensteinen und einmaliger Konfetti-Animation.
-- Bierfreies Startdatum kann in Einstellungen geändert werden.
-- Cache-Version erhöht, damit Updates zuverlässiger ankommen.
+ÄNDERUNGEN
+- Heute ist ruhiger: nur Wasser + kompakte Bierfrei-Anzeige oben.
+- „Einträge heute“ entfernt.
+- „Gewicht erfasst / Messungen insgesamt“ entfernt.
+- Die zusätzliche dauerhafte Bierwochen-/Fortschrittskarte wurde entfernt.
+- Bierfrei-Meilensteine mit Konfetti bleiben bei vollen Wochen/Monaten erhalten.
+- Gewichtsmessungen werden im Monatskalender nicht mehr mit einem eigenen Punkt markiert.
+- Gewichtspunkt wurde auch aus der Kalender-/Drucklegende entfernt.
+- Gewichtsdetails und Gewichtsdiagramm bleiben erhalten.
 
-WICHTIG FÜR GITHUB:
+GITHUB
 1. ZIP entpacken.
-2. Im Repository essen-tracker die Dateien index.html, sw.js, manifest.webmanifest und icon.svg ersetzen.
-3. Committen.
-4. Danach den Tracker einmal im normalen Browser öffnen und neu laden. Erst danach wieder über das Homescreen-Symbol öffnen.
+2. index.html und sw.js im Repository ersetzen.
+3. manifest.webmanifest und icon.svg können unverändert mit ersetzt werden.
+4. Kurz warten, dann App einmal im Browser öffnen.
 
-DATEN:
-Die bestehende LocalStorage-Struktur essenTracker.v01 bleibt erhalten. Vor einem größeren Update ist eine Sicherung über Einstellungen > Daten trotzdem sinnvoll.
+Deine lokal gespeicherten Tracker-Daten werden durch dieses Update nicht gelöscht.
