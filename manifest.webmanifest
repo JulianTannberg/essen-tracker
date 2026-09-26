@@ -1,15 +1,14 @@
 {
-  "name": "Essen Tracker",
-  "short_name": "Essen",
-  "description": "Privater Tracker für Essen, Trinken, Beschwerden und Gewicht.",
+  "name": "Mein Tracker",
+  "short_name": "Tracker",
+  "description": "Privater Planer für Essen, Trinken, Beschwerden, Periode und Gewicht.",
   "id": "./",
-  "start_url": "./",
+  "start_url": "./?app=v6",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f7f4ed",
-  "theme_color": "#f7f4ed",
-  "orientation": "portrait-primary",
+  "background_color": "#f6f0e6",
+  "theme_color": "#f6f0e6",
   "icons": [
-    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
 }

@@ -3,319 +3,310 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f8f5ee">
-  <title>Essen tracken</title>
-  <style>
-
-:root{
-  --bg:#f7f4ed; --card:#ffffff; --ink:#252525; --muted:#747474;
-  --line:#e6e0d6; --soft:#eee8de; --accent:#2f5f50; --danger:#8d4141;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);padding-bottom:86px}
-button,input,select{font:inherit}
-.topbar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:18px 18px 10px;background:rgba(247,244,237,.95);backdrop-filter:blur(10px)}
-.eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-h1{font-size:30px;margin:2px 0} h2{font-size:20px;margin:18px 0 10px} h3{margin:0 0 12px}
-main{max-width:760px;margin:0 auto;padding:0 14px}
-.view{display:none}.view.active{display:block}
-.icon-btn{border:0;background:var(--card);width:38px;height:38px;border-radius:12px;box-shadow:0 1px 5px #00000012}
-.summary-card{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.summary-card>div,.info-card,.settings-card,.filter-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
-.summary-card span{display:block;font-weight:800;font-size:28px}.summary-card small{color:var(--muted)}
-.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
-.quick-btn{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:15px 12px;text-align:left;font-weight:700}
-.quick-btn small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
-.section-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
-.text-btn{border:0;background:transparent;color:var(--accent);font-weight:800}
-.timeline{position:relative;padding-left:6px}
-.timeline-item{display:grid;grid-template-columns:58px 1fr;gap:10px;margin:10px 0}
-.time{font-size:13px;color:var(--muted);padding-top:13px}
-.entry-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
-.entry-title{font-weight:800}.entry-meta{font-size:12px;color:var(--muted);margin-top:4px}
-.grouped{border-left:4px solid var(--soft)}
-.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
-.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:8;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
-.nav{border:0;background:transparent;padding:10px 3px;color:var(--muted);font-size:12px}.nav.active{color:var(--accent);font-weight:800}
-.fab{position:fixed;right:18px;bottom:82px;z-index:9;width:58px;height:58px;border:0;border-radius:50%;background:var(--accent);color:#fff;font-size:34px;box-shadow:0 8px 22px #0003}
-dialog{width:min(92vw,520px);border:0;border-radius:22px;padding:0;box-shadow:0 20px 60px #0004}
-dialog::backdrop{background:#0006}
-#entryForm{padding:18px;display:grid;gap:13px}.dialog-head{display:flex;justify-content:space-between;align-items:center}
-label{display:grid;gap:7px;font-size:13px;font-weight:700}
-input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px}
-.hint{font-size:12px;color:var(--muted);margin-top:-7px}
-.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
-.primary-btn,.secondary-btn{border-radius:12px;padding:11px 14px;font-weight:800}
-.primary-btn{border:0;background:var(--accent);color:#fff}.secondary-btn{background:#fff;border:1px solid var(--line)}
-.month-controls{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center}.month-controls h2{margin:14px 0}
-.filter-card{display:flex;gap:10px;align-items:end;justify-content:space-between}.filter-card label{flex:1}
-.calendar-head,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calendar-head{padding:14px 2px 5px;color:var(--muted);font-size:11px;text-align:center}
-.day{min-height:68px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;position:relative}.day.out{opacity:.25}.day.today{outline:2px solid var(--accent)}.day.has::after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:var(--accent);bottom:7px;right:7px}.day.filtered{background:#efe4e1}
-.day:not(.out){cursor:pointer}.day-num{font-weight:800;font-size:13px}.day-count{font-size:10px;color:var(--muted);margin-top:3px}
-.month-list{margin-top:14px}.month-day{margin:12px 0}.month-day h3{font-size:14px;color:var(--muted);margin-bottom:6px}
-.settings-card{margin:12px 0;display:grid;gap:12px}
-.file-label{border:1px solid var(--line);border-radius:12px;padding:11px 14px;display:block}.file-label input{display:none}
-.pattern-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
-.pattern-card strong{font-size:18px}.pattern-card small{color:var(--muted)}
-
-.weight-today-card{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px
-}
-.weight-today-card>div,.weight-month-card{
-  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px
-}
-.weight-today-card small,.weight-month-card small{display:block;color:var(--muted);margin-bottom:4px}
-.weight-today-card strong{font-size:22px}
-.weight-delta-title{margin-bottom:8px!important}
-.weight-delta-label{font-size:12px;margin-top:8px!important;margin-bottom:1px!important}
-.weight-delta-value{display:block;font-size:18px!important;line-height:1.15}
-.weight-month-card{margin-top:14px}
-.weight-month-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.weight-month-head h3{margin:0 0 4px}
-#weightChart{width:100%;max-width:100%;display:block}
-
-
-.entry-card.editable{cursor:pointer}
-.danger-btn{
-  border:1px solid #c98b8b;background:#fff;color:var(--danger);
-  border-radius:12px;padding:11px 14px;font-weight:800;margin-right:auto
-}
-.day.no-beer{background:#e6f3e8;border-color:#b8d6bd}
-.print-day.no-beer{background:#e6f3e8}
-.print-filter-list{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}
-.print-filter-option{
-  display:flex;grid-template-columns:22px 1fr;align-items:center;gap:8px;
-  border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:600
-}
-.print-filter-option input{width:auto;margin:0;accent-color:var(--accent)}
-.print-filter-group-title{
-  font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;
-  letter-spacing:.05em;margin:8px 2px 1px
-}
-
-@media(min-width:620px){.quick-grid{grid-template-columns:repeat(3,1fr)}}
-
-/* Kompakte Druckansicht: Kalenderwochen untereinander, Wochentage nebeneinander */
-.print-week-grid{display:none}
-.print-week-head,.print-week-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
-.print-week-head{margin-bottom:3px}
-.print-week-head>div{font-size:10px;font-weight:800;text-align:center;padding:4px 2px}
-.print-day{border:1px solid var(--line);border-radius:8px;padding:5px;min-height:74px;background:#fff;overflow:hidden}
-.print-day.out{opacity:.28}
-.print-date{font-size:9px;font-weight:800;margin-bottom:4px}
-.print-entry{font-size:8px;line-height:1.2;margin:0 0 2px;overflow-wrap:anywhere}
-.print-time{font-weight:800}
-.print-empty{font-size:8px;color:var(--muted)}
-
-@media print{
-  @page{size:A4 landscape;margin:7mm}
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  body.print-no-weight .weight-month-card{display:none!important}
-  .topbar,.bottom-nav,.fab,.filter-card,.month-controls button,.calendar-head,.calendar,.month-list{display:none!important}
-  body{background:#fff;padding:0;font-size:9px}
-  .view{display:none!important}#monthView{display:block!important}
-  main{max-width:none;padding:0}
-  #monthLabel{font-size:18px;margin:0 0 6px;text-align:left}
-  .month-controls{display:block;text-align:left}
-  .print-week-grid{display:block!important}
-  .print-week-row{break-inside:avoid;page-break-inside:avoid;margin-bottom:3px}
-  .print-day{min-height:72px;border-radius:6px;padding:4px}
-  .print-date{font-size:8.5px}
-  .print-entry{font-size:7.5px}
-  .weight-month-card{margin-top:7px;padding:8px;border-radius:8px;break-inside:avoid;page-break-inside:avoid}
-  .weight-month-head h3{font-size:11px;margin:0}
-  .weight-month-card small{font-size:8px}
-  #weightChart{height:115px!important}
-}
-
-</style>
-
+  <meta name="theme-color" content="#f6f0e6">
+  <title>Mein Tracker</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-
+  <style>
+    :root{
+      --bg:#f6f0e6;--paper:#fffdf8;--card:#fff;--ink:#272722;--muted:#76736c;
+      --line:#e5ddcf;--soft:#ede4d6;--accent:#2f6555;--accent-soft:#e6f0eb;
+      --period:#b74444;--period-soft:#f8e8e7;--gold:#a47b31;--beer:#4d765c;
+      --shadow:0 7px 22px rgba(72,58,42,.07);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;color:var(--ink);padding-bottom:92px;min-height:100vh;
+      background:
+        linear-gradient(rgba(255,255,255,.36),rgba(255,255,255,.36)),
+        repeating-linear-gradient(0deg,transparent 0 31px,rgba(82,73,61,.035) 31px 32px),
+        var(--bg);
+    }
+    button,input,select,textarea{font:inherit}
+    button{touch-action:manipulation}
+    .topbar{
+      position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:flex-end;
+      padding:18px 20px 11px;background:rgba(246,240,230,.94);backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(229,221,207,.7)
+    }
+    .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800}
+    h1{font-size:30px;line-height:1.05;margin:4px 0 0}
+    .date-line{color:var(--muted);font-size:12px;margin-top:4px}
+    .version{font-size:10px;color:#aaa59c;padding-bottom:4px}
+    main{max-width:780px;margin:0 auto;padding:0 14px 20px}
+    .view{display:none}.view.active{display:block}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px}
+    .section-title h2{font-size:20px;margin:0}.section-title small{color:var(--muted)}
+    .planner-card,.summary-card>div,.settings-card,.filter-card,.weight-card,.achievement-card,.pattern-card{
+      background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow)
+    }
+    .summary-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+    .summary-card>div{padding:15px;min-height:105px;position:relative;overflow:hidden}
+    .summary-card>div::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent-soft)}
+    .summary-card .big{display:block;font-size:28px;font-weight:850;line-height:1.05;margin-top:8px}
+    .summary-card small{display:block;color:var(--muted);font-size:13px;line-height:1.25}
+    .summary-card .beer-card::before{background:#cfe3d6}
+    .summary-card .beer-card .big{color:var(--beer)}
+    .weight-card{margin-top:10px;padding:15px;display:none}
+    .weight-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:12px;align-items:stretch}
+    .weight-main{border-right:1px dashed var(--line);padding-right:12px}
+    .label{font-size:12px;color:var(--muted);font-weight:700}
+    .weight-value{font-size:26px;font-weight:850;margin-top:4px}
+    .weight-time{font-size:12px;color:var(--muted);margin-top:2px}
+    .delta-list{display:grid;gap:8px}.delta-row{display:flex;justify-content:space-between;gap:12px;align-items:end}
+    .delta-row strong{font-size:17px;white-space:nowrap}
+    .achievement-card{margin-top:10px;padding:14px 15px;display:none;position:relative;overflow:hidden}
+    .achievement-card::after{content:"";position:absolute;right:-22px;top:-32px;width:90px;height:90px;border-radius:50%;background:var(--accent-soft);opacity:.8}
+    .achievement-row{display:flex;justify-content:space-between;gap:14px;align-items:center;position:relative;z-index:1}
+    .achievement-title{font-weight:850}.achievement-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .badge{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:850;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+    .progress{height:7px;border-radius:999px;background:var(--soft);overflow:hidden;margin-top:10px;position:relative;z-index:1}
+    .progress>span{display:block;height:100%;background:var(--accent);border-radius:999px}
+    .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+    .quick-btn{border:1px solid var(--line);background:rgba(255,255,255,.92);border-radius:16px;padding:14px 13px;text-align:left;font-weight:850;box-shadow:0 2px 8px rgba(72,58,42,.04)}
+    .quick-btn small{display:block;color:var(--muted);font-weight:500;margin-top:3px}
+    .timeline{position:relative;padding-left:2px}
+    .timeline-item{display:grid;grid-template-columns:60px 1fr;gap:10px;margin:9px 0}
+    .time{font-size:12px;color:var(--muted);padding-top:13px;text-align:right}
+    .entry-card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 2px 7px rgba(72,58,42,.04)}
+    .entry-card.editable{cursor:pointer}.entry-title{font-weight:850}.entry-meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .entry-card.period-entry{border-left:4px solid var(--period)}
+    .entry-card.weight-entry{border-left:4px solid var(--accent)}
+    .entry-card.grouped{border-left:4px solid #c9bb9d}
+    .empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;background:rgba(255,255,255,.45)}
+    .fab{position:fixed;right:18px;bottom:86px;z-index:12;width:60px;height:60px;border:0;border-radius:50%;background:var(--accent);color:#fff;font-size:36px;line-height:1;box-shadow:0 10px 24px rgba(47,101,85,.32)}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:11;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--line)}
+    .nav{border:0;background:transparent;padding:9px 2px;color:var(--muted);font-size:12px}.nav.active{color:var(--accent);font-weight:850}
+    .nav span{display:block;font-size:16px;line-height:1;margin-bottom:3px}
+    dialog{width:min(92vw,540px);border:0;border-radius:22px;padding:0;box-shadow:0 22px 70px rgba(0,0,0,.28);background:var(--paper)}
+    dialog::backdrop{background:rgba(26,24,21,.48);backdrop-filter:blur(2px)}
+    .dialog-wrap{padding:18px}.dialog-head{display:flex;justify-content:space-between;align-items:center;gap:14px}.dialog-head h2{margin:0;font-size:21px}
+    .icon-btn{border:1px solid var(--line);background:#fff;width:38px;height:38px;border-radius:12px;font-size:20px}
+    .type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px}
+    .type-btn{min-height:92px;border:1px solid var(--line);background:#fff;border-radius:17px;text-align:left;padding:13px;box-shadow:0 2px 8px rgba(72,58,42,.04)}
+    .type-btn b{display:block;font-size:16px;margin-top:7px}.type-btn small{display:block;color:var(--muted);margin-top:2px}.type-icon{font-size:22px}
+    .type-btn.period{border-color:#e6b7b4;background:#fff8f7}.type-btn.period .type-icon,.type-btn.period b{color:var(--period)}
+    form{display:grid;gap:13px;margin-top:15px}label{display:grid;gap:6px;font-size:13px;font-weight:780}
+    input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px;color:var(--ink)}
+    textarea{resize:vertical;min-height:70px}
+    .input-unit{position:relative}.input-unit input{padding-right:54px}.input-unit span{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:850}
+    .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:12px}
+    .hint{font-size:12px;color:var(--muted);margin-top:-5px}
+    .dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:3px}.primary-btn,.secondary-btn,.danger-btn{border-radius:12px;padding:11px 14px;font-weight:850}
+    .primary-btn{border:0;background:var(--accent);color:#fff}.secondary-btn{background:#fff;border:1px solid var(--line)}.danger-btn{background:#fff;border:1px solid #d8a3a3;color:#914141;margin-right:auto}
+    .month-controls{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;text-align:center;margin-top:8px}.month-controls h2{margin:12px 0;font-size:20px}
+    .filter-card{display:flex;gap:8px;align-items:end;padding:10px 12px}.filter-card label{flex:1}.filter-card select{padding:9px 10px}
+    .calendar-head,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calendar-head{padding:13px 2px 5px;color:var(--muted);font-size:11px;text-align:center}
+    .day{min-height:73px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:12px;padding:7px;position:relative;cursor:pointer}
+    .day.out{opacity:.28}.day.today{outline:2px solid var(--accent)}.day.no-beer{background:#e9f4ec;border-color:#bfd9c6}.day.filtered{box-shadow:inset 0 0 0 2px #d9c8a6}
+    .day-num{font-weight:850;font-size:13px}.day-count{font-size:9px;color:var(--muted);margin-top:3px}.day-dot-row{position:absolute;left:7px;bottom:7px;display:flex;gap:4px;align-items:center}
+    .dot{width:7px;height:7px;border-radius:50%;display:inline-block}.dot.entry{background:var(--accent)}.dot.period{background:var(--period);width:8px;height:8px}.dot.weight{background:var(--gold)}
+    .calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin:9px 2px 0;font-size:11px;color:var(--muted)}.calendar-legend span{display:flex;align-items:center;gap:5px}
+    .month-list{margin-top:14px}.month-day{margin:12px 0}.month-day h3{font-size:13px;color:var(--muted);margin:0 0 6px}
+    .weight-month-card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px;box-shadow:var(--shadow)}
+    .weight-month-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.weight-month-head h3{margin:0;font-size:17px}.weight-month-head small{color:var(--muted)}
+    #weightChart{width:100%;display:block;max-width:100%;margin-top:7px}
+    .pattern-card{padding:14px;margin:10px 0}.pattern-card strong{font-size:17px}.pattern-card small{color:var(--muted)}
+    .settings-card{margin:12px 0;padding:14px;display:grid;gap:12px}.settings-card h3{margin:0}.settings-card p{margin:0;color:var(--muted);font-size:13px}
+    .file-label{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:#fff;display:block}.file-label input{display:none}
+    .print-filter-list{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}.print-filter-option{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:650}.print-filter-option input{width:auto;margin:0;accent-color:var(--accent)}
+    .print-filter-group-title{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.05em;margin:8px 2px 1px}
+    .toast{position:fixed;left:50%;bottom:158px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:#292825;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:750;z-index:30;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .confetti-piece{position:fixed;top:-20px;z-index:40;width:9px;height:15px;border-radius:2px;pointer-events:none;animation:fall var(--dur) linear forwards;transform:rotate(var(--rot))}
+    @keyframes fall{to{transform:translate3d(var(--drift),110vh,0) rotate(720deg);opacity:.9}}
+    #printPage{display:none}
+    @media(min-width:620px){.quick-grid{grid-template-columns:repeat(4,1fr)}.type-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:390px){.summary-card .big{font-size:24px}.weight-value{font-size:23px}.day{min-height:66px}.filter-card{align-items:stretch;flex-direction:column}.filter-card button{width:100%}}
+    @media print{
+      @page{size:A4 landscape;margin:6mm}
+      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+      body{background:#fff!important;padding:0!important;margin:0!important}
+      .topbar,main,.bottom-nav,.fab,dialog,.toast{display:none!important}
+      #printPage{display:block!important;width:100%;height:100%;font-family:Arial,sans-serif;color:#222}
+      .print-title-row{display:flex;justify-content:space-between;align-items:end;margin:0 0 3mm}
+      .print-title-row h1{font-size:17pt;margin:0}.print-title-row div{font-size:8pt;color:#666}
+      .print-layout{display:grid;grid-template-columns:minmax(0,1fr) 57mm;gap:4mm;align-items:start}
+      .print-calendar-head,.print-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1.4mm}
+      .print-calendar-head>div{font-size:7.5pt;font-weight:700;text-align:center;padding:1mm 0}
+      .print-calendar{grid-auto-rows:24.7mm}
+      .print-day{border:.35mm solid #d8d0c5;border-radius:2mm;padding:1.6mm;background:#fff;overflow:hidden;position:relative}
+      .print-day.out{opacity:.28}.print-day.no-beer{background:#e9f4ec}.print-day.period-day{box-shadow:inset 0 0 0 .55mm #c65a5a}
+      .print-date{font-size:7.3pt;font-weight:700;margin-bottom:1mm}.print-entry{font-size:6.4pt;line-height:1.16;margin-bottom:.7mm;overflow-wrap:anywhere}.print-time{font-weight:700}.print-empty{font-size:6.3pt;color:#aaa}
+      .print-side{border-left:.35mm solid #ded7cc;padding-left:3mm;min-height:160mm}.print-side h2{font-size:10.5pt;margin:0 0 2mm}.print-box{border:.35mm solid #ddd5c9;border-radius:2mm;padding:2.2mm;margin-bottom:2.5mm;break-inside:avoid}.print-box h3{font-size:8.2pt;margin:0 0 1.2mm}.print-box p{font-size:7pt;margin:.8mm 0}.print-box strong{font-size:9pt}
+      #printWeightChart{width:100%;height:43mm;display:block}.print-legend{font-size:6.5pt;color:#666;display:grid;gap:1mm}.print-legend span{display:flex;align-items:center;gap:1.3mm}.print-dot{width:2.2mm;height:2.2mm;border-radius:50%;display:inline-block}.print-dot.period{background:#b74444}.print-dot.beer{background:#cfe3d6;border:.2mm solid #89b197}.print-dot.weight{background:#a47b31}
+    }
+  </style>
 </head>
 <body>
   <header class="topbar">
     <div>
-      <div class="eyebrow">Mein Tracker</div>
+      <div class="eyebrow">Mein Planer · Tracker</div>
       <h1 id="pageTitle">Heute</h1>
+      <div id="dateLine" class="date-line"></div>
     </div>
-    
+    <div class="version">v6</div>
   </header>
 
   <main>
     <section id="todayView" class="view active">
       <div class="summary-card">
-        <div><span id="waterCount">0</span><small>Flaschen Wasser</small></div>
-        <div><span id="entryCount">0</span><small>Einträge heute</small></div>
+        <div><small>Wasser heute</small><span id="waterCount" class="big">0</span><small id="waterSub">Flaschen</small></div>
+        <div><small>Einträge heute</small><span id="entryCount" class="big">0</span><small>im Tagesplan</small></div>
+        <div class="beer-card"><small>Ohne Bier</small><span id="beerStreak" class="big">0</span><small id="beerStreakSub">Tage am Stück</small></div>
+        <div><small>Gewicht erfasst</small><span id="weightCount" class="big">0</span><small>Messungen insgesamt</small></div>
       </div>
-      <div id="weightTodayCard" class="weight-today-card" style="display:none">
-        <div>
-          <small>Letzte Gewichtsmessung</small>
-          <strong id="weightTodayValue">–</strong>
-        </div>
-        <div>
-          <small class="weight-delta-title">Veränderung</small>
-          <small class="weight-delta-label">zur letzten Messung</small>
-          <strong id="weightTodayDelta" class="weight-delta-value">–</strong>
-          <small class="weight-delta-label">zur ersten Messung</small>
-          <strong id="weightTodayDeltaFirst" class="weight-delta-value">–</strong>
+
+      <div id="weightTodayCard" class="weight-card">
+        <div class="weight-grid">
+          <div class="weight-main">
+            <div class="label">Letzte Gewichtsmessung</div>
+            <div id="weightTodayValue" class="weight-value">–</div>
+            <div id="weightTodayTime" class="weight-time">–</div>
+          </div>
+          <div class="delta-list">
+            <div class="delta-row"><span class="label">zur letzten Messung</span><strong id="weightTodayDelta">–</strong></div>
+            <div class="delta-row"><span class="label">zur ersten Messung</span><strong id="weightTodayDeltaFirst">–</strong></div>
+          </div>
         </div>
       </div>
 
-      <div class="quick-wrap">
-        <h2>Schnell eintragen</h2>
-        <div id="quickGrid" class="quick-grid"></div>
+      <div id="achievementCard" class="achievement-card">
+        <div class="achievement-row">
+          <div><div id="achievementTitle" class="achievement-title">Meilenstein</div><div id="achievementSub" class="achievement-sub"></div></div>
+          <div id="achievementBadge" class="badge"></div>
+        </div>
+        <div class="progress"><span id="achievementProgress" style="width:0%"></span></div>
       </div>
 
-      <div class="section-row">
-        <h2>Zeitleiste</h2>
-        
-      </div>
+      <div class="section-title"><h2>Schnell eintragen</h2><small>1 Tipp</small></div>
+      <div id="quickGrid" class="quick-grid"></div>
+
+      <div class="section-title"><h2>Zeitleiste</h2><small id="timelineDayLabel"></small></div>
       <div id="timeline" class="timeline"></div>
     </section>
 
     <section id="monthView" class="view">
       <div class="month-controls">
-        <button class="icon-btn" id="prevMonth">‹</button>
+        <button class="icon-btn" id="prevMonth" aria-label="Vorheriger Monat">‹</button>
         <h2 id="monthLabel"></h2>
-        <button class="icon-btn" id="nextMonth">›</button>
+        <button class="icon-btn" id="nextMonth" aria-label="Nächster Monat">›</button>
       </div>
-
       <div class="filter-card">
-        <label>Filter
-          <select id="monthFilter"></select>
-        </label>
+        <label>Monatsfilter<select id="monthFilter"></select></label>
         <button id="printMonth" class="secondary-btn">Drucken / PDF</button>
       </div>
-
-      <div class="calendar-head">
-        <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
-      </div>
+      <div class="calendar-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
       <div id="calendar" class="calendar"></div>
-
-      <div id="printWeekGrid" class="print-week-grid" aria-hidden="true"></div>
-
-      <div id="weightMonthCard" class="weight-month-card">
-        <div class="weight-month-head">
-          <div>
-            <h3>Gewichtsverlauf</h3>
-            <small id="weightMonthSummary">Nur Morgenmessungen vor 12:00 Uhr.</small>
-          </div>
-        </div>
-        <canvas id="weightChart" height="180"></canvas>
+      <div class="calendar-legend">
+        <span><i class="dot period"></i> Periode</span>
+        <span><i class="dot weight"></i> Gewicht</span>
+        <span><i style="width:10px;height:10px;border-radius:3px;background:#e9f4ec;border:1px solid #bfd9c6"></i> ohne Bier</span>
       </div>
-
+      <div class="weight-month-card">
+        <div class="weight-month-head"><div><h3>Gewichtsverlauf</h3><small id="weightMonthSummary">Nur Morgenmessungen vor 12:00 Uhr.</small></div></div>
+        <canvas id="weightChart" height="175"></canvas>
+      </div>
       <div id="monthList" class="month-list"></div>
     </section>
 
     <section id="analysisView" class="view">
-      <h2>Muster</h2>
-      <div class="info-card">
-        Diese Ansicht zählt zunächst nur Zusammenhänge. Sie stellt keine medizinische Diagnose.
-      </div>
+      <div class="section-title"><h2>Muster</h2><small>Übersicht</small></div>
+      <div class="planner-card" style="padding:14px;color:var(--muted);font-size:13px">Die Musteransicht zählt zeitliche Zusammenhänge. Sie stellt keine medizinische Diagnose.</div>
       <div id="patternList"></div>
     </section>
 
     <section id="settingsView" class="view">
-      <h2>Einstellungen</h2>
+      <div class="section-title"><h2>Einstellungen</h2><small>Planer</small></div>
       <div class="settings-card">
-        <label>Name für Wasser-Schnellbutton
-          <input id="waterLabel" value="1 Flasche">
-        </label>
-        <label>Flaschengröße (ml)
-          <input id="waterMl" type="number" min="50" step="50" value="700">
-        </label>
+        <h3>Wasser</h3>
+        <label>Name für Schnellbutton<input id="waterLabel" value="Wasser"></label>
+        <label>Standardmenge<div class="input-unit"><input id="waterMl" type="number" min="50" step="50" value="700"><span>ml</span></div></label>
         <button id="saveSettings" class="primary-btn">Speichern</button>
+      </div>
+      <div class="settings-card">
+        <h3>Ohne Bier</h3>
+        <label>Startdatum<input id="beerStart" type="date"></label>
+        <p>Ab diesem Tag werden bierfreie Tage grün markiert und die Serie gezählt.</p>
+        <button id="saveBeerStart" class="secondary-btn">Startdatum speichern</button>
       </div>
       <div class="settings-card">
         <h3>Daten</h3>
         <button id="exportData" class="secondary-btn">Sicherung exportieren</button>
-        <label class="file-label">Sicherung importieren
-          <input id="importData" type="file" accept=".json,application/json">
-        </label>
-      </div>
-      <div class="settings-card">
-        <h3>Später</h3>
-        <p>Spracheingabe/API kann später ergänzt werden. Die Datenstruktur ist dafür vorbereitet.</p>
+        <label class="file-label">Sicherung importieren<input id="importData" type="file" accept=".json,application/json"></label>
       </div>
     </section>
   </main>
 
   <button id="fab" class="fab" aria-label="Eintrag hinzufügen">+</button>
-
   <nav class="bottom-nav">
-    <button data-view="todayView" class="nav active">Heute</button>
-    <button data-view="monthView" class="nav">Monat</button>
-    <button data-view="analysisView" class="nav">Muster</button>
-    <button data-view="settingsView" class="nav">Einstellungen</button>
+    <button data-view="todayView" class="nav active"><span>⌂</span>Heute</button>
+    <button data-view="monthView" class="nav"><span>▦</span>Monat</button>
+    <button data-view="analysisView" class="nav"><span>⌁</span>Muster</button>
+    <button data-view="settingsView" class="nav"><span>⚙</span>Einstellungen</button>
   </nav>
 
-
-  <dialog id="printDialog">
-    <form method="dialog" id="printForm">
-      <div class="dialog-head">
-        <h2>Drucken / PDF</h2>
-        <button type="button" id="closePrintDialog" class="icon-btn">×</button>
+  <dialog id="typeDialog">
+    <div class="dialog-wrap">
+      <div class="dialog-head"><h2>Was möchtest du eintragen?</h2><button type="button" class="icon-btn" id="closeTypeDialog">×</button></div>
+      <div class="type-grid">
+        <button class="type-btn" data-type-choice="food"><span class="type-icon">🍽</span><b>Essen</b><small>Was gegessen?</small></button>
+        <button class="type-btn" data-type-choice="drink"><span class="type-icon">🥤</span><b>Trinken</b><small>Getränk + ml</small></button>
+        <button class="type-btn" data-type-choice="weight"><span class="type-icon">⚖</span><b>Gewicht</b><small>Wert in kg</small></button>
+        <button class="type-btn" data-type-choice="symptom"><span class="type-icon">✚</span><b>Beschwerde</b><small>z. B. Bauchschmerz</small></button>
+        <button class="type-btn" data-type-choice="medicine"><span class="type-icon">💊</span><b>Mittel</b><small>Medikament / Mittel</small></button>
+        <button class="type-btn period" data-type-choice="period"><span class="type-icon">●</span><b>Periode</b><small>mit rotem Punkt</small></button>
       </div>
-      <div class="hint">Mehrere Bereiche können gleichzeitig ausgewählt werden.</div>
-      <div id="printFilterList" class="print-filter-list"></div>
-      <div class="dialog-actions">
-        <button type="button" id="cancelPrintDialog" class="secondary-btn">Abbrechen</button>
-        <button type="button" id="startPrint" class="primary-btn">Drucken</button>
-      </div>
-    </form>
+    </div>
   </dialog>
 
   <dialog id="entryDialog">
-    <form method="dialog" id="entryForm">
-      <div class="dialog-head">
-        <h2 id="entryDialogTitle">Eintrag</h2>
-        <button type="button" id="closeEntryDialog" class="icon-btn">×</button>
-      </div>
-
-      <label>Art
-        <select id="entryType">
-          <option value="food">Essen</option>
-          <option value="drink">Getränk</option>
-          <option value="symptom">Beschwerde</option>
-          <option value="medicine">Mittel/Medikament</option>
-          <option value="weight">Gewicht</option>
-        </select>
-      </label>
-
-      <label>Uhrzeit
-        <input id="entryTime" type="time" required>
-      </label>
-
-      <label id="entryValueLabel">Was?
-        <input id="entryValue" list="knownItems" placeholder="z. B. Schweinesteak, Kartoffeln, Rucola">
-        <datalist id="knownItems"></datalist>
-      </label>
-
-      <div id="foodHint" class="hint">Bei Essen mehrere Bestandteile mit Komma trennen. Sie werden einzeln zur gleichen Uhrzeit gespeichert.</div>
-
-      <label>Notiz (optional)
-        <input id="entryNote" placeholder="z. B. sehr fettig / Restaurant">
-      </label>
-
-      <div class="dialog-actions">
-        <button type="button" id="deleteEntry" class="danger-btn" style="display:none">Löschen</button>
-        <button type="button" id="cancelEntryDialog" class="secondary-btn">Abbrechen</button>
-        <button id="saveEntry" value="default" class="primary-btn">Speichern</button>
-      </div>
-    </form>
+    <div class="dialog-wrap">
+      <div class="dialog-head"><h2 id="entryDialogTitle">Eintrag</h2><button type="button" id="closeEntryDialog" class="icon-btn">×</button></div>
+      <form id="entryForm">
+        <input type="hidden" id="entryType" value="food">
+        <label>Uhrzeit<input id="entryTime" type="time" required></label>
+        <label id="entryValueWrap"><span id="entryValueText">Was?</span><input id="entryValue" list="knownItems" autocomplete="off"><datalist id="knownItems"></datalist></label>
+        <label id="entryAmountWrap" style="display:none"><span id="entryAmountText">Menge</span><div class="input-unit"><input id="entryAmount" type="number" inputmode="decimal"><span id="entryUnit">ml</span></div><div id="amountChips" class="chips"></div></label>
+        <label id="periodFlowWrap" style="display:none">Stärke<select id="periodFlow"><option value="">ohne Angabe</option><option value="leicht">leicht</option><option value="mittel">mittel</option><option value="stark">stark</option></select></label>
+        <div id="entryHint" class="hint"></div>
+        <label>Notiz (optional)<textarea id="entryNote" placeholder="Optional"></textarea></label>
+        <div class="dialog-actions"><button type="button" id="deleteEntry" class="danger-btn" style="display:none">Löschen</button><button type="button" id="cancelEntryDialog" class="secondary-btn">Abbrechen</button><button type="submit" class="primary-btn">Speichern</button></div>
+      </form>
+    </div>
   </dialog>
 
-  <script>
+  <dialog id="printDialog">
+    <div class="dialog-wrap">
+      <div class="dialog-head"><h2>Drucken / PDF</h2><button type="button" id="closePrintDialog" class="icon-btn">×</button></div>
+      <div class="hint" style="margin-top:10px">Mehrere Bereiche können gleichzeitig ausgewählt werden.</div>
+      <div id="printFilterList" class="print-filter-list"></div>
+      <div class="dialog-actions" style="margin-top:14px"><button type="button" id="cancelPrintDialog" class="secondary-btn">Abbrechen</button><button type="button" id="startPrint" class="primary-btn">Drucken</button></div>
+    </div>
+  </dialog>
 
+  <div id="toast" class="toast"></div>
+
+  <section id="printPage" aria-hidden="true">
+    <div class="print-title-row"><h1 id="printTitle">Monatsübersicht</h1><div id="printMeta"></div></div>
+    <div class="print-layout">
+      <div><div class="print-calendar-head"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div><div id="printCalendar" class="print-calendar"></div></div>
+      <aside class="print-side">
+        <div class="print-box"><h3>Gewicht</h3><p>Letzte Messung</p><strong id="printWeightLatest">–</strong><p id="printWeightDelta">–</p><canvas id="printWeightChart" width="280" height="180"></canvas></div>
+        <div class="print-box"><h3>Ohne Bier</h3><strong id="printBeerStreak">–</strong><p id="printBeerInfo"></p></div>
+        <div class="print-box"><h3>Legende</h3><div class="print-legend"><span><i class="print-dot period"></i> Periode</span><span><i class="print-dot weight"></i> Gewicht</span><span><i class="print-dot beer"></i> bierfreier Tag</span></div></div>
+      </aside>
+    </div>
+  </section>
+
+<script>
 const KEY="essenTracker.v01";
+const CELEBRATION_KEY="essenTracker.celebrations.v1";
 const DEFAULT={
   entries:[],
-  settings:{waterLabel:"1 Flasche",waterMl:700},
+  settings:{waterLabel:"Wasser",waterMl:700,beerStart:"2026-09-10"},
   quick:[
     {label:"Wasser",sub:"700 ml",type:"drink",value:"Wasser",tag:"water",amountMl:700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
@@ -329,13 +320,14 @@ let selectedDate=localDate();
 let editingIds=[];
 let editingDate=null;
 let printFilters=["all"];
-const NO_BEER_START="2026-09-10";
 
+function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT))}
 function load(){
   try{
     const x=JSON.parse(localStorage.getItem(KEY));
-    return x?{...DEFAULT,...x,settings:{...DEFAULT.settings,...x.settings}}:structuredClone(DEFAULT);
-  }catch(e){return structuredClone(DEFAULT)}
+    if(!x)return cloneDefault();
+    return {...cloneDefault(),...x,settings:{...DEFAULT.settings,...x.settings},quick:Array.isArray(x.quick)&&x.quick.length?x.quick:cloneDefault().quick};
+  }catch(e){return cloneDefault()}
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
 function pad(n){return String(n).padStart(2,"0")}
@@ -343,568 +335,232 @@ function localDate(d=new Date()){return `${d.getFullYear()}-${pad(d.getMonth()+1
 function localTime(d=new Date()){return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
 function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()}
 function startMonth(d){return new Date(d.getFullYear(),d.getMonth(),1)}
-function typeLabel(t){return ({food:"Essen",drink:"Getränk",symptom:"Beschwerde",medicine:"Mittel",weight:"Gewicht"})[t]||t}
+function typeLabel(t){return ({food:"Essen",drink:"Getränk",symptom:"Beschwerde",medicine:"Mittel",weight:"Gewicht",period:"Periode"})[t]||t}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function parseDate(ds){return new Date(ds+"T12:00:00")}
+function daysBetween(a,b){return Math.round((parseDate(b)-parseDate(a))/86400000)}
+function formatWeightDelta(d){const sign=d>0?"+":"";return `${sign}${d.toFixed(1).replace(".",",")} kg`}
+function showToast(msg){const t=document.querySelector("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(showToast._x);showToast._x=setTimeout(()=>t.classList.remove("show"),1800)}
 
-function isBeerEntry(e){
-  return e.type==="drink" && String(e.value||"").trim().toLowerCase()==="bier";
-}
-function isBeerFreePastDay(ds){
-  if(ds<NO_BEER_START || ds>=localDate())return false;
-  return !state.entries.some(e=>e.date===ds && isBeerEntry(e));
-}
-function updateEntryTypeUI(){
-  const t=document.querySelector("#entryType").value;
-  document.querySelector("#foodHint").style.display=t==="food"?"block":"none";
-  const inp=document.querySelector("#entryValue");
-  inp.placeholder=t==="weight"?"z. B. 82,4":(t==="food"?"z. B. Schweinesteak, Kartoffeln, Rucola":"Was?");
-  inp.inputMode=t==="weight"?"decimal":"text";
-}
-function clearEditing(){
-  editingIds=[];
-  editingDate=null;
-  document.querySelector("#entryDialogTitle").textContent="Eintrag";
-  document.querySelector("#deleteEntry").style.display="none";
-}
-
-function addEntry(type,value, opts={}){
-  const now=new Date();
+function addEntry(type,value,opts={}){
   state.entries.push({
-    id:uid(), date:opts.date||localDate(now), time:opts.time||localTime(now),
-    type, value:value.trim(), note:opts.note||"", mealId:opts.mealId||null,
-    createdAt:new Date().toISOString(), tags:opts.tags||[], amountMl:opts.amountMl||null
+    id:uid(),date:opts.date||selectedDate||localDate(),time:opts.time||localTime(),type,
+    value:String(value||"").trim(),note:opts.note||"",mealId:opts.mealId||null,createdAt:new Date().toISOString(),
+    tags:opts.tags||[],amountMl:opts.amountMl??null,weightKg:opts.weightKg??null,periodFlow:opts.periodFlow||""
   });
 }
-function quickAdd(q){
-  addEntry(q.type,q.value,{date:selectedDate,tags:q.tag?[q.tag]:[],amountMl:q.amountMl||null});
-  save();
+function isBeerEntry(e){return e.type==="drink"&&String(e.value||"").trim().toLowerCase()==="bier"}
+function hasBeerOn(ds){return state.entries.some(e=>e.date===ds&&isBeerEntry(e))}
+function isBeerFreeDay(ds){const start=state.settings.beerStart||DEFAULT.settings.beerStart;if(!start||ds<start||ds>localDate())return false;return !hasBeerOn(ds)}
+function beerStreakInfo(){
+  const start=state.settings.beerStart||DEFAULT.settings.beerStart;
+  const today=localDate();
+  if(!start||start>today)return {days:0,start,next:7,progress:0};
+  let lastBeer=null;
+  state.entries.filter(e=>isBeerEntry(e)&&e.date>=start&&e.date<=today).sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>lastBeer=e.date);
+  let streakStart=lastBeer?localDate(new Date(parseDate(lastBeer).getTime()+86400000)):start;
+  const days=streakStart>today?0:daysBetween(streakStart,today)+1;
+  let next,prev;
+  if(days<28){next=Math.max(7,Math.ceil((days+0.001)/7)*7);prev=Math.floor(days/7)*7}
+  else if(days<30){next=30;prev=28}
+  else{next=Math.ceil((days+0.001)/30)*30;prev=Math.floor(days/30)*30}
+  const span=Math.max(1,next-prev);const progress=Math.max(0,Math.min(100,((days-prev)/span)*100));
+  return {days,start:streakStart,next,progress,lastBeer};
+}
+function periodOn(ds){return state.entries.some(e=>e.date===ds&&e.type==="period")}
+function weightEntriesSorted(){
+  return state.entries.filter(e=>e.type==="weight"&&Number.isFinite(Number(e.weightKg))).slice().sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
+}
+function todayEntries(){return state.entries.filter(e=>e.date===selectedDate).sort((a,b)=>a.time.localeCompare(b.time))}
+function knownItems(){const m=new Map();state.entries.filter(e=>!["weight","period"].includes(e.type)).forEach(e=>m.set(e.value,(m.get(e.value)||0)+1));return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]).slice(0,80)}
+
+function renderHeader(){
+  const title=document.querySelector("#pageTitle"),line=document.querySelector("#dateLine");
+  if(selectedDate===localDate())title.textContent="Heute";else title.textContent=parseDate(selectedDate).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
+  line.textContent=parseDate(selectedDate).toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+}
+function renderSummary(){
+  const list=todayEntries();
+  document.querySelector("#entryCount").textContent=list.length;
+  const waters=list.filter(e=>e.tags?.includes("water")||(e.type==="drink"&&String(e.value).toLowerCase()==="wasser"));
+  const totalMl=waters.reduce((s,e)=>s+(Number(e.amountMl)||Number(state.settings.waterMl)||0),0);
+  document.querySelector("#waterCount").textContent=waters.length;
+  document.querySelector("#waterSub").textContent=totalMl?`${totalMl} ml insgesamt`:"Flaschen / Einträge";
+  const beer=beerStreakInfo();document.querySelector("#beerStreak").textContent=beer.days;document.querySelector("#beerStreakSub").textContent=beer.days===1?"Tag am Stück":"Tage am Stück";
+  const wc=weightEntriesSorted().length;document.querySelector("#weightCount").textContent=wc;maybeCelebrateWeight(wc);
+}
+function renderWeightToday(){
+  const all=weightEntriesSorted(),card=document.querySelector("#weightTodayCard");
+  if(!all.length){card.style.display="none";return}
+  const latest=all[all.length-1],latestKey=latest.date+"T"+latest.time;
+  const prev=[...all].reverse().find(e=>(e.date+"T"+e.time)<latestKey),first=all[0];
+  card.style.display="block";
+  document.querySelector("#weightTodayValue").textContent=`${Number(latest.weightKg).toFixed(1).replace(".",",")} kg`;
+  document.querySelector("#weightTodayTime").textContent=`${parseDate(latest.date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})} · ${latest.time}`;
+  document.querySelector("#weightTodayDelta").textContent=prev?formatWeightDelta(Number(latest.weightKg)-Number(prev.weightKg)):"–";
+  document.querySelector("#weightTodayDeltaFirst").textContent=first?formatWeightDelta(Number(latest.weightKg)-Number(first.weightKg)):"–";
+}
+function renderAchievement(){
+  const box=document.querySelector("#achievementCard"),info=beerStreakInfo();
+  if(!info.days){box.style.display="none";return}
+  box.style.display="block";
+  const weekly=info.days<30;
+  document.querySelector("#achievementTitle").textContent=weekly?"Bierfreie Serie":"Bierfreier Meilenstein";
+  document.querySelector("#achievementSub").textContent=weekly?`Noch ${Math.max(0,info.next-info.days)} Tag${info.next-info.days===1?"":"e"} bis zur nächsten vollen Woche.`:`Nächster Monats-Meilenstein bei ${info.next} Tagen.`;
+  document.querySelector("#achievementBadge").textContent=`${info.days} Tage`;
+  document.querySelector("#achievementProgress").style.width=`${info.progress}%`;
+  maybeCelebrateBeer(info.days);
+}
+function celebrationState(){try{return JSON.parse(localStorage.getItem(CELEBRATION_KEY))||{beer:[],weight:[]}}catch(e){return {beer:[],weight:[]}}}
+function maybeCelebrateBeer(days){
+  const milestones=[];for(let d=7;d<=28;d+=7)milestones.push(d);for(let d=30;d<=720;d+=30)milestones.push(d);
+  const reached=milestones.filter(m=>m<=days).sort((a,b)=>b-a)[0];if(!reached)return;
+  const c=celebrationState();c.beer=c.beer||[];if(c.beer.includes(reached))return;c.beer.push(reached);localStorage.setItem(CELEBRATION_KEY,JSON.stringify(c));
+  setTimeout(()=>{confetti(reached%30===0?70:34);showToast(reached%30===0?`${reached} Tage ohne Bier – Monatsmeilenstein!`:`${reached} Tage ohne Bier – volle Woche!`)},350);
+}
+
+function maybeCelebrateWeight(count){
+  const milestones=[5,10,25,50,100];
+  const reached=milestones.filter(m=>m<=count).sort((a,b)=>b-a)[0];if(!reached)return;
+  const c=celebrationState();c.weight=c.weight||[];if(c.weight.includes(reached))return;c.weight.push(reached);localStorage.setItem(CELEBRATION_KEY,JSON.stringify(c));
+  setTimeout(()=>{confetti(28);showToast(`${reached} Gewichtsmessungen dokumentiert!`)},550);
+}
+function confetti(count){
+  const colors=["#2f6555","#c9a75e","#d57575","#8caf9c","#e1cfae"];
+  for(let i=0;i<count;i++){
+    const el=document.createElement("i");el.className="confetti-piece";el.style.left=Math.random()*100+"vw";el.style.background=colors[i%colors.length];el.style.setProperty("--dur",(2.4+Math.random()*2.4)+"s");el.style.setProperty("--rot",Math.random()*360+"deg");el.style.setProperty("--drift",(-80+Math.random()*160)+"px");el.style.animationDelay=(Math.random()*.5)+"s";document.body.appendChild(el);setTimeout(()=>el.remove(),5200);
+  }
 }
 function renderQuick(){
   const g=document.querySelector("#quickGrid");g.innerHTML="";
-  state.quick.forEach(q=>{
-    const b=document.createElement("button");
-    b.className="quick-btn"; b.innerHTML=`${q.label}<small>${q.sub||"jetzt"}</small>`;
-    b.onclick=()=>quickAdd(q); g.appendChild(b);
-  });
+  const qs=[
+    {label:state.settings.waterLabel||"Wasser",sub:`${state.settings.waterMl||700} ml`,type:"drink",value:"Wasser",tag:"water",amountMl:Number(state.settings.waterMl)||700},
+    {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
+    {label:"Durchfall",sub:"jetzt",type:"symptom",value:"Durchfall"},
+    {label:"Sodbrennenmittel",sub:"genommen",type:"medicine",value:"Sodbrennenmittel"}
+  ];
+  qs.forEach(q=>{const b=document.createElement("button");b.className="quick-btn";b.innerHTML=`${escapeHtml(q.label)}<small>${escapeHtml(q.sub)}</small>`;b.onclick=()=>{addEntry(q.type,q.value,{tags:q.tag?[q.tag]:[],amountMl:q.amountMl||null});save();showToast(`${q.label} gespeichert`)};g.appendChild(b)});
 }
-function todayEntries(){
-  return state.entries.filter(e=>e.date===selectedDate).sort((a,b)=>a.time.localeCompare(b.time));
-}
-
-function weightEntriesSorted(){
-  return state.entries
-    .filter(e=>e.type==="weight" && Number.isFinite(Number(e.weightKg)))
-    .slice()
-    .sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
-}
-function formatWeightDelta(d){
-  const sign=d>0?"+":"";
-  return `${sign}${d.toFixed(1).replace(".",",")} kg`;
-}
-function renderWeightToday(){
-  const all=weightEntriesSorted();
-  const card=document.querySelector("#weightTodayCard");
-  if(!card)return;
-
-  const dayEntries=all.filter(e=>e.date===selectedDate);
-  if(!dayEntries.length){card.style.display="none";return;}
-
-  const latest=dayEntries[dayEntries.length-1];
-  const latestKey=latest.date+"T"+latest.time;
-  const prev=[...all].reverse().find(e=>(e.date+"T"+e.time)<latestKey);
-  const first=all[0];
-
-  card.style.display="grid";
-  document.querySelector("#weightTodayValue").textContent=
-    `${String(latest.weightKg).replace(".",",")} kg · ${latest.time}`;
-
-  document.querySelector("#weightTodayDelta").textContent=
-    prev ? formatWeightDelta(latest.weightKg-prev.weightKg) : "–";
-  document.querySelector("#weightTodayDeltaFirst").textContent=
-    first ? formatWeightDelta(latest.weightKg-first.weightKg) : "–";
-}
-function monthWeightEntries(){
-  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
-  const morning=weightEntriesSorted().filter(e=>{
-    const d=new Date(e.date+"T12:00");
-    return d.getFullYear()===y && d.getMonth()===m && e.time<"12:00";
-  });
-
-  // Für die Kurve pro Tag nur die erste Morgenmessung verwenden.
-  const firstPerDay=new Map();
-  morning.forEach(e=>{
-    if(!firstPerDay.has(e.date)) firstPerDay.set(e.date,e);
-  });
-  return [...firstPerDay.values()];
-}
-function renderWeightChart(){
-  const canvas=document.querySelector("#weightChart");
-  const summary=document.querySelector("#weightMonthSummary");
-  if(!canvas||!summary)return;
-  const pts=monthWeightEntries();
-  const ctx=canvas.getContext("2d");
-  const rect=canvas.getBoundingClientRect();
-  const dpr=window.devicePixelRatio||1;
-  const w=Math.max(280,rect.width||canvas.parentElement.clientWidth||320);
-  const h=180;
-  canvas.width=w*dpr; canvas.height=h*dpr;
-  canvas.style.height=h+"px";
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,w,h);
-
-  if(!pts.length){
-    summary.textContent="Noch keine Morgenmessungen (vor 12:00 Uhr) in diesem Monat.";
-    ctx.font="13px system-ui";
-    ctx.fillStyle="#747474";
-    ctx.fillText("Noch keine Morgenmessungen",16,40);
-    return;
-  }
-
-  const vals=pts.map(p=>Number(p.weightKg));
-  const min=Math.min(...vals), max=Math.max(...vals);
-  const padY=Math.max(0.5,(max-min)*0.25);
-  const lo=min-padY, hi=max+padY;
-  const left=40,right=12,top=16,bottom=28;
-  const cw=w-left-right, ch=h-top-bottom;
-  const y=v=>top+(hi-v)/(hi-lo||1)*ch;
-  const x=i=>pts.length===1?left+cw/2:left+i*cw/(pts.length-1);
-
-  // grid
-  ctx.strokeStyle="#e6e0d6";
-  ctx.lineWidth=1;
-  ctx.font="11px system-ui";
-  ctx.fillStyle="#747474";
-  for(let i=0;i<4;i++){
-    const yy=top+i*ch/3;
-    const val=hi-i*(hi-lo)/3;
-    ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();
-    ctx.fillText(val.toFixed(1).replace(".",","),2,yy+4);
-  }
-
-  // line
-  ctx.strokeStyle="#2f5f50";
-  ctx.lineWidth=2.5;
-  ctx.beginPath();
-  pts.forEach((p,i)=>{const xx=x(i),yy=y(p.weightKg); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});
-  ctx.stroke();
-
-  // points
-  ctx.fillStyle="#2f5f50";
-  pts.forEach((p,i)=>{
-    ctx.beginPath();ctx.arc(x(i),y(p.weightKg),3.5,0,Math.PI*2);ctx.fill();
-  });
-
-  // first/last date labels
-  ctx.fillStyle="#747474";
-  ctx.font="11px system-ui";
-  const firstDate=new Date(pts[0].date+"T12:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
-  const lastDate=new Date(pts[pts.length-1].date+"T12:00").toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
-  ctx.fillText(firstDate,left,h-8);
-  const tw=ctx.measureText(lastDate).width;
-  ctx.fillText(lastDate,w-right-tw,h-8);
-
-  const delta=vals[vals.length-1]-vals[0];
-  const sign=delta>0?"+":"";
-  summary.textContent=`${pts.length} Morgenmessung${pts.length===1?"":"en"} · erste → letzte Messung: ${sign}${delta.toFixed(1).replace(".",",")} kg`;
-}
-
 function renderTimeline(){
-  const list=todayEntries(), box=document.querySelector("#timeline");
-  const title=document.querySelector("#pageTitle");
-  if(selectedDate===localDate()){
-    title.textContent="Heute";
-  }else{
-    const d=new Date(selectedDate+"T12:00");
-    title.textContent=d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
-  }
-  document.querySelector("#entryCount").textContent=list.length;
-  const wc=list.filter(e=>e.tags?.includes("water") || (e.type==="drink"&&e.value.toLowerCase()==="wasser")).length;
-  document.querySelector("#waterCount").textContent=wc;
-  renderWeightToday();
-  if(!list.length){box.innerHTML='<div class="empty">Heute ist noch nichts eingetragen.</div>';return}
+  renderHeader();const list=todayEntries(),box=document.querySelector("#timeline");
+  document.querySelector("#timelineDayLabel").textContent=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+  if(!list.length){box.innerHTML='<div class="empty">Für diesen Tag ist noch nichts eingetragen.</div>';return}
   const groups=[];
-  for(const e of list){
-    let last=groups[groups.length-1];
-    if(e.mealId && last?.mealId===e.mealId){last.items.push(e)}
-    else groups.push({mealId:e.mealId,time:e.time,items:[e]});
-  }
+  for(const e of list){let last=groups[groups.length-1];if(e.mealId&&last?.mealId===e.mealId)last.items.push(e);else groups.push({mealId:e.mealId,time:e.time,items:[e]})}
   box.innerHTML=groups.map(g=>{
-    const vals=g.items.map(e=>escapeHtml(e.value)).join(g.items.length>1?" · ":"");
-    const meta=[...new Set(g.items.map(e=>typeLabel(e.type)))].join(", ");
-    const notes=g.items.map(e=>e.note).filter(Boolean).join(" · ");
-    return `<div class="timeline-item"><div class="time">${g.time}</div>
-      <div class="entry-card editable ${g.items.length>1?"grouped":""}" data-edit-id="${g.items[0].id}" role="button" tabindex="0">
-        <div class="entry-title">${vals}</div>
-        <div class="entry-meta">${meta}${notes?" · "+escapeHtml(notes):""}</div>
-      </div></div>`
+    const vals=g.items.map(e=>e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:escapeHtml(e.value)).join(g.items.length>1?" · ":"");
+    const meta=[...new Set(g.items.map(e=>typeLabel(e.type)))].join(", ");const notes=g.items.map(e=>e.note).filter(Boolean).join(" · ");
+    const cls=g.items[0].type==="period"?" period-entry":g.items[0].type==="weight"?" weight-entry":g.items.length>1?" grouped":"";
+    return `<div class="timeline-item"><div class="time">${g.time}</div><div class="entry-card editable${cls}" data-edit-id="${g.items[0].id}" role="button" tabindex="0"><div class="entry-title">${vals}</div><div class="entry-meta">${meta}${notes?" · "+escapeHtml(notes):""}</div></div></div>`;
   }).join("");
-  box.querySelectorAll("[data-edit-id]").forEach(card=>{
-    const open=()=>openEditDialog(card.dataset.editId);
-    card.onclick=open;
-    card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};
-  });
+  box.querySelectorAll("[data-edit-id]").forEach(card=>{const open=()=>openEditDialog(card.dataset.editId);card.onclick=open;card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}});
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function knownItems(){
-  const m=new Map();
-  state.entries.forEach(e=>m.set(e.value,(m.get(e.value)||0)+1));
-  return [...m.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]).slice(0,60)
+function renderKnown(){document.querySelector("#knownItems").innerHTML=knownItems().map(x=>`<option value="${escapeHtml(x)}"></option>`).join("")}
+
+const TYPE_UI={
+  food:{title:"Essen eintragen",valueLabel:"Was gegessen?",placeholder:"z. B. Kartoffeln, Möhren, Salat",hint:"Mehrere Bestandteile mit Komma trennen – sie werden als eine Mahlzeit zusammengefasst.",amount:false,value:true},
+  drink:{title:"Trinken eintragen",valueLabel:"Was getrunken?",placeholder:"z. B. Wasser, Tee",hint:"Die Menge kann in Millilitern ergänzt werden.",amount:true,unit:"ml",amountLabel:"Menge (optional)",chips:[250,330,500,700],value:true},
+  weight:{title:"Gewicht eintragen",valueLabel:"",placeholder:"",hint:"Gewicht in Kilogramm.",amount:true,unit:"kg",amountLabel:"Gewicht",chips:[],value:false},
+  symptom:{title:"Beschwerde eintragen",valueLabel:"Welche Beschwerde?",placeholder:"z. B. Bauchschmerzen",hint:"",amount:false,value:true},
+  medicine:{title:"Mittel eintragen",valueLabel:"Was genommen?",placeholder:"z. B. Sodbrennenmittel",hint:"",amount:false,value:true},
+  period:{title:"Periode eintragen",valueLabel:"",placeholder:"",hint:"Der Tag wird im Kalender mit einem roten Punkt markiert.",amount:false,value:false,period:true}
+};
+function clearEditing(){editingIds=[];editingDate=null;document.querySelector("#deleteEntry").style.display="none"}
+function openTypeDialog(){document.querySelector("#typeDialog").showModal()}
+function configureEntryForm(type){
+  const cfg=TYPE_UI[type]||TYPE_UI.food;document.querySelector("#entryType").value=type;document.querySelector("#entryDialogTitle").textContent=cfg.title;
+  const vw=document.querySelector("#entryValueWrap"),aw=document.querySelector("#entryAmountWrap"),pw=document.querySelector("#periodFlowWrap");
+  vw.style.display=cfg.value?"grid":"none";aw.style.display=cfg.amount?"grid":"none";pw.style.display=cfg.period?"grid":"none";
+  document.querySelector("#entryValueText").textContent=cfg.valueLabel||"Was?";document.querySelector("#entryValue").placeholder=cfg.placeholder||"";
+  document.querySelector("#entryAmountText").textContent=cfg.amountLabel||"Menge";document.querySelector("#entryUnit").textContent=cfg.unit||"";document.querySelector("#entryAmount").step=type==="weight"?"0.1":"1";document.querySelector("#entryAmount").min=type==="weight"?"1":"0";
+  document.querySelector("#entryHint").textContent=cfg.hint||"";
+  const chips=document.querySelector("#amountChips");chips.innerHTML=(cfg.chips||[]).map(n=>`<button type="button" class="chip" data-amount="${n}">${n} ${cfg.unit}</button>`).join("");chips.querySelectorAll("[data-amount]").forEach(b=>b.onclick=()=>document.querySelector("#entryAmount").value=b.dataset.amount);
 }
-function renderKnown(){
-  document.querySelector("#knownItems").innerHTML=knownItems().map(x=>`<option value="${escapeHtml(x)}"></option>`).join("")
-}
-function openDialog(){
-  clearEditing();
-  document.querySelector("#entryType").value="food";
-  document.querySelector("#entryTime").value=localTime();
-  document.querySelector("#entryValue").value="";
-  document.querySelector("#entryNote").value="";
-  updateEntryTypeUI();
-  document.querySelector("#entryDialog").showModal()
+function openNewEntry(type){
+  clearEditing();document.querySelector("#typeDialog").close();configureEntryForm(type);document.querySelector("#entryTime").value=localTime();document.querySelector("#entryValue").value="";document.querySelector("#entryAmount").value="";document.querySelector("#periodFlow").value="";document.querySelector("#entryNote").value="";document.querySelector("#entryDialog").showModal();
 }
 function openEditDialog(id){
-  const first=state.entries.find(e=>e.id===id);
-  if(!first)return;
-  const items=first.mealId
-    ? state.entries.filter(e=>e.mealId===first.mealId && e.date===first.date)
-    : [first];
-  editingIds=items.map(e=>e.id);
-  editingDate=first.date;
-
-  document.querySelector("#entryDialogTitle").textContent=items.length>1?"Mahlzeit ändern":"Eintrag ändern";
-  document.querySelector("#entryType").value=first.type;
-  document.querySelector("#entryTime").value=first.time;
-  document.querySelector("#entryValue").value=
-    first.type==="food" && items.length>1 ? items.map(e=>e.value).join(", ") : first.value;
-  document.querySelector("#entryNote").value=first.note||"";
-  document.querySelector("#deleteEntry").style.display="block";
-  updateEntryTypeUI();
-  document.querySelector("#entryDialog").showModal();
+  const first=state.entries.find(e=>e.id===id);if(!first)return;const items=first.mealId?state.entries.filter(e=>e.mealId===first.mealId&&e.date===first.date):[first];editingIds=items.map(e=>e.id);editingDate=first.date;configureEntryForm(first.type);document.querySelector("#entryDialogTitle").textContent=items.length>1?"Mahlzeit ändern":TYPE_UI[first.type]?.title||"Eintrag ändern";document.querySelector("#entryTime").value=first.time;document.querySelector("#entryValue").value=first.type==="food"&&items.length>1?items.map(e=>e.value).join(", "):first.value||"";document.querySelector("#entryAmount").value=first.type==="weight"?first.weightKg??"":first.type==="drink"?first.amountMl??"":"";document.querySelector("#periodFlow").value=first.periodFlow||"";document.querySelector("#entryNote").value=first.note||"";document.querySelector("#deleteEntry").style.display="block";document.querySelector("#entryDialog").showModal();
 }
 function saveDialog(ev){
-  ev.preventDefault();
-  const type=document.querySelector("#entryType").value;
-  const time=document.querySelector("#entryTime").value||localTime();
-  const raw=document.querySelector("#entryValue").value.trim();
-  const note=document.querySelector("#entryNote").value.trim();
-  if(!raw)return;
-
-  let weightNum=null;
-  if(type==="weight"){
-    weightNum=parseFloat(raw.replace(",",".").replace(/[^0-9.]/g,""));
-    if(!Number.isFinite(weightNum)){alert("Bitte ein Gewicht eingeben, z. B. 82,4");return;}
-  }
-
-  const oldItems=editingIds.length ? state.entries.filter(e=>editingIds.includes(e.id)) : [];
-  const date=editingIds.length ? (editingDate||selectedDate) : selectedDate;
-  const oldMealId=oldItems.find(e=>e.mealId)?.mealId||null;
-  const preservedTags=oldItems.length===1 ? (oldItems[0].tags||[]) : [];
-  const preservedAmount=oldItems.length===1 ? (oldItems[0].amountMl||null) : null;
-
-  if(editingIds.length){
-    state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
-  }
-
-  if(type==="food"){
-    const mealId=oldMealId||uid();
-    raw.split(",").map(x=>x.trim()).filter(Boolean).forEach(v=>addEntry("food",v,{date,time,note,mealId}));
-  }else if(type==="weight"){
-    addEntry("weight",String(weightNum).replace(".",",")+" kg",{date,time,note});
-    state.entries[state.entries.length-1].weightKg=weightNum;
-  }else{
-    addEntry(type,raw,{date,time,note,tags:preservedTags,amountMl:preservedAmount});
-  }
-
-  clearEditing();
-  document.querySelector("#entryDialog").close();
-  save();
+  ev.preventDefault();const type=document.querySelector("#entryType").value,time=document.querySelector("#entryTime").value||localTime(),raw=document.querySelector("#entryValue").value.trim(),note=document.querySelector("#entryNote").value.trim(),amountRaw=document.querySelector("#entryAmount").value.trim(),flow=document.querySelector("#periodFlow").value;
+  const date=editingIds.length?(editingDate||selectedDate):selectedDate;const oldItems=editingIds.length?state.entries.filter(e=>editingIds.includes(e.id)):[];const oldMealId=oldItems.find(e=>e.mealId)?.mealId||null;const preservedTags=oldItems.length===1?(oldItems[0].tags||[]):[];
+  if(type==="food"&&!raw)return showToast("Bitte Essen eintragen");if(["drink","symptom","medicine"].includes(type)&&!raw)return showToast("Bitte etwas eintragen");
+  let amount=null,weight=null;if(type==="drink"&&amountRaw){amount=Number(amountRaw);if(!Number.isFinite(amount)||amount<=0)return showToast("Bitte eine gültige Menge in ml eingeben")}if(type==="weight"){weight=Number(String(amountRaw).replace(",","."));if(!Number.isFinite(weight)||weight<=0)return showToast("Bitte Gewicht in kg eingeben")}
+  if(editingIds.length)state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
+  if(type==="food"){const mealId=oldMealId||uid();raw.split(",").map(x=>x.trim()).filter(Boolean).forEach(v=>addEntry("food",v,{date,time,note,mealId}))}
+  else if(type==="drink")addEntry("drink",raw,{date,time,note,amountMl:amount,tags:(raw.toLowerCase()==="wasser"||preservedTags.includes("water"))?["water"]:preservedTags});
+  else if(type==="weight")addEntry("weight",`${weight.toFixed(1).replace(".",",")} kg`,{date,time,note,weightKg:weight});
+  else if(type==="period")addEntry("period","Periode",{date,time,note,periodFlow:flow});
+  else addEntry(type,raw,{date,time,note,tags:preservedTags});
+  clearEditing();document.querySelector("#entryDialog").close();save();showToast("Gespeichert");
 }
-function deleteCurrentEntry(){
-  if(!editingIds.length)return;
-  const many=editingIds.length>1;
-  const ok=confirm(many?"Diese ganze Mahlzeit wirklich löschen?":"Diesen Eintrag wirklich löschen?");
-  if(!ok)return;
-  state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
-  clearEditing();
-  document.querySelector("#entryDialog").close();
-  save();
-}
+function deleteCurrentEntry(){if(!editingIds.length)return;const many=editingIds.length>1;if(!confirm(many?"Diese ganze Mahlzeit wirklich löschen?":"Diesen Eintrag wirklich löschen?"))return;state.entries=state.entries.filter(e=>!editingIds.includes(e.id));clearEditing();document.querySelector("#entryDialog").close();save();showToast("Gelöscht")}
+
 function setView(id){
-  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
-  document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
-  if(id==="todayView"){
-    renderTimeline();
-  }else{
-    document.querySelector("#pageTitle").textContent=({monthView:"Monat",analysisView:"Muster",settingsView:"Einstellungen"})[id];
-  }
-  document.querySelector("#fab").style.display=id==="todayView"?"block":"none";
-  if(id==="monthView")renderMonth();
-  if(id==="analysisView")renderPatterns();
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.view===id));document.querySelector("#fab").style.display=id==="todayView"?"block":"none";
+  if(id==="todayView"){renderHeader();renderTimeline()}else{document.querySelector("#pageTitle").textContent=({monthView:"Monat",analysisView:"Muster",settingsView:"Einstellungen"})[id];document.querySelector("#dateLine").textContent=""}
+  if(id==="monthView")renderMonth();if(id==="analysisView")renderPatterns();if(id==="settingsView")renderSettings();
 }
-function monthEntries(){
-  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
-  return state.entries.filter(e=>{const d=new Date(e.date+"T12:00");return d.getFullYear()===y&&d.getMonth()===m})
-}
+function monthEntries(){const y=shownMonth.getFullYear(),m=shownMonth.getMonth();return state.entries.filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m})}
 function buildFilter(){
-  const s=document.querySelector("#monthFilter");
-  const prev=s.value||"all";
-  const opts=[["all","Alles"],["symptom:Bauchschmerzen","Bauchschmerzen"],["symptom:Durchfall","Durchfall"],["drink:Bier","Bier"],["medicine:Sodbrennenmittel","Sodbrennenmittel"],["drink:Wasser","Wasser"],["type:weight","Gewicht"]];
-  knownItems().forEach(v=>opts.push(["value:"+v,v]));
-  const uniq=[]; const seen=new Set();
-  opts.forEach(o=>{if(!seen.has(o[0])){seen.add(o[0]);uniq.push(o)}});
-  s.innerHTML=uniq.map(([v,l])=>`<option value="${escapeHtml(v)}">${escapeHtml(l)}</option>`).join("");
-  if([...s.options].some(o=>o.value===prev))s.value=prev;
+  const s=document.querySelector("#monthFilter"),prev=s.value||"all";const opts=[["all","Alles"],["type:food","Essen"],["type:drink","Trinken"],["type:symptom","Beschwerden"],["type:medicine","Mittel"],["type:weight","Gewicht"],["type:period","Periode"],["drink:Bier","Bier"],["drink:Wasser","Wasser"]];
+  const seen=new Set();knownItems().forEach(v=>opts.push(["value:"+v,v]));s.innerHTML=opts.filter(([v])=>!seen.has(v)&&seen.add(v)).map(([v,l])=>`<option value="${escapeHtml(v)}">${escapeHtml(l)}</option>`).join("");if([...s.options].some(o=>o.value===prev))s.value=prev;
 }
-function matchesFilter(e,f){
-  if(f==="all")return true;
-  if(f.startsWith("value:"))return e.value===f.slice(6);
-  if(f.startsWith("type:"))return e.type===f.slice(5);
-  const [t,v]=f.split(":"); return e.type===t && e.value===v;
+function matchesFilter(e,f){if(f==="all")return true;if(f.startsWith("value:"))return e.value===f.slice(6);if(f.startsWith("type:"))return e.type===f.slice(5);const i=f.indexOf(":");return e.type===f.slice(0,i)&&e.value===f.slice(i+1)}
+function monthWeightEntries(){
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();const morning=weightEntriesSorted().filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m&&e.time<"12:00"});const firstPerDay=new Map();morning.forEach(e=>{if(!firstPerDay.has(e.date))firstPerDay.set(e.date,e)});return [...firstPerDay.values()];
 }
-function compactPrintEntries(dayEntries){
-  const byTime=new Map();
-  dayEntries.forEach(e=>{
-    if(!byTime.has(e.time))byTime.set(e.time,[]);
-    byTime.get(e.time).push(e);
-  });
-  return [...byTime.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,items])=>{
-    const parts=[];
-    const foodMeals=new Map();
-    const rest=[];
-    items.forEach(e=>{
-      if(e.type==="food" && e.mealId){
-        if(!foodMeals.has(e.mealId))foodMeals.set(e.mealId,[]);
-        foodMeals.get(e.mealId).push(e.value);
-      }else rest.push(e);
-    });
-    foodMeals.forEach(values=>parts.push(values.join(", ")));
-    const counts=new Map();
-    rest.forEach(e=>{
-      const key=`${e.type}|${e.value}`;
-      const x=counts.get(key)||{entry:e,count:0};
-      x.count++; counts.set(key,x);
-    });
-    counts.forEach(({entry,count})=>{
-      let value=entry.value;
-      if(entry.type==="weight") value=`Gew. ${value}`;
-      parts.push(value+(count>1?` ×${count}`:""));
-    });
-    return {time,text:parts.join("; ")};
-  });
+function drawWeightChart(canvas,pts,height=175){
+  if(!canvas)return;const ctx=canvas.getContext("2d"),rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1,w=Math.max(220,rect.width||canvas.parentElement.clientWidth||280),h=height;canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.height=h+"px";ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  if(!pts.length){ctx.font="12px system-ui";ctx.fillStyle="#777";ctx.fillText("Noch keine Morgenmessungen",12,30);return}
+  const vals=pts.map(p=>Number(p.weightKg)),min=Math.min(...vals),max=Math.max(...vals),padY=Math.max(.5,(max-min)*.25),lo=min-padY,hi=max+padY,left=38,right=10,top=12,bottom=24,cw=w-left-right,ch=h-top-bottom,y=v=>top+(hi-v)/(hi-lo||1)*ch,x=i=>pts.length===1?left+cw/2:left+i*cw/(pts.length-1);
+  ctx.strokeStyle="#e4ddd2";ctx.lineWidth=1;ctx.font="10px system-ui";ctx.fillStyle="#777";for(let i=0;i<4;i++){const yy=top+i*ch/3,val=hi-i*(hi-lo)/3;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();ctx.fillText(val.toFixed(1).replace(".",","),1,yy+3)}
+  ctx.strokeStyle="#2f6555";ctx.lineWidth=2.4;ctx.beginPath();pts.forEach((p,i)=>{i?ctx.lineTo(x(i),y(p.weightKg)):ctx.moveTo(x(i),y(p.weightKg))});ctx.stroke();ctx.fillStyle="#2f6555";pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(x(i),y(p.weightKg),3.2,0,Math.PI*2);ctx.fill()});
+  ctx.fillStyle="#777";ctx.font="10px system-ui";const fd=parseDate(pts[0].date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"}),ld=parseDate(pts[pts.length-1].date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});ctx.fillText(fd,left,h-6);const tw=ctx.measureText(ld).width;ctx.fillText(ld,w-right-tw,h-6);
 }
-
-function printFilterOptions(){
-  const opts=[
-    ["all","Alles"],
-    ["type:food","Essen"],
-    ["drink:Wasser","Wasser"],
-    ["symptom:Bauchschmerzen","Bauchschmerzen"],
-    ["symptom:Durchfall","Durchfall"],
-    ["medicine:Sodbrennenmittel","Sodbrennenmittel"],
-    ["type:weight","Gewicht"],
-    ["drink:Bier","Bier"]
-  ];
-  knownItems().forEach(v=>opts.push(["value:"+v,v]));
-  const seen=new Set();
-  return opts.filter(([v])=>{
-    if(seen.has(v))return false;
-    seen.add(v);
-    return true;
-  });
-}
-function renderPrintFilterDialog(){
-  const box=document.querySelector("#printFilterList");
-  const opts=printFilterOptions();
-  const fixed=opts.slice(0,8), individual=opts.slice(8);
-
-  let out='<div class="print-filter-group-title">Auswahl</div>';
-  fixed.forEach(([v,l])=>{
-    out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`;
-  });
-  if(individual.length){
-    out+='<div class="print-filter-group-title">Einzelne Einträge</div>';
-    individual.forEach(([v,l])=>{
-      out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`;
-    });
-  }
-  box.innerHTML=out;
-
-  const checks=[...box.querySelectorAll('input[type="checkbox"]')];
-  checks.forEach(cb=>cb.onchange=()=>{
-    if(cb.value==="all" && cb.checked){
-      checks.forEach(x=>{if(x.value!=="all")x.checked=false});
-    }else if(cb.checked){
-      const all=checks.find(x=>x.value==="all");
-      if(all)all.checked=false;
-    }
-    if(!checks.some(x=>x.checked)){
-      const all=checks.find(x=>x.value==="all");
-      if(all)all.checked=true;
-    }
-  });
-}
-function selectedPrintFilters(){
-  const vals=[...document.querySelectorAll('#printFilterList input[type="checkbox"]:checked')].map(x=>x.value);
-  return vals.length?vals:["all"];
-}
-function openPrintDialog(){
-  renderPrintFilterDialog();
-  document.querySelector("#printDialog").showModal();
-}
-function startPrint(){
-  printFilters=selectedPrintFilters();
-  document.querySelector("#printDialog").close();
-  renderMonth();
-  const showWeight=printFilters.includes("all")||printFilters.includes("type:weight");
-  document.body.classList.toggle("print-no-weight",!showWeight);
-  setTimeout(()=>window.print(),80);
-}
-
-function renderPrintWeekGrid(start, entries, filters, monthIndex){
-  const box=document.querySelector("#printWeekGrid");
-  if(!box)return;
-  const labels=["Mo","Di","Mi","Do","Fr","Sa","So"];
-  let out=`<div class="print-week-head">${labels.map(x=>`<div>${x}</div>`).join("")}</div>`;
-  for(let week=0;week<6;week++){
-    let row="";
-    for(let dow=0;dow<7;dow++){
-      const d=new Date(start); d.setDate(start.getDate()+week*7+dow);
-      const ds=localDate(d);
-      const dayEntries=entries.filter(e=>{
-        if(e.date!==ds)return false;
-        if(!filters || !filters.length || filters.includes("all"))return true;
-        return filters.some(f=>matchesFilter(e,f));
-      });
-      const compact=compactPrintEntries(dayEntries);
-      const outside=d.getMonth()!==monthIndex;
-      const beerFree=!outside && isBeerFreePastDay(ds);
-      row+=`<div class="print-day${outside?" out":""}${beerFree?" no-beer":""}">`+
-        `<div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>`+
-        (compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):`<div class="print-empty">–</div>`)+
-        `</div>`;
-    }
-    out+=`<div class="print-week-row">${row}</div>`;
-  }
-  box.innerHTML=out;
+function renderWeightChart(){
+  const pts=monthWeightEntries(),summary=document.querySelector("#weightMonthSummary");if(!pts.length)summary.textContent="Noch keine Morgenmessungen (vor 12:00 Uhr) in diesem Monat.";else{const vals=pts.map(p=>Number(p.weightKg)),delta=vals[vals.length-1]-vals[0];summary.textContent=`${pts.length} Morgenmessung${pts.length===1?"":"en"} · erste → letzte: ${formatWeightDelta(delta)}`};drawWeightChart(document.querySelector("#weightChart"),pts,175)
 }
 function renderMonth(){
-  buildFilter();
-  const y=shownMonth.getFullYear(),m=shownMonth.getMonth(), filter=document.querySelector("#monthFilter").value||"all";
-  document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
-  const first=new Date(y,m,1), shift=(first.getDay()+6)%7;
-  const start=new Date(y,m,1-shift);
-  const entries=monthEntries(), cal=document.querySelector("#calendar"); cal.innerHTML="";
-  for(let i=0;i<42;i++){
-    const d=new Date(start);d.setDate(start.getDate()+i);
-    const ds=localDate(d), all=entries.filter(e=>e.date===ds), filtered=all.filter(e=>matchesFilter(e,filter));
-    const cell=document.createElement("div");
-    const beerFree=d.getMonth()===m && isBeerFreePastDay(ds);
-    cell.className="day"+(d.getMonth()!==m?" out":"")+(ds===localDate()?" today":"")+(all.length?" has":"")+(filtered.length&&filter!=="all"?" filtered":"")+(beerFree?" no-beer":"");
-    cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div>`;
-    if(d.getMonth()===m){
-      cell.tabIndex=0;
-      cell.setAttribute("role","button");
-      cell.setAttribute("aria-label",`Tagesübersicht ${d.toLocaleDateString("de-DE")}`);
-      const openDay=()=>{
-        selectedDate=ds;
-        setView("todayView");
-      };
-      cell.onclick=openDay;
-      cell.onkeydown=(ev)=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();openDay();}};
-    }
-    cal.appendChild(cell);
-  }
-  renderPrintWeekGrid(start,entries,printFilters,m);
-  const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-  const by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));
-  renderWeightChart();
-  document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>{
-    const label=new Date(date+"T12:00").toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
-    return `<div class="month-day"><h3>${label}</h3>${by[date].map(e=>`<div class="entry-card"><b>${e.time}</b> · ${escapeHtml(e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`
-  }).join("") || '<div class="empty">Für diesen Filter keine Einträge.</div>';
+  buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
+  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),all=entries.filter(e=>e.date===ds),filtered=all.filter(e=>matchesFilter(e,filter)),outside=d.getMonth()!==m,period=all.some(e=>e.type==="period"),weight=all.some(e=>e.type==="weight"),other=all.some(e=>!["period","weight"].includes(e.type));const cell=document.createElement("div");cell.className="day"+(outside?" out":"")+(ds===localDate()?" today":"")+(!outside&&isBeerFreeDay(ds)?" no-beer":"")+(filtered.length&&filter!=="all"?" filtered":"");cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div><div class="day-dot-row">${period?'<i class="dot period"></i>':""}${weight?'<i class="dot weight"></i>':""}${other?'<i class="dot entry"></i>':""}</div>`;if(!outside){cell.tabIndex=0;cell.setAttribute("role","button");const open=()=>{selectedDate=ds;setView("todayView")};cell.onclick=open;cell.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}}cal.appendChild(cell)}
+  const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)),by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));renderWeightChart();document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>`<div class="month-day"><h3>${parseDate(date).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</h3>${by[date].map(e=>`<div class="entry-card ${e.type==="period"?"period-entry":e.type==="weight"?"weight-entry":""}"><b>${e.time}</b> · ${escapeHtml(e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Für diesen Filter keine Einträge.</div>';
 }
 function renderPatterns(){
-  const signals=[
-    {type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},
-    {type:"symptom",value:"Durchfall",label:"Durchfall"},
-    {type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}
-  ];
-  const foods=state.entries.filter(e=>e.type==="food");
-  const box=document.querySelector("#patternList");
-  const rows=[];
-  signals.forEach(signal=>{
-    const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value);
-    const counts=new Map();
-    events.forEach(s=>{
-      const st=new Date(`${s.date}T${s.time}`);
-      foods.forEach(f=>{
-        const ft=new Date(`${f.date}T${f.time}`);
-        const h=(st-ft)/36e5;
-        if(h>=0 && h<=8)counts.set(f.value,(counts.get(f.value)||0)+1);
-      })
-    });
-    [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>{
-      rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`)
-    })
-  });
-  box.innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
+  const signals=[{type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},{type:"symptom",value:"Durchfall",label:"Durchfall"},{type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}],foods=state.entries.filter(e=>e.type==="food"),rows=[];signals.forEach(signal=>{const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value),counts=new Map();events.forEach(s=>{const st=new Date(`${s.date}T${s.time}`);foods.forEach(f=>{const ft=new Date(`${f.date}T${f.time}`),h=(st-ft)/36e5;if(h>=0&&h<=8)counts.set(f.value,(counts.get(f.value)||0)+1)})});[...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`))});document.querySelector("#patternList").innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
 }
-function renderSettings(){
-  document.querySelector("#waterLabel").value=state.settings.waterLabel;
-  document.querySelector("#waterMl").value=state.settings.waterMl;
+function renderSettings(){document.querySelector("#waterLabel").value=state.settings.waterLabel||"Wasser";document.querySelector("#waterMl").value=state.settings.waterMl||700;document.querySelector("#beerStart").value=state.settings.beerStart||DEFAULT.settings.beerStart}
+
+function printFilterOptions(){const opts=[["all","Alles"],["type:food","Essen"],["type:drink","Trinken"],["type:symptom","Beschwerden"],["type:medicine","Mittel"],["type:weight","Gewicht"],["type:period","Periode"],["drink:Bier","Bier"],["drink:Wasser","Wasser"]];const seen=new Set();knownItems().forEach(v=>opts.push(["value:"+v,v]));return opts.filter(([v])=>!seen.has(v)&&seen.add(v))}
+function renderPrintFilterDialog(){const box=document.querySelector("#printFilterList"),opts=printFilterOptions(),fixed=opts.slice(0,9),individual=opts.slice(9);let out='<div class="print-filter-group-title">Auswahl</div>';fixed.forEach(([v,l])=>out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`);if(individual.length){out+='<div class="print-filter-group-title">Einzelne Einträge</div>';individual.forEach(([v,l])=>out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`)}box.innerHTML=out;const checks=[...box.querySelectorAll('input[type="checkbox"]')];checks.forEach(cb=>cb.onchange=()=>{if(cb.value==="all"&&cb.checked)checks.forEach(x=>{if(x.value!=="all")x.checked=false});else if(cb.checked){const all=checks.find(x=>x.value==="all");if(all)all.checked=false}if(!checks.some(x=>x.checked)){const all=checks.find(x=>x.value==="all");if(all)all.checked=true}})}
+function selectedPrintFilters(){const vals=[...document.querySelectorAll('#printFilterList input[type="checkbox"]:checked')].map(x=>x.value);return vals.length?vals:["all"]}
+function compactPrintEntries(dayEntries){
+  const byTime=new Map();dayEntries.forEach(e=>{if(!byTime.has(e.time))byTime.set(e.time,[]);byTime.get(e.time).push(e)});return [...byTime.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,items])=>{const parts=[],foodMeals=new Map(),rest=[];items.forEach(e=>{if(e.type==="food"&&e.mealId){if(!foodMeals.has(e.mealId))foodMeals.set(e.mealId,[]);foodMeals.get(e.mealId).push(e.value)}else rest.push(e)});foodMeals.forEach(v=>parts.push(v.join(", ")));const counts=new Map();rest.forEach(e=>{const key=`${e.type}|${e.value}|${e.periodFlow||""}`;const x=counts.get(key)||{entry:e,count:0};x.count++;counts.set(key,x)});counts.forEach(({entry,count})=>{let value=entry.value;if(entry.type==="weight")value=`Gew. ${entry.value}`;if(entry.type==="period")value=`Periode${entry.periodFlow?" "+entry.periodFlow:""}`;if(entry.type==="drink"&&entry.amountMl)value+=` ${entry.amountMl} ml`;parts.push(value+(count>1?` ×${count}`:""))});return {time,text:parts.join("; ")}})
 }
-function renderAll(){renderQuick();renderTimeline();renderKnown();renderSettings(); if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
-
-document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{
-  if(b.dataset.view==="todayView"){
-    selectedDate=localDate();
-    shownMonth=startMonth(new Date());
-  }
-  setView(b.dataset.view);
-});
-document.querySelector("#fab").onclick=openDialog;
-document.querySelector("#entryForm").addEventListener("submit",saveDialog);
-document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};
-document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};
-document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
-document.querySelector("#entryType").onchange=updateEntryTypeUI;
-document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};
-document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};
-document.querySelector("#monthFilter").onchange=renderMonth;
-document.querySelector("#printMonth").onclick=openPrintDialog;
-document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();
-document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();
-document.querySelector("#startPrint").onclick=startPrint;
-window.addEventListener("afterprint",()=>document.body.classList.remove("print-no-weight"));
-document.querySelector("#saveSettings").onclick=()=>{
-  state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"1 Flasche";
-  state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;
-  const q=state.quick.find(x=>x.tag==="water"); if(q){q.label="Wasser";q.sub=state.settings.waterMl+" ml";q.amountMl=state.settings.waterMl}
-  save()
-};
-document.querySelector("#exportData").onclick=()=>{
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();URL.revokeObjectURL(a.href)
-};
-document.querySelector("#importData").onchange=async e=>{
-  const f=e.target.files[0]; if(!f)return;
-  try{state=JSON.parse(await f.text());save()}catch(err){alert("Datei konnte nicht gelesen werden.")}
-};
-
-if(location.protocol==="http:"||location.protocol==="https:"){if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");}
-window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();});
-renderAll();
-
-
-
-async function requestPersistentStorage(){
-  try{
-    if(navigator.storage && navigator.storage.persist) await navigator.storage.persist();
-  }catch(e){}
+function renderPrintPage(){
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries();document.querySelector("#printTitle").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});document.querySelector("#printMeta").textContent="Mein Tracker · Monatsübersicht";let out="";
+  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),outside=d.getMonth()!==m;let dayEntries=entries.filter(e=>e.date===ds);if(!printFilters.includes("all"))dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));const compact=compactPrintEntries(dayEntries),period=!outside&&periodOn(ds),beer=!outside&&isBeerFreeDay(ds);out+=`<div class="print-day${outside?" out":""}${beer?" no-beer":""}${period?" period-day":""}"><div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>${compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):'<div class="print-empty">–</div>'}</div>`}
+  document.querySelector("#printCalendar").innerHTML=out;const weights=weightEntriesSorted(),latest=weights[weights.length-1],firstW=weights[0];document.querySelector("#printWeightLatest").textContent=latest?`${Number(latest.weightKg).toFixed(1).replace(".",",")} kg · ${latest.date}`:"–";document.querySelector("#printWeightDelta").textContent=latest&&firstW?`Seit erster Messung: ${formatWeightDelta(Number(latest.weightKg)-Number(firstW.weightKg))}`:"Noch keine Vergleichswerte";drawWeightChart(document.querySelector("#printWeightChart"),monthWeightEntries(),150);const beer=beerStreakInfo();document.querySelector("#printBeerStreak").textContent=`${beer.days} Tage`;document.querySelector("#printBeerInfo").textContent=`Start: ${state.settings.beerStart||"–"}`;
 }
-requestPersistentStorage();
-if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();setTimeout(()=>window.print(),100)}
+
+function renderAll(){renderSummary();renderWeightToday();renderAchievement();renderQuick();renderTimeline();renderKnown();renderSettings();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
+
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
+document.querySelector("#fab").onclick=openTypeDialog;document.querySelector("#closeTypeDialog").onclick=()=>document.querySelector("#typeDialog").close();document.querySelectorAll("[data-type-choice]").forEach(b=>b.onclick=()=>openNewEntry(b.dataset.typeChoice));
+document.querySelector("#entryForm").addEventListener("submit",saveDialog);document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
+document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
+document.querySelector("#printMonth").onclick=()=>{renderPrintFilterDialog();document.querySelector("#printDialog").showModal()};document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#startPrint").onclick=startPrint;
+document.querySelector("#saveSettings").onclick=()=>{state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"Wasser";state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;save();showToast("Wasser-Einstellung gespeichert")};document.querySelector("#saveBeerStart").onclick=()=>{const v=document.querySelector("#beerStart").value;if(v)state.settings.beerStart=v;save();showToast("Startdatum gespeichert")};
+document.querySelector("#exportData").onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};document.querySelector("#importData").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());state={...cloneDefault(),...x,settings:{...DEFAULT.settings,...x.settings}};save();showToast("Sicherung importiert")}catch(err){alert("Datei konnte nicht gelesen werden.")}};
+window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart()});
+
+async function initServiceWorker(){
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=6");await reg.update()}catch(e){}
 }
+async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
+renderAll();initServiceWorker();requestPersistentStorage();
 </script>
 </body>
 </html>
