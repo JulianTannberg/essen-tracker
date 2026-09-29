@@ -411,6 +411,159 @@
     .entry-cat-meta{font-size:10px;color:#7f866f;margin-top:3px}
     @media(max-width:390px){.home-setting-grid{grid-template-columns:1fr}}
 
+  
+    /* ===== v11 Feinschliff ===== */
+    :root{
+      --sprig-a:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 200'>\
+<path d='M92 8 C80 54 76 93 73 134 C71 161 69 181 64 196' fill='none' stroke='%23889478' stroke-width='3.4' stroke-linecap='round'/>\
+<ellipse cx='70' cy='30' rx='11' ry='21' transform='rotate(-32 70 30)' fill='%23aab396'/>\
+<ellipse cx='82' cy='55' rx='11' ry='21' transform='rotate(28 82 55)' fill='%23939f7d'/>\
+<ellipse cx='64' cy='79' rx='11' ry='20' transform='rotate(-26 64 79)' fill='%23b7c0a5'/>\
+<ellipse cx='79' cy='104' rx='11' ry='21' transform='rotate(24 79 104)' fill='%23a0ab8c'/>\
+<ellipse cx='57' cy='126' rx='11' ry='19' transform='rotate(-25 57 126)' fill='%23b7c0a5'/>\
+<ellipse cx='71' cy='152' rx='10' ry='18' transform='rotate(21 71 152)' fill='%2397a382'/>\
+<ellipse cx='49' cy='174' rx='9' ry='16' transform='rotate(-18 49 174)' fill='%23c4ccb7'/>\
+</svg>");
+      --sprig-b:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 170'>\
+<path d='M20 158 C45 128 64 94 85 43 C91 29 98 17 116 8' fill='none' stroke='%23869273' stroke-width='3.4' stroke-linecap='round'/>\
+<ellipse cx='37' cy='131' rx='10' ry='18' transform='rotate(-55 37 131)' fill='%23c1c8b2'/>\
+<ellipse cx='56' cy='109' rx='12' ry='21' transform='rotate(38 56 109)' fill='%23a4ae90'/>\
+<ellipse cx='72' cy='85' rx='11' ry='20' transform='rotate(-42 72 85)' fill='%23939f7d'/>\
+<ellipse cx='89' cy='60' rx='11' ry='19' transform='rotate(34 89 60)' fill='%23b2baa1'/>\
+<ellipse cx='103' cy='38' rx='10' ry='18' transform='rotate(-33 103 38)' fill='%23a0ab8c'/>\
+</svg>");
+    }
+    .topbar::after{
+      right:-12px; top:8px; width:116px; height:180px; opacity:.92;
+      background-image:var(--sprig-a); background-repeat:no-repeat;
+      background-position:center; background-size:contain; transform:rotate(2deg);
+    }
+    .planner-note{padding:13px 16px 12px}
+    .planner-note strong{font-size:20px;margin-bottom:0}
+    .planner-note p{display:none}
+    .planner-note::after{
+      right:8px; top:3px; width:56px; height:88px; opacity:.9;
+      background-image:var(--sprig-b); background-repeat:no-repeat;
+      background-position:center; background-size:contain; transform:none;
+    }
+    #freeDaysTodayCard small{font-size:14px;line-height:1.25}
+    #freeDaysLabel{font-size:16px;font-weight:700;color:#5f5a54}
+    #freeDaysTodayCard .big{font-size:40px;line-height:1;color:#6e8a6d}
+    #freeDaysTodayCard #beerStreakSub{font-size:15px;color:#6a665f}
+    .weight-card::after{
+      right:4px; bottom:-2px; width:62px; height:98px; opacity:.88;
+      background-image:var(--sprig-b); background-repeat:no-repeat;
+      background-position:center; background-size:contain;
+    }
+    .wellbeing-card{min-height:126px}
+    .wellbeing-card::after{
+      right:6px; bottom:-8px; width:76px; height:108px; opacity:.86;
+      background-image:var(--sprig-a); background-repeat:no-repeat;
+      background-position:center; background-size:contain;
+    }
+    .wellbeing-list{min-height:54px}
+    .wellbeing-item{padding:5px 0}
+    .wellbeing-label{font-size:15px;line-height:1.35}
+    .wellbeing-empty{font-size:13px;color:#6f6a63;line-height:1.4}
+    .daily-sticky{min-height:136px;padding-top:24px;background:#dfe6d4}
+    .daily-sticky b{font-size:21px}
+    .daily-sticky .sticky-text{
+      display:block;font-size:17px;line-height:1.48;color:#4a4f45;
+      min-height:62px;margin-top:6px;
+    }
+    #stickyContext{
+      display:block;margin-top:8px;font-size:12px;color:#717767;line-height:1.35;
+    }
+    @media(max-width:390px){
+      #freeDaysLabel{font-size:15px}
+      #freeDaysTodayCard .big{font-size:35px}
+      .daily-sticky .sticky-text{font-size:16px}
+      .wellbeing-label{font-size:14px}
+    }
+
+  
+    /* ===== v12: eine Ranke + klarer Mond ===== */
+    .topbar::after,
+    .weight-card::after,
+    .wellbeing-card::after{
+      display:none!important;
+      content:none!important;
+      background:none!important;
+    }
+
+    .planner-note{
+      min-height:72px;
+      padding-right:96px;
+      overflow:hidden;
+    }
+    .planner-note::after{
+      display:block!important;
+      content:""!important;
+      position:absolute;
+      right:-5px;
+      top:-18px;
+      width:100px;
+      height:126px;
+      opacity:.88;
+      background-image:url("./sprig.svg")!important;
+      background-repeat:no-repeat!important;
+      background-position:center!important;
+      background-size:contain!important;
+      transform:rotate(7deg)!important;
+      pointer-events:none;
+    }
+
+    .moon-chip{
+      right:12px;
+      top:13px;
+      min-height:54px;
+      padding:6px 11px 6px 7px;
+      gap:8px;
+      border:1.5px solid #d4c9b9;
+      background:rgba(250,246,237,.98);
+      box-shadow:0 4px 14px rgba(65,58,48,.10);
+      color:#3f403c;
+    }
+    .moon-chip canvas{
+      width:40px!important;
+      height:40px!important;
+      flex:0 0 40px;
+      display:block;
+      filter:drop-shadow(0 1px 1px rgba(55,54,50,.12));
+    }
+    .moon-chip-text b{
+      font-size:12.5px;
+      color:#3d3d39;
+      font-weight:600;
+    }
+    .moon-chip-text small{
+      font-size:9.5px;
+      color:#77736b;
+      max-width:84px;
+    }
+    .topbar{
+      padding-right:154px;
+      min-height:106px;
+    }
+
+    .moon-dialog-head canvas{
+      border-radius:50%;
+      background:#f4ecdc;
+      box-shadow:inset 0 0 0 1px rgba(66,65,60,.16);
+    }
+
+    @media(max-width:390px){
+      .topbar{padding-right:137px;min-height:104px}
+      .moon-chip{right:7px;top:12px;padding:5px 8px 5px 6px;gap:6px}
+      .moon-chip canvas{width:36px!important;height:36px!important;flex-basis:36px}
+      .moon-chip-text b{font-size:11.5px}
+      .moon-chip-text small{font-size:8.5px;max-width:68px}
+      .planner-note{padding-right:84px}
+      .planner-note::after{width:88px;height:115px;right:-8px}
+    }
+
   </style>
 </head>
 <body>
@@ -420,7 +573,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v10</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v12</div>
   </header>
 
   <main>
@@ -469,7 +622,7 @@
 
       <div id="dailySticky" class="sticky-note daily-sticky">
         <b id="stickyTitle">Kleiner Gedanke ♡</b>
-        <span id="dailyQuote" class="sticky-text"></span>
+        <span id="dailyQuote" class="sticky-text"></span><small id="stickyContext"></small>
         <span id="stickyContext" class="sticky-context"></span>
         <button id="rerollQuote" class="sticky-reroll" type="button" aria-label="Anderen Spruch für diesen Tag anzeigen">↻</button>
       </div>
@@ -706,7 +859,7 @@ function load(){
         homeVisibility:{...base.settings.homeVisibility,...(xs.homeVisibility||{})},
         customEntryCategories:Array.isArray(xs.customEntryCategories)?xs.customEntryCategories:base.settings.customEntryCategories,
         calendar:{...base.settings.calendar,...(xs.calendar||{})},
-        todoItems:Array.isArray(xs.todoItems)?xs.todoItems:base.settings.todoItems
+        todoItems:(Array.isArray(xs.todoItems)&&xs.todoItems.length)?xs.todoItems:base.settings.todoItems
       },
       quick:Array.isArray(x.quick)&&x.quick.length?x.quick:base.quick};
   }catch(e){return cloneDefault()}
@@ -878,9 +1031,24 @@ function moonInfo(ds){
   const sign=ZODIAC[Math.floor(lon/30)%12];return {age,frac,stage,phaseName,sign,longitude:lon,isFull:fullDist<0.72,isNew:newDist<0.72}
 }
 function drawMoon(canvas,info){
-  if(!canvas||!info)return;const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height,r=Math.min(w,h)*.42,cx=w/2,cy=h/2,psi=2*Math.PI*info.frac,img=ctx.createImageData(w,h),data=img.data;
-  for(let py=0;py<h;py++)for(let px=0;px<w;px++){const nx=(px-cx)/r,ny=(py-cy)/r,rr=nx*nx+ny*ny,idx=(py*w+px)*4;if(rr<=1){const z=Math.sqrt(Math.max(0,1-rr)),lit=nx*Math.sin(psi)+z*(-Math.cos(psi))>0,edge=Math.max(0,Math.min(1,(1-rr)*7));const c=lit?[236,229,199]:[70,73,66];data[idx]=c[0];data[idx+1]=c[1];data[idx+2]=c[2];data[idx+3]=Math.round(255*edge)}}
-  ctx.clearRect(0,0,w,h);ctx.putImageData(img,0,0);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle="rgba(91,91,82,.32)";ctx.lineWidth=Math.max(1,w/58);ctx.stroke()
+  if(!canvas||!info)return;
+  const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height,r=Math.min(w,h)*.41,cx=w/2,cy=h/2,
+    psi=2*Math.PI*info.frac,img=ctx.createImageData(w,h),data=img.data;
+  const light=[231,220,196], dark=[58,59,56];
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const nx=(px-cx)/r,ny=(py-cy)/r,rr=nx*nx+ny*ny,idx=(py*w+px)*4;
+    if(rr<=1){
+      const z=Math.sqrt(Math.max(0,1-rr));
+      const lit=nx*Math.sin(psi)+z*(-Math.cos(psi))>0;
+      const edge=Math.max(0,Math.min(1,(1-rr)*10));
+      const c=lit?light:dark;
+      data[idx]=c[0];data[idx+1]=c[1];data[idx+2]=c[2];data[idx+3]=Math.round(255*edge);
+    }
+  }
+  ctx.clearRect(0,0,w,h);
+  ctx.putImageData(img,0,0);
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle="#555650";ctx.lineWidth=Math.max(1.4,w/46);ctx.stroke();
 }
 function specialEventsFor(ds){
   const cfg=state.settings.calendar||DEFAULT.settings.calendar,out=[],holiday=holidayFor(ds),mi=moonInfo(ds);
@@ -913,7 +1081,7 @@ function renderCalendarSpecial(){
 function renderDailyQuote(){const q=quoteForDate(selectedDate),el=document.querySelector("#dailyQuote"),ctx=document.querySelector("#stickyContext");if(el)el.textContent=q.text||"Heute darf der Zettel einfach leer bleiben. ♡";if(ctx)ctx.textContent=q.context||""}
 function enabledTodoItems(){return (state.settings.todoItems||[]).filter(x=>x.enabled&&x.label)}
 function renderWellbeing(){
-  const box=document.querySelector("#wellbeingList");if(!box)return;const items=enabledTodoItems(),done=state.wellbeingDone?.[selectedDate]||{};box.innerHTML=items.length?items.map(x=>`<button class="wellbeing-item${done[x.id]?" done":""}" data-todo="${escapeHtml(x.id)}" type="button"><span class="wellbeing-check">${done[x.id]?"✓":""}</span><span class="wellbeing-label">${escapeHtml(x.label)}</span></button>`).join(""):'<div class="wellbeing-empty">In den Einstellungen kannst du deine kleinen Tagesziele auswählen.</div>';box.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{state.wellbeingDone=state.wellbeingDone||{};state.wellbeingDone[selectedDate]=state.wellbeingDone[selectedDate]||{};const id=b.dataset.todo;state.wellbeingDone[selectedDate][id]=!state.wellbeingDone[selectedDate][id];save()})
+  const box=document.querySelector("#wellbeingList");if(!box)return;const items=enabledTodoItems(),done=state.wellbeingDone?.[selectedDate]||{};box.innerHTML=items.length?items.map(x=>`<button class="wellbeing-item${done[x.id]?" done":""}" data-todo="${escapeHtml(x.id)}" type="button"><span class="wellbeing-check">${done[x.id]?"✓":""}</span><span class="wellbeing-label">${escapeHtml(x.label)}</span></button>`).join(""):'<div class="wellbeing-empty">Hier erscheinen deine kleinen Ziele wie Spaziergang, Bewegung, Ruhepause oder Abendroutine. Falls nichts angezeigt wird, kannst du sie in den Einstellungen wieder aktivieren.</div>';box.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{state.wellbeingDone=state.wellbeingDone||{};state.wellbeingDone[selectedDate]=state.wellbeingDone[selectedDate]||{};const id=b.dataset.todo;state.wellbeingDone[selectedDate][id]=!state.wellbeingDone[selectedDate][id];save()})
 }
 function renderTodoSettings(){
   const box=document.querySelector("#todoSettings");if(!box)return;box.innerHTML=(state.settings.todoItems||[]).map((x,i)=>`<div class="todo-setting-row"><input type="checkbox" data-todo-enable="${i}" ${x.enabled?"checked":""}><input type="text" data-todo-label="${i}" value="${escapeHtml(x.label)}"><button class="todo-delete" type="button" data-todo-delete="${i}">×</button></div>`).join("");box.querySelectorAll("[data-todo-delete]").forEach(b=>b.onclick=()=>{state.settings.todoItems.splice(Number(b.dataset.todoDelete),1);renderTodoSettings()})
@@ -1233,7 +1401,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=10");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=12");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
