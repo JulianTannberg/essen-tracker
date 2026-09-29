@@ -2,5 +2,5 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 27 verbessert den Druck/PDF-Bereich der Monatsübersicht:
-Die Gewichtskarte sitzt jetzt unter dem Kalender statt in der rechten Seitenleiste.
+Version 28 zeigt den Mond/Planer-Kopf nur auf der Heute-Seite und hält beim
+PDF-Druck Kalender und Gewicht auf derselben Seite.
