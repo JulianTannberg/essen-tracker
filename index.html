@@ -2380,6 +2380,196 @@
     #quickSectionTitle small{font-size:9.5px!important}
   }
 
+
+  /* ===== v41: noch helleres Cremeweiß + Mahlzeiten-Fokus ===== */
+  :root{
+    --cream-card:#fdfbf7;
+    --cream-card-2:#fcfaf5;
+    --cream-border:#e8dfd1;
+  }
+
+  .summary-card>div,
+  .weight-card,
+  .quick-btn,
+  .meal-card,
+  .wellbeing-card,
+  .planner-card,
+  .pattern-card,
+  .settings-card,
+  .filter-card,
+  .weight-month-card,
+  .entry-card,
+  .empty{
+    background:var(--cream-card)!important;
+    border-color:var(--cream-border)!important;
+  }
+
+  .quick-btn,
+  .meal-card,
+  .wellbeing-card,
+  .weight-card{
+    box-shadow:0 4px 12px rgba(73,61,47,.045)!important;
+  }
+
+  /* Oben: links "Heute für mich", rechts quadratischerer Zettel wie im Referenzlook. */
+  .today-top-grid{
+    grid-template-columns:minmax(0,1.16fr) minmax(0,.84fr)!important;
+    gap:12px!important;
+    align-items:start!important;
+    margin:12px 2px 10px!important;
+  }
+  .today-top-grid .wellbeing-card{
+    min-height:182px!important;
+    padding:14px 12px 12px 14px!important;
+  }
+  .today-top-grid .wellbeing-card h3{
+    white-space:normal!important;
+    max-width:125px!important;
+    line-height:1.02!important;
+    margin-bottom:10px!important;
+  }
+  .today-top-grid .wellbeing-list{
+    gap:6px!important;
+  }
+  .today-top-grid .wellbeing-item{
+    grid-template-columns:22px minmax(0,1fr) auto!important;
+    align-items:center!important;
+  }
+  .today-top-grid .wellbeing-label{
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    font-size:12.8px!important;
+  }
+  .today-top-grid .wellbeing-streak{
+    font-size:10px!important;
+    white-space:nowrap!important;
+  }
+
+  .today-top-grid .daily-sticky{
+    justify-self:end!important;
+    width:min(100%, 220px)!important;
+    aspect-ratio:1 / 1!important;
+    min-height:182px!important;
+    padding:15px 14px 13px!important;
+    margin-top:2px!important;
+    transform:rotate(-1.7deg)!important;
+  }
+  .today-top-grid .daily-sticky b{
+    font-size:16.5px!important;
+    margin-bottom:7px!important;
+  }
+  .today-top-grid .daily-sticky .sticky-text{
+    font-size:13.1px!important;
+    line-height:1.42!important;
+    -webkit-line-clamp:6!important;
+  }
+
+  @media(max-width:390px){
+    .today-top-grid{
+      grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr)!important;
+      gap:10px!important;
+    }
+    .today-top-grid .wellbeing-card{
+      min-height:174px!important;
+      padding:13px 10px 11px 12px!important;
+    }
+    .today-top-grid .wellbeing-card h3{
+      max-width:110px!important;
+      font-size:16.5px!important;
+    }
+    .today-top-grid .wellbeing-label{font-size:12px!important}
+    .today-top-grid .wellbeing-streak{font-size:9.3px!important}
+    .today-top-grid .daily-sticky{
+      width:min(100%, 184px)!important;
+      min-height:174px!important;
+      padding:14px 12px 11px!important;
+    }
+    .today-top-grid .daily-sticky b{font-size:15px!important}
+    .today-top-grid .daily-sticky .sticky-text{font-size:12.3px!important}
+  }
+
+  /* Mahlzeiten-/Kamera-Symbole einheitlich in einer Farbe */
+  .meal-thumb.empty{
+    color:#8f8a7f!important;
+    font-size:0!important;
+  }
+  .meal-thumb.empty svg,
+  .meal-photo-badge svg,
+  .photo-preview.empty svg{
+    width:24px!important;
+    height:24px!important;
+    fill:none!important;
+    stroke:currentColor!important;
+    stroke-width:1.7!important;
+    stroke-linecap:round!important;
+    stroke-linejoin:round!important;
+  }
+  .meal-photo-badge{
+    color:#8f8a7f!important;
+    background:#f8f4eb!important;
+    font-size:0!important;
+  }
+
+  /* Eingeklappt: nur Mahlzeiten direkt sichtbar. */
+  .timeline-extra-details{
+    margin-top:6px!important;
+    border:1px dashed rgba(138,127,110,.22)!important;
+    border-radius:16px!important;
+    background:rgba(253,251,247,.78)!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  .timeline-extra-details summary{
+    list-style:none!important;
+    cursor:pointer!important;
+    padding:13px 14px!important;
+    font-weight:700!important;
+    color:#5e584f!important;
+    position:relative!important;
+  }
+  .timeline-extra-details summary::-webkit-details-marker{display:none!important}
+  .timeline-extra-details summary::after{
+    content:"▾"!important;
+    position:absolute!important;
+    right:14px!important;
+    top:11px!important;
+    color:#8f8a7f!important;
+    font-size:16px!important;
+    transform:rotate(-90deg);
+    transition:transform .15s ease;
+  }
+  .timeline-extra-details[open] summary::after{
+    transform:rotate(0deg);
+  }
+  .timeline-extra-list{
+    display:grid!important;
+    gap:8px!important;
+    padding:0 12px 12px!important;
+  }
+  .extra-entry-card{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:3px!important;
+    border:1px solid var(--cream-border)!important;
+    border-radius:14px!important;
+    background:#fcfaf5!important;
+    padding:10px 12px!important;
+  }
+  .extra-entry-card b{
+    font-size:15px!important;
+    color:#3d362e!important;
+  }
+  .extra-entry-card span{
+    font-size:12px!important;
+    color:#7d7467!important;
+    line-height:1.35!important;
+  }
+
+  .meal-desc{
+    margin-top:1px!important;
+  }
+
 </style>
 </head>
 <body>
@@ -2390,7 +2580,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v40</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v41</div>
   </header>
 
   <main>
@@ -2431,7 +2621,7 @@
         </div>
       </div>
 
-      <div id="quickSectionTitle" class="section-title"><h2>Schnell eintragen</h2><small>Jeder Schritt zählt ♡</small></div>
+      <div id="quickSectionTitle" class="section-title"><h2>Schnell eintragen</h2><small>Ich bin stolz auf dich ♡</small></div>
       <div id="quickGrid" class="quick-grid"></div>
 
 <div id="timelineSection" class="timeline-section">
@@ -2601,7 +2791,7 @@
         <label id="entryPhotoWrap" class="photo-picker"><span>Essensfoto (optional)</span>
           <input id="entryPhotoInput" type="file" accept="image/*">
           <div class="photo-preview-wrap">
-            <div id="entryPhotoPreview" class="photo-preview">🍽️</div>
+            <div id="entryPhotoPreview" class="photo-preview empty"></div>
             <div class="photo-actions">
               <button type="button" id="pickPhotoBtn" class="photo-btn">Foto wählen</button>
               <button type="button" id="removePhotoBtn" class="photo-btn remove">Foto entfernen</button>
@@ -3191,40 +3381,62 @@ function renderQuick(){
   ];
   qs.forEach(q=>{const b=document.createElement("button");b.className="quick-btn";b.innerHTML=`${escapeHtml(q.label)}<small>${escapeHtml(q.sub)}</small>`;b.onclick=()=>{addEntry(q.type,q.value,{tags:q.tag?[q.tag]:[],amountMl:q.amountMl||null});save();showToast(`${q.label} gespeichert`)};g.appendChild(b)});
 }
+
 function renderTimeline(){
-  renderHeader();const list=todayEntries(),box=document.querySelector("#timeline");
+  renderHeader();
+  const list=todayEntries(), box=document.querySelector("#timeline");
   document.querySelector("#timelineDayLabel").textContent=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
-  if(!list.length){box.innerHTML='<div class="empty">Für diesen Tag ist noch nichts eingetragen.</div>';return}
+  if(!list.length){
+    box.innerHTML='<div class="empty">Für diesen Tag ist noch nichts eingetragen.</div>';
+    return;
+  }
+
   const groups=[];
-  for(const e of list){let last=groups[groups.length-1];if(e.mealId&&last?.mealId===e.mealId)last.items.push(e);else groups.push({mealId:e.mealId,time:e.time,items:[e]})}
-  box.innerHTML=groups.map(g=>{
-    const first=g.items[0], isMeal=first.type==="food" && g.items.length>=1;
+  for(const e of list){
+    const last=groups[groups.length-1];
+    if(e.mealId && last?.mealId===e.mealId) last.items.push(e);
+    else groups.push({mealId:e.mealId,time:e.time,items:[e]});
+  }
+
+  const mealGroups = groups.filter(g => g.items[0]?.type==="food");
+  const extraEntries = list.filter(e => e.type!=="food");
+
+  const mealHtml = mealGroups.map(g=>{
+    const first=g.items[0];
     const notes=g.items.map(e=>e.note).filter(Boolean).join(" · ");
     const catLabels=categoryLabelsFromEntries(g.items);
-    if(isMeal){
-      const values=g.items.map(e=>escapeHtml(e.value)).join(", ");
-      const photo=mealPhoto(g.mealId),kind=mealKindMeta(first.mealKind,g.time);
-      return `<div class="meal-card editable" data-edit-id="${first.id}" role="button" tabindex="0">
-        <div class="meal-thumb${photo?"":" empty"}">${photo?`<img src="${photo}" alt="Essensfoto">`:"🍽️"}</div>
-        <div class="meal-content">
-          <div class="meal-head"><span class="meal-kind-icon">${mealKindIconSvg(first.mealKind||guessMealKind(g.time))}</span><div class="meal-title">${kind.label}</div><div class="meal-time">${g.time} Uhr</div></div>
-          <div class="meal-desc">${values}</div>
-          ${(notes||catLabels.length)?`<div class="meal-note">${notes?escapeHtml(notes):""}${notes&&catLabels.length?" · ":""}${catLabels.map(escapeHtml).join(" · ")}</div>`:""}
-        </div>
-        <div class="meal-actions"><span class="meal-photo-badge">📷</span></div>
-      </div>`;
-    }
-    const vals=g.items.map(e=>e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:escapeHtml(e.value)).join(g.items.length>1?" · ":"");
-    const meta=[...new Set(g.items.map(e=>typeLabel(e.type)))].join(", ");
-    return `<div class="meal-card compact editable" data-edit-id="${first.id}" role="button" tabindex="0">
-      <div class="meal-time">${g.time} Uhr</div>
+    const values=g.items.map(e=>escapeHtml(e.value)).join(", ");
+    const photo=mealPhoto(g.mealId), kind=mealKindMeta(first.mealKind,g.time);
+    return `<div class="meal-card editable" data-edit-id="${first.id}" role="button" tabindex="0">
+      <div class="meal-thumb${photo?"":" empty"}">${photo?`<img src="${photo}" alt="Essensfoto">`:plateIconSvg()}</div>
       <div class="meal-content">
-        <div class="entry-compact-title">${vals}</div>
-        <div class="entry-compact-meta">${meta}${notes?" · "+escapeHtml(notes):""}${catLabels.length?" · "+catLabels.map(escapeHtml).join(" · "):""}</div>
+        <div class="meal-head"><span class="meal-kind-icon">${mealKindIconSvg(first.mealKind||guessMealKind(g.time))}</span><div class="meal-title">${kind.label}</div><div class="meal-time">${g.time} Uhr</div></div>
+        <div class="meal-desc">${values}</div>
+        ${(notes||catLabels.length)?`<div class="meal-note">${notes?escapeHtml(notes):""}${notes&&catLabels.length?" · ":""}${catLabels.map(escapeHtml).join(" · ")}</div>`:""}
       </div>
+      <div class="meal-actions"><span class="meal-photo-badge">${cameraIconSvg()}</span></div>
     </div>`;
   }).join("");
-  box.querySelectorAll("[data-edit-id]").forEach(card=>{const open=()=>openEditDialog(card.dataset.editId);card.onclick=open;card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}});
+
+  let extrasHtml = "";
+  if(extraEntries.length){
+    const extras = summarizeExtraEntries(extraEntries);
+    extrasHtml = `<details class="timeline-extra-details">
+      <summary>Weitere Einträge des Tages (${extraEntries.length})</summary>
+      <div class="timeline-extra-list">
+        ${extras.map(x => `<div class="extra-entry-card"><b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.meta || "")}</span></div>`).join("")}
+      </div>
+    </details>`;
+  }
+
+  box.innerHTML = mealHtml || '<div class="empty">Für diesen Tag sind noch keine Mahlzeiten eingetragen.</div>';
+  box.innerHTML += extrasHtml;
+
+  box.querySelectorAll("[data-edit-id]").forEach(card=>{
+    const open=()=>openEditDialog(card.dataset.editId);
+    card.onclick=open;
+    card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};
+  });
 }
 function renderKnown(){document.querySelector("#knownItems").innerHTML=knownItems().map(x=>`<option value="${escapeHtml(x)}"></option>`).join("")}
 
@@ -3241,6 +3453,60 @@ function mealKindIconSvg(kind){
   if(safe==="lunch")return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v7M3.5 3v5.2A2.5 2.5 0 0 0 6 10.7v10.3M8.5 3v5.2A2.5 2.5 0 0 1 6 10.7M16 3v18M16 3c2.8 1.7 4 4.5 4 7.7H16"/></svg>';
   if(safe==="dinner")return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.5 15.4A8 8 0 0 1 8.6 5.5a7.6 7.6 0 1 0 9.9 9.9Z"/></svg>';
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-2.6-2.1-6.7-1.1-7.5 2.3-.9 4 2.6 10.7 7.5 11.7 4.9-1 8.4-7.7 7.5-11.7C18.7 5.9 14.6 4.9 12 7Z"/><path d="M12 7c.2-2.2 1.2-3.8 3.2-4.8M13.6 3.7c1.5-.6 3-.3 4.1.7"/></svg>';
+}
+
+function cameraIconSvg(){
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5h3l1.4-2h5.2l1.4 2H20a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.3"/></svg>';
+}
+function plateIconSvg(){
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.3"/><circle cx="12" cy="12" r="3.1"/><path d="M4 5v5M2.5 5v3.7A1.5 1.5 0 0 0 4 10.2V19M5.5 5v3.7A1.5 1.5 0 0 1 4 10.2M18.5 5v14M18.5 5c2.3 1.5 3 3.4 3 5.8h-3"/></svg>';
+}
+function summarizeExtraEntries(entries){
+  const out=[];
+  const drinks=new Map(), symptoms=new Map(), meds=new Map();
+  let periodItems=[], weightItems=[];
+  for(const e of entries){
+    if(e.type==="drink"){
+      const key=(e.value||"Getränk").trim();
+      if(!drinks.has(key))drinks.set(key,{count:0,total:0});
+      const item=drinks.get(key); item.count+=1; item.total+=Number(e.amountMl)||0;
+    }else if(e.type==="symptom"){
+      const key=(e.value||"Beschwerde").trim();
+      if(!symptoms.has(key))symptoms.set(key,{count:0, notes:[]});
+      const item=symptoms.get(key); item.count+=1; if(e.note)item.notes.push(e.note);
+    }else if(e.type==="medicine"){
+      const key=(e.value||"Medikament").trim();
+      if(!meds.has(key))meds.set(key,{count:0, notes:[]});
+      const item=meds.get(key); item.count+=1; if(e.note)item.notes.push(e.note);
+    }else if(e.type==="period"){
+      periodItems.push(e);
+    }else if(e.type==="weight"){
+      weightItems.push(e);
+    }else{
+      const label=e.value||typeLabel(e.type);
+      out.push({title:label, meta:typeLabel(e.type)});
+    }
+  }
+  drinks.forEach((v,k)=>{
+    out.push({title:k, meta:`Getränk · ${v.count} Eintrag${v.count===1?"":"e"}${v.total?` · ${formatMl(v.total)}`:""}`});
+  });
+  symptoms.forEach((v,k)=>{
+    const note=v.notes[0]?` · ${v.notes[0]}`:"";
+    out.push({title:k, meta:`Beschwerde · ${v.count} Eintrag${v.count===1?"":"e"}${note}`});
+  });
+  meds.forEach((v,k)=>{
+    const note=v.notes[0]?` · ${v.notes[0]}`:"";
+    out.push({title:k, meta:`Medikament · ${v.count} Eintrag${v.count===1?"":"e"}${note}`});
+  });
+  if(weightItems.length){
+    const latest=weightItems[weightItems.length-1];
+    out.push({title:`Gewicht ${formatNumber(latest.weightKg,1)} kg`, meta:`Messung · ${latest.time} Uhr`});
+  }
+  if(periodItems.length){
+    const latest=periodItems[periodItems.length-1];
+    out.push({title:`Periode${latest.periodFlow?` · ${latest.periodFlow}`:""}`, meta:`${periodItems.length} Eintrag${periodItems.length===1?"":"e"}`});
+  }
+  return out;
 }
 function guessMealKind(time){
   const [hRaw,mRaw]=String(time||localTime()).split(":");
@@ -3549,7 +3815,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=40");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=41");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
