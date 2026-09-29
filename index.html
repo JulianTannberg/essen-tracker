@@ -1250,6 +1250,137 @@
     /* ===== v28: Planer-Kopf nur auf Heute ===== */
     body:not(.printing) .topbar{transition:none}
 
+  
+    /* ===== v29: PDF sicher auf EINER Seite ===== */
+    @media print{
+      #printPage{
+        position:relative!important;
+        width:285mm!important;
+        height:198mm!important;
+        max-height:198mm!important;
+        overflow:hidden!important;
+      }
+
+      .print-title-row{
+        height:9mm!important;
+        margin-bottom:2mm!important;
+      }
+
+      .print-layout{
+        position:relative!important;
+        height:187mm!important;
+        max-height:187mm!important;
+        grid-template-columns:minmax(0,1fr) 50mm!important;
+        gap:3.5mm!important;
+      }
+
+      .print-calendar{
+        grid-auto-rows:20.3mm!important;
+      }
+
+      .print-weight-below{
+        position:absolute!important;
+        left:0!important;
+        right:53.5mm!important;
+        bottom:0!important;
+        margin:0!important;
+        height:31mm!important;
+        break-before:auto!important;
+        break-after:auto!important;
+        page-break-before:auto!important;
+        page-break-after:auto!important;
+      }
+
+      .print-weight-below .print-box{
+        box-sizing:border-box!important;
+        height:31mm!important;
+        margin:0!important;
+        padding:1.8mm 2mm!important;
+        display:grid!important;
+        grid-template-columns:35mm minmax(0,1fr)!important;
+        grid-template-rows:auto 1fr!important;
+        gap:2mm!important;
+        overflow:hidden!important;
+        break-inside:auto!important;
+        page-break-inside:auto!important;
+      }
+
+      .print-weight-below .print-box h3{
+        grid-column:1 / -1!important;
+        margin:0!important;
+        line-height:1!important;
+      }
+
+      .print-weight-text{
+        grid-column:1!important;
+        grid-row:2!important;
+        align-self:start!important;
+      }
+
+      .print-weight-below #printWeightChart{
+        grid-column:2!important;
+        grid-row:2!important;
+        width:100%!important;
+        height:24mm!important;
+        align-self:center!important;
+      }
+
+      .print-side{
+        min-height:0!important;
+        height:auto!important;
+      }
+    }
+
+  
+    /* ===== v30: Kopfbereich kompakter + Datum wieder sichtbar ===== */
+
+    .topbar{
+      min-height:112px!important;
+      padding-top:20px!important;
+      padding-bottom:4px!important;
+    }
+
+    .date-line{
+      margin-top:5px!important;
+      margin-left:8px!important;
+      top:0!important;
+      font-size:21px!important;
+      line-height:1!important;
+      white-space:nowrap!important;
+    }
+
+    .today-actual-date{
+      display:none;
+      margin:5px 0 0 10px;
+      font-family:var(--serif);
+      font-size:12px;
+      line-height:1;
+      color:#8a847a;
+      letter-spacing:.01em;
+    }
+
+    .week-strip{
+      margin-top:2px!important;
+    }
+
+    @media(max-width:390px){
+      .topbar{
+        min-height:106px!important;
+        padding-top:18px!important;
+        padding-bottom:3px!important;
+      }
+      .date-line{
+        margin-top:4px!important;
+        margin-left:6px!important;
+        font-size:18.5px!important;
+      }
+      .today-actual-date{
+        margin-top:4px;
+        margin-left:8px;
+        font-size:11px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1258,8 +1389,9 @@
       <div class="eyebrow">Mein Planer · Tracker</div>
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
+      <div id="todayActualDate" class="today-actual-date"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v28</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v30</div>
   </header>
 
   <main>
@@ -1887,17 +2019,33 @@ function renderWeekStrip(){
 }
 
 function renderHeader(){
-  const title=document.querySelector("#pageTitle"),line=document.querySelector("#dateLine"),isToday=selectedDate===localDate();
+  const title=document.querySelector("#pageTitle"),
+    line=document.querySelector("#dateLine"),
+    actual=document.querySelector("#todayActualDate"),
+    isToday=selectedDate===localDate();
+
   title.classList.toggle("selected-date-title",!isToday);
+
   if(isToday){
+    const d=parseDate(selectedDate);
     title.textContent="Heute";
     line.textContent="Kleine Schritte, große Veränderung";
+    if(actual){
+      actual.textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"});
+      actual.style.display="block";
+    }
   }else{
     const d=parseDate(selectedDate);
     title.textContent=d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
     line.textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"});
+    if(actual)actual.style.display="none";
   }
-  renderWeekStrip();renderCalendarSpecial();renderDailyQuote();renderWellbeing();renderMoon();
+
+  renderWeekStrip();
+  renderCalendarSpecial();
+  renderDailyQuote();
+  renderWellbeing();
+  renderMoon();
 }
 
 function homeVisibility(){return {...DEFAULT.settings.homeVisibility,...(state.settings.homeVisibility||{})}}
@@ -2210,7 +2358,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=28");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=30");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

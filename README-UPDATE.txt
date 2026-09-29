@@ -1,16 +1,10 @@
-ESSEN TRACKER – UPDATE v28
+ESSEN TRACKER – UPDATE v30
 
-HEUTE / MENÜ
-- Mond und großer Planer-Kopf erscheinen nur noch auf „Heute“.
-- In Monat, Muster und Einstellungen gibt es dadurch keinen großen leeren
-  Kopfbereich mehr und auch keinen doppelten Seitentitel.
-- Beim Zurückwechseln auf Heute erscheint „Kleine Schritte, große Veränderung“
-  wieder normal.
+HEUTE
+- Der große Leerraum unter „Heute“ und „Kleine Schritte, große Veränderung“ ist deutlich reduziert.
+- Der Spruch bleibt groß, schräg und einzeilig.
+- Das aktuelle Datum wird wieder angezeigt, z. B. „Dienstag, 29. September“.
+- Die Wochenleiste rückt dadurch sichtbar nach oben.
 
-DRUCK / PDF
-- Gewicht sitzt jetzt direkt unter dem Kalender in derselben Hauptspalte.
-- Kalenderfelder wurden im Druck leicht kompakter gemacht.
-- Ziel: Monatskalender + Gewicht bleiben gemeinsam auf einer A4-Landschaftsseite.
-- Rechts bleiben nur Freie Tage und Legende.
-
+PDF-Fix aus v29 bleibt unverändert enthalten.
 Lokale Daten bleiben erhalten.
