@@ -1164,6 +1164,80 @@
       }
     }
 
+  
+    /* ===== v26: weniger Leerraum + schmalerer Notizzettel + größeres Gewicht rechts ===== */
+
+    .topbar{
+      min-height:138px!important;
+    }
+
+    .date-line{
+      margin-top:10px!important;
+      top:4px!important;
+    }
+
+    .daily-sticky{
+      width:min(82%,350px)!important;
+      margin:12px auto 10px!important;
+      min-height:132px!important;
+      padding:24px 22px 18px 22px!important;
+      transform:rotate(-.45deg)!important;
+    }
+    .daily-sticky .sticky-text{
+      font-size:17px!important;
+      line-height:1.42!important;
+    }
+
+    .weight-grid{
+      grid-template-columns:.95fr 1.05fr!important;
+      gap:6px!important;
+      align-items:center!important;
+    }
+    .delta-list{
+      gap:10px!important;
+      padding-left:6px!important;
+    }
+    .delta-row{
+      gap:10px!important;
+      align-items:center!important;
+    }
+    .delta-row .label{
+      font-size:15px!important;
+      line-height:1.2!important;
+    }
+    .delta-row strong{
+      font-size:21px!important;
+      line-height:1!important;
+    }
+
+    @media(max-width:390px){
+      .topbar{
+        min-height:132px!important;
+      }
+      .date-line{
+        margin-top:8px!important;
+        top:3px!important;
+      }
+      .daily-sticky{
+        width:min(80%,320px)!important;
+        min-height:124px!important;
+        padding:22px 18px 16px 18px!important;
+      }
+      .daily-sticky .sticky-text{
+        font-size:16px!important;
+      }
+      .weight-grid{
+        grid-template-columns:.92fr 1.08fr!important;
+        gap:5px!important;
+      }
+      .delta-row .label{
+        font-size:14px!important;
+      }
+      .delta-row strong{
+        font-size:19px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1173,7 +1247,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v25</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v26</div>
   </header>
 
   <main>
@@ -2101,7 +2175,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=25");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=26");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

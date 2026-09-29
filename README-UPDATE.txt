@@ -1,7 +1,6 @@
-ESSEN TRACKER – UPDATE v25
+ESSEN TRACKER – UPDATE v26
 
-- Der Satz unter „Heute“ sitzt jetzt tiefer und nutzt den freien Bereich besser.
-- Er bleibt groß, quer über die Breite und leicht schräg.
-- „Schnell eintragen“ ist jetzt handschriftlicher gestaltet.
-
-Sonst keine Funktionsänderungen gegenüber v24.
+- Weniger Leerraum zwischen dem Satz unter „Heute“ und der Wochenleiste.
+- Der Notizzettel ist schmaler und wirkt mehr wie „dazwischen geklebt“.
+- In der Gewichtskarte sind die rechten Angaben größer und sitzen etwas kompakter.
+- Sonst keine Funktionsänderungen gegenüber v25.
