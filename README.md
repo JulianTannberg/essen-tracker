@@ -2,5 +2,5 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 12: nur noch eine einzelne SVG-Ranke und eine deutlich sichtbare,
-farblich passende Mondanzeige in Beige und Anthrazit.
+Version 14 ergänzt den von dir ausgewählten einzelnen Zweig oben und erweitert
+die täglichen Spezial-Sprüche um Sternschnuppen-Nächte und besondere Mondnächte.

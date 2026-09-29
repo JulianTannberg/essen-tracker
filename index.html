@@ -564,6 +564,67 @@
       .planner-note::after{width:88px;height:115px;right:-8px}
     }
 
+  
+    /* ===== v13 Bugfix ===== */
+    .topbar::after,
+    .planner-note::after,
+    .weight-card::after,
+    .wellbeing-card::after{
+      display:none!important;
+      content:none!important;
+      background:none!important;
+    }
+
+  
+    /* ===== v14: einzelner Zweig + besondere Mondnächte ===== */
+    .topbar{
+      position:relative;
+      overflow:hidden;
+      padding-right:150px;
+      min-height:112px;
+    }
+    .topbar::before{
+      content:"";
+      position:absolute;
+      right:86px;
+      top:-12px;
+      width:96px;
+      height:172px;
+      background:url("./top-branch.png") no-repeat center/contain;
+      opacity:.55;
+      pointer-events:none;
+      transform:rotate(6deg);
+      transform-origin:center;
+      z-index:0;
+    }
+    .topbar > *{position:relative;z-index:1}
+
+    .topbar::after,
+    .planner-note::after,
+    .weight-card::after,
+    .wellbeing-card::after{
+      display:none!important;
+      content:none!important;
+      background:none!important;
+    }
+
+    .moon-chip{
+      right:12px;
+      top:12px;
+      z-index:2;
+      background:rgba(250,246,237,.98);
+    }
+
+    @media(max-width:390px){
+      .topbar{padding-right:138px;min-height:108px}
+      .topbar::before{
+        right:76px;
+        top:-10px;
+        width:84px;
+        height:154px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -573,19 +634,13 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v12</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v14</div>
   </header>
 
   <main>
     <section id="todayView" class="view active">
       <div id="weekStrip" class="week-strip" aria-label="Tage auswählen"></div>
-
-      <div class="planner-note">
-        <strong>Heute im Blick ♡</strong>
-        <p id="plannerSubtitle">Kleine Schritte, große Veränderung.</p>
-      </div>
-
-      <div id="calendarSpecial" class="calendar-special">
+<div id="calendarSpecial" class="calendar-special">
         <h3>Heute im Jahreskreis</h3>
         <div id="calendarSpecialList"></div>
       </div>
@@ -622,7 +677,7 @@
 
       <div id="dailySticky" class="sticky-note daily-sticky">
         <b id="stickyTitle">Kleiner Gedanke ♡</b>
-        <span id="dailyQuote" class="sticky-text"></span><small id="stickyContext"></small>
+        <span id="dailyQuote" class="sticky-text"></span>
         <span id="stickyContext" class="sticky-context"></span>
         <button id="rerollQuote" class="sticky-reroll" type="button" aria-label="Anderen Spruch für diesen Tag anzeigen">↻</button>
       </div>
@@ -1026,7 +1081,7 @@ function moonInfo(ds){
   const d=parseDate(ds),utc=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),12),syn=29.530588853,ref=Date.UTC(2000,0,6,18,14),age=mod((utc-ref)/86400000,syn),frac=age/syn,stage=Math.round(frac*16)%16;
   const names=["Neumond","zunehmende Sichel","zunehmende Sichel","erstes Viertel","erstes Viertel","zunehmender Mond","zunehmender Mond","fast Vollmond","Vollmond","abnehmender Mond","abnehmender Mond","letztes Viertel","letztes Viertel","abnehmende Sichel","abnehmende Sichel","fast Neumond"];
   const phaseName=names[stage],fullDist=Math.abs(age-syn/2),newDist=Math.min(age,syn-age);
-  const jd=utc/86400000+2440587.5,dj=jd-2451543.5,N=normDeg(125.1228-0.0529538083*dj),i=5.1454,w=normDeg(318.0634+0.1643573223*dj),a=60.2666,e=.0549,M=normDeg(115.3654+13.0649929509*dj),Mr=deg2rad(M),E=deg2rad(M+e*(180/Math.PI)*Math.sin(Mr)*(1+e*Math.cos(Mr))),xv=a*(Math.cos(E)-e),yv=a*Math.sqrt(1-e*e)*Math.sin(E),v=Math.atan2(yv,xv)*180/Math.PI,r=Math.sqrt(xv*xv+yv*yv),vw=deg2rad(v+w),Nr=deg2rad(N),ir=deg2rad(i),xh=r*(Math.cos(Nr)*Math.cos(vw)-Math.sin(Nr)*Math.sin(vw)*Math.cos(ir)),yh=r*(Math.sin(Nr)*Math.cos(vw)+Math.cos(Nr)*Math.sin(vw)*Math.cos(ir)),lon=normDeg(Math.atan2(yh,xh)*180/Math.PI),Lm=normDeg(N+w+M),ws=normDeg(282.9404+4.70935e-5*dj),Ms=normDeg(356.0470+0.9856002585*dj),Ls=normDeg(ws+Ms),D=deg2rad(normDeg(Lm-Ls)),F=deg2rad(normDeg(Lm-N));
+  let jd=utc/86400000+2440587.5,dj=jd-2451543.5,N=normDeg(125.1228-0.0529538083*dj),i=5.1454,w=normDeg(318.0634+0.1643573223*dj),a=60.2666,e=.0549,M=normDeg(115.3654+13.0649929509*dj),Mr=deg2rad(M),E=deg2rad(M+e*(180/Math.PI)*Math.sin(Mr)*(1+e*Math.cos(Mr))),xv=a*(Math.cos(E)-e),yv=a*Math.sqrt(1-e*e)*Math.sin(E),v=Math.atan2(yv,xv)*180/Math.PI,r=Math.sqrt(xv*xv+yv*yv),vw=deg2rad(v+w),Nr=deg2rad(N),ir=deg2rad(i),xh=r*(Math.cos(Nr)*Math.cos(vw)-Math.sin(Nr)*Math.sin(vw)*Math.cos(ir)),yh=r*(Math.sin(Nr)*Math.cos(vw)+Math.cos(Nr)*Math.sin(vw)*Math.cos(ir)),lon=normDeg(Math.atan2(yh,xh)*180/Math.PI),Lm=normDeg(N+w+M),ws=normDeg(282.9404+4.70935e-5*dj),Ms=normDeg(356.0470+0.9856002585*dj),Ls=normDeg(ws+Ms),D=deg2rad(normDeg(Lm-Ls)),F=deg2rad(normDeg(Lm-N));
   lon=normDeg(lon-1.274*Math.sin(deg2rad(M)-2*D)+0.658*Math.sin(2*D)-0.186*Math.sin(deg2rad(Ms))-0.059*Math.sin(2*deg2rad(M)-2*D)-0.057*Math.sin(deg2rad(M)-2*D+deg2rad(Ms))+0.053*Math.sin(deg2rad(M)+2*D)+0.046*Math.sin(2*D-deg2rad(Ms))+0.041*Math.sin(deg2rad(M)-deg2rad(Ms))-0.035*Math.sin(D)-0.031*Math.sin(deg2rad(M)+deg2rad(Ms))-0.015*Math.sin(2*F-2*D)+0.011*Math.sin(deg2rad(M)-4*D));
   const sign=ZODIAC[Math.floor(lon/30)%12];return {age,frac,stage,phaseName,sign,longitude:lon,isFull:fullDist<0.72,isNew:newDist<0.72}
 }
@@ -1050,6 +1105,30 @@ function drawMoon(canvas,info){
   ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
   ctx.strokeStyle="#555650";ctx.lineWidth=Math.max(1.4,w/46);ctx.stroke();
 }
+
+const FULL_MOON_NAMES={1:"Wolfsmond",2:"Schneemond",3:"Wurmmond",4:"Rosa Mond",5:"Blumenmond",6:"Erdbeermond",7:"Bockmond",8:"Störmond",9:"Erntemond",10:"Jägermond",11:"Bibermond",12:"Julmond"};
+const METEOR_SHOWERS=[
+  {name:"Quadrantiden",peak:"01-03",window:["01-02","01-04"],text:"In diesen Nächten sind oft besonders viele Sternschnuppen der Quadrantiden zu sehen – falls der Himmel klar ist."},
+  {name:"Lyriden",peak:"04-22",window:["04-21","04-23"],text:"Rund um diese Nacht lohnt sich ein Blick in den Himmel: Die Lyriden bringen oft schöne Sternschnuppen."},
+  {name:"Eta-Aquariiden",peak:"05-05",window:["05-04","05-06"],text:"Eine Sternschnuppen-Nacht: Die Eta-Aquariiden sind aktiv. Vielleicht heute Abend einmal nach oben schauen."},
+  {name:"Perseiden",peak:"08-12",window:["08-11","08-13"],text:"Perseiden-Nächte – oft die bekanntesten Sternschnuppen des Jahres. Vielleicht magst du heute Abend kurz nach draußen gehen."},
+  {name:"Orioniden",peak:"10-21",window:["10-20","10-22"],text:"Rund um diese Nacht ziehen die Orioniden über den Himmel. Ein schöner Anlass für einen kleinen Wunsch."},
+  {name:"Leoniden",peak:"11-17",window:["11-16","11-18"],text:"Leoniden-Nächte – vielleicht huscht heute eine Sternschnuppe über den Himmel."},
+  {name:"Geminiden",peak:"12-14",window:["12-13","12-15"],text:"Die Geminiden gelten oft als besonders eindrucksvoll. Vielleicht ist heute eine gute Sternschnuppen-Nacht."}
+];
+const BLOOD_MOON_DATES={
+  "2026-03-03":"Heute ist eine totale Mondfinsternis – oft auch Blutmond genannt. Falls der Himmel klar ist, lohnt sich heute ein Blick nach draußen.",
+  "2028-12-31":"In dieser Nacht steht eine totale Mondfinsternis an – ein Blutmond. Vielleicht magst du, wenn der Himmel klar ist, kurz hinausgehen."
+};
+function meteorShowerEvent(ds){
+  const md=ds.slice(5);
+  for(const m of METEOR_SHOWERS){
+    if(md===m.peak)return {kind:"Sternschnuppen",title:`${m.name} · Höhepunkt`,text:m.text};
+    if(m.window.includes(md))return {kind:"Sternschnuppen",title:`${m.name} · aktive Nächte`,text:m.text};
+  }
+  return null
+}
+
 function specialEventsFor(ds){
   const cfg=state.settings.calendar||DEFAULT.settings.calendar,out=[],holiday=holidayFor(ds),mi=moonInfo(ds);
   if(cfg.holidays&&holiday)out.push({kind:"Feiertag",title:holiday,text:{"Neujahr":"Ein neues Jahr darf ganz leise anfangen.","Karfreitag":"Ein stiller Feiertag – vielleicht ist heute weniger genau richtig.","Ostermontag":"Ein Feiertag für einen ruhigen oder schönen zusätzlichen Tag.","Tag der Arbeit":"Heute darf auch das Nicht-Arbeiten seinen Platz haben.","Christi Himmelfahrt":"Ein Feiertag – vielleicht ein guter Tag für etwas Zeit draußen.","Pfingstmontag":"Ein freier Montag darf sich auch wirklich frei anfühlen.","Tag der Deutschen Einheit":"Heute ist bundesweiter Feiertag.","Reformationstag":"Heute ist in Niedersachsen Feiertag.","1. Weihnachtstag":"Heute darf Gemütlichkeit wichtiger sein als irgendeine Liste.","2. Weihnachtstag":"Noch ein Feiertag – du musst heute nichts nachholen."}[holiday]||"Heute ist Feiertag."});
@@ -1057,9 +1136,22 @@ function specialEventsFor(ds){
   if(cfg.wheel){const w=wheelEvent(ds);if(w)out.push(w)}
   if(cfg.rauhnacht){const r=rauhnachtEvent(ds);if(r)out.push(r)}
   if(cfg.farmers){const rule=FARMERS_RULES[ds.slice(5)];if(rule)out.push({kind:"Bauernregel",title:"Alter Lostag",text:rule+" Bauernregeln sind Überlieferungen, keine verlässliche Wettervorhersage."})}
-  const hol=schoolHolidayFor(ds);if(cfg.schoolHolidays&&hol&&schoolHolidayOccasion(ds,hol))out.push({kind:"Ferien",title:`${hol.name} · Niedersachsen`,text:ds===hol.start?"Die Ferien beginnen. Versuch, sie dir auch wirklich ein bisschen zu erlauben. ♡":ds===hol.end?"Letzter Ferientag – vielleicht noch einmal bewusst langsam machen.":"Du hast Ferien. Nicht jeder freie Tag braucht einen Plan."});
-  if(cfg.moon&&mi.isFull)out.push({kind:"Mond",title:`Vollmond · Mond im ${mi.sign}`,text:"Vielleicht heute Abend einmal nach draußen schauen. Die astrologische Zuordnung zum Zeichen ist eine traditionelle Deutung."});
-  else if(cfg.moon&&mi.isNew)out.push({kind:"Mond",title:`Neumond · Mond im ${mi.sign}`,text:"Neumond – ein schöner Anlass für einen ruhigen Gedanken an etwas, das neu beginnen darf."});
+  const hol=schoolHolidayFor(ds);
+  if(cfg.schoolHolidays&&hol&&schoolHolidayOccasion(ds,hol))out.push({kind:"Ferien",title:`${hol.name} · Niedersachsen`,text:ds===hol.start?"Die Ferien beginnen. Versuch, sie dir auch wirklich ein bisschen zu erlauben. ♡":ds===hol.end?"Letzter Ferientag – vielleicht noch einmal bewusst langsam machen.":"Du hast Ferien. Nicht jeder freie Tag braucht einen Plan."});
+
+  if(cfg.moon&&BLOOD_MOON_DATES[ds])out.push({kind:"Besonderer Mond",title:"Blutmond · totale Mondfinsternis",text:BLOOD_MOON_DATES[ds]});
+
+  if(cfg.moon&&mi.isFull){
+    const moonName=FULL_MOON_NAMES[parseDate(ds).getMonth()+1];
+    out.push({kind:"Mond",title:`Vollmond · ${moonName} · Mond im ${mi.sign}`,text:`${moonName} – vielleicht heute Abend einmal nach draußen schauen. Die astrologische Zuordnung zum Zeichen ist eine traditionelle Deutung.`});
+  }else if(cfg.moon&&mi.isNew){
+    out.push({kind:"Mond",title:`Neumond · Mond im ${mi.sign}`,text:"Neumond – ein schöner Anlass für einen ruhigen Gedanken an etwas, das neu beginnen darf."});
+  }
+
+  if(cfg.seasons){
+    const meteor=meteorShowerEvent(ds);
+    if(meteor)out.push(meteor);
+  }
   return out
 }
 function quoteForDate(ds){
@@ -1073,13 +1165,35 @@ function rerollDailyQuote(){
   const cfg=state.settings.calendar||DEFAULT.settings.calendar,pool=[...DAILY_QUOTES,...((cfg.customQuotes||[]).filter(Boolean))];let current=state.quoteChoices?.[selectedDate];if(!Number.isInteger(current))current=(dayOfYear(selectedDate)-1)%pool.length;state.quoteChoices=state.quoteChoices||{};state.quoteChoices[selectedDate]=(current+17)%pool.length;save();showToast("Anderer Spruch für diesen Tag")
 }
 function renderMoon(){
-  const cfg=state.settings.calendar||DEFAULT.settings.calendar,chip=document.querySelector("#moonChip"),show=cfg.moon&&homeVisibility().moon;if(!chip)return;chip.style.display=show?"flex":"none";if(!show)return;const info=moonInfo(selectedDate);drawMoon(document.querySelector("#moonCanvas"),info);document.querySelector("#moonPhaseName").textContent=info.phaseName;document.querySelector("#moonSignName").textContent=`Mond im ${info.sign}`;drawMoon(document.querySelector("#moonDialogCanvas"),info);document.querySelector("#moonDialogPhase").textContent=info.phaseName;document.querySelector("#moonDialogSign").textContent=`Mond im ${info.sign} · ca. ${info.age.toFixed(1).replace(".",",")} Tage alt`;document.querySelector("#moonDialogText").innerHTML=`<b>Traditionelle astrologische Deutung:</b> ${ZODIAC_NOTES[info.sign]}.<br><br><b>Astronomisch:</b> Die Zeichnung zeigt die berechnete Beleuchtung für den gewählten Tag.`
+  const cfg=state.settings.calendar||DEFAULT.settings.calendar,
+    chip=document.querySelector("#moonChip"),
+    show=cfg.moon&&homeVisibility().moon;
+  if(!chip)return;
+  chip.style.display=show?"flex":"none";
+  if(!show)return;
+  try{
+    const info=moonInfo(selectedDate);
+    document.querySelector("#moonPhaseName").textContent=info.phaseName;
+    document.querySelector("#moonSignName").textContent=`Mond im ${info.sign}`;
+    drawMoon(document.querySelector("#moonCanvas"),info);
+    drawMoon(document.querySelector("#moonDialogCanvas"),info);
+    document.querySelector("#moonDialogPhase").textContent=info.phaseName;
+    document.querySelector("#moonDialogSign").textContent=`Mond im ${info.sign} · ca. ${info.age.toFixed(1).replace(".",",")} Tage alt`;
+    document.querySelector("#moonDialogText").innerHTML=`<b>Traditionelle astrologische Deutung:</b> ${ZODIAC_NOTES[info.sign]}.<br><br><b>Astronomisch:</b> Die Zeichnung zeigt die berechnete Beleuchtung für den gewählten Tag.`;
+  }catch(e){
+    document.querySelector("#moonPhaseName").textContent="Mond";
+    document.querySelector("#moonSignName").textContent="Phase konnte nicht geladen werden";
+  }
 }
 function renderCalendarSpecial(){
   const card=document.querySelector("#calendarSpecial"),box=document.querySelector("#calendarSpecialList");if(!card||!box)return;const events=specialEventsFor(selectedDate);card.classList.toggle("show",events.length>0);box.innerHTML=events.slice(0,4).map(e=>`<div class="calendar-event"><b><span class="event-tag">${escapeHtml(e.kind)}</span>${escapeHtml(e.title)}</b><p>${escapeHtml(e.text)}</p></div>`).join("")
 }
 function renderDailyQuote(){const q=quoteForDate(selectedDate),el=document.querySelector("#dailyQuote"),ctx=document.querySelector("#stickyContext");if(el)el.textContent=q.text||"Heute darf der Zettel einfach leer bleiben. ♡";if(ctx)ctx.textContent=q.context||""}
-function enabledTodoItems(){return (state.settings.todoItems||[]).filter(x=>x.enabled&&x.label)}
+function enabledTodoItems(){
+  let items=Array.isArray(state.settings.todoItems)?state.settings.todoItems:[];
+  if(!items.length)items=DEFAULT.settings.todoItems;
+  return items.filter(x=>x.enabled&&x.label)
+}
 function renderWellbeing(){
   const box=document.querySelector("#wellbeingList");if(!box)return;const items=enabledTodoItems(),done=state.wellbeingDone?.[selectedDate]||{};box.innerHTML=items.length?items.map(x=>`<button class="wellbeing-item${done[x.id]?" done":""}" data-todo="${escapeHtml(x.id)}" type="button"><span class="wellbeing-check">${done[x.id]?"✓":""}</span><span class="wellbeing-label">${escapeHtml(x.label)}</span></button>`).join(""):'<div class="wellbeing-empty">Hier erscheinen deine kleinen Ziele wie Spaziergang, Bewegung, Ruhepause oder Abendroutine. Falls nichts angezeigt wird, kannst du sie in den Einstellungen wieder aktivieren.</div>';box.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{state.wellbeingDone=state.wellbeingDone||{};state.wellbeingDone[selectedDate]=state.wellbeingDone[selectedDate]||{};const id=b.dataset.todo;state.wellbeingDone[selectedDate][id]=!state.wellbeingDone[selectedDate][id];save()})
 }
@@ -1115,7 +1229,7 @@ function renderHeader(){
     title.textContent=d.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"});
     line.textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"});
   }
-  renderWeekStrip();renderMoon();renderCalendarSpecial();renderDailyQuote();renderWellbeing();
+  renderWeekStrip();renderCalendarSpecial();renderDailyQuote();renderWellbeing();renderMoon();
 }
 
 function homeVisibility(){return {...DEFAULT.settings.homeVisibility,...(state.settings.homeVisibility||{})}}
@@ -1401,7 +1515,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=12");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=14");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
