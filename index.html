@@ -1439,6 +1439,122 @@
       }
     }
 
+  
+    /* ===== v32: Notizzettel mehr Schatten + leicht schief ===== */
+
+    .daily-sticky{
+      transform:rotate(-1.35deg)!important;
+      box-shadow:
+        0 10px 22px rgba(80,72,58,.13),
+        0 2px 6px rgba(80,72,58,.10)!important;
+      position:relative!important;
+    }
+
+    .daily-sticky::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:18px;
+      box-shadow:0 16px 26px rgba(55,48,38,.08);
+      transform:rotate(.9deg) translateY(3px);
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    .sticky-tape{
+      transform:rotate(1.8deg)!important;
+      box-shadow:0 2px 4px rgba(120,96,56,.12)!important;
+    }
+
+    @media(max-width:390px){
+      .daily-sticky{
+        transform:rotate(-1.15deg)!important;
+        box-shadow:
+          0 8px 18px rgba(80,72,58,.12),
+          0 2px 5px rgba(80,72,58,.09)!important;
+      }
+      .daily-sticky::before{
+        box-shadow:0 12px 20px rgba(55,48,38,.07);
+      }
+    }
+
+  
+    /* ===== v33: Klebezettel stärker wie ein angeklebter Zettel ===== */
+    .sticky-note{
+      width:min(70%, 270px)!important;
+      margin:16px 12px 4px auto!important;
+      padding:21px 17px 16px!important;
+      border-radius:7px!important;
+      transform:rotate(-2.3deg)!important;
+      background:#dfe5d0!important;
+      box-shadow:
+        0 16px 24px rgba(77,64,48,.16),
+        0 5px 10px rgba(77,64,48,.10)!important;
+      overflow:visible!important;
+      z-index:1!important;
+    }
+
+    .sticky-note::before{
+      width:74px!important;
+      height:18px!important;
+      left:50%!important;
+      top:-10px!important;
+      transform:translateX(-50%) rotate(2.8deg)!important;
+      background:rgba(221,198,157,.72)!important;
+      box-shadow:0 2px 5px rgba(77,64,48,.09)!important;
+      border-radius:2px!important;
+      z-index:2!important;
+    }
+
+    .sticky-note::after{
+      content:""!important;
+      position:absolute!important;
+      inset:4px -2px -3px 5px!important;
+      border-radius:8px!important;
+      background:transparent!important;
+      box-shadow:0 22px 28px rgba(66,56,44,.08)!important;
+      transform:rotate(1.4deg)!important;
+      z-index:-1!important;
+      pointer-events:none!important;
+    }
+
+    .daily-sticky{
+      width:min(70%, 270px)!important;
+      min-height:102px!important;
+      margin:14px 12px 4px auto!important;
+      padding-top:20px!important;
+    }
+
+    .daily-sticky b{
+      font-size:20px!important;
+      margin-bottom:6px!important;
+    }
+
+    .daily-sticky .sticky-text{
+      min-height:auto!important;
+      margin-top:4px!important;
+      font-size:16px!important;
+      line-height:1.42!important;
+    }
+
+    #stickyContext{
+      margin-top:7px!important;
+      font-size:11px!important;
+    }
+
+    @media(max-width:390px){
+      .sticky-note,
+      .daily-sticky{
+        width:min(72%, 248px)!important;
+        margin-right:10px!important;
+      }
+      .sticky-note::before{
+        width:68px!important;
+      }
+      .daily-sticky b{font-size:18.5px!important}
+      .daily-sticky .sticky-text{font-size:15px!important}
+    }
+
   </style>
 </head>
 <body>
@@ -1449,7 +1565,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v31</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v33</div>
   </header>
 
   <main>
@@ -2416,7 +2532,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=31");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=33");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
