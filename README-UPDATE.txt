@@ -1,10 +1,8 @@
-ESSEN TRACKER – UPDATE v17
+ESSEN TRACKER – UPDATE v18
 
-- Mond-Reiter oben rechts deutlich breiter.
-- Mondphase bleibt möglichst in einer Zeile.
-- Mondzeichen steht weiterhin klein darunter.
-- Bei ausgewählten Tagen wird die große Datumsüberschrift etwas kompakter,
-  damit Mond und Datum nebeneinander genug Platz haben.
+FEINSCHLIFF
+- Mond-Reiter oben rechts noch etwas breiter.
+- Untertitel unter „Heute“ bleibt möglichst in einer Zeile.
+- Sichtbare Versionsanzeige auf der Startseite ausgeblendet.
 
-WICHTIG:
-Lokale Tracker-Daten werden durch dieses Update nicht gelöscht.
+Sonst keine Funktionsänderungen gegenüber v17.

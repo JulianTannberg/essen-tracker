@@ -2,5 +2,5 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 17 macht den Mond-Reiter deutlich breiter, damit z. B.
-„abnehmender Mond“ nicht mehr unnötig umbricht.
+Version 18 verfeinert den Kopfbereich: breiterer Mond-Reiter, einzeiliger
+Untertitel unter „Heute“ und keine sichtbare Versionsanzeige mehr auf der Startseite.
