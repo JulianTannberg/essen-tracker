@@ -1635,6 +1635,82 @@
       .daily-sticky .sticky-text{font-size:15px!important}
     }
 
+  
+    /* ===== v35: Rahmen am Notizzettel entfernen ===== */
+    .sticky-note,
+    .daily-sticky{
+      width:min(72%, 278px)!important;
+      margin:16px auto 6px auto!important;
+      padding:21px 17px 16px!important;
+      border-radius:8px!important;
+      border:none!important;
+      outline:none!important;
+      transform:rotate(-3.2deg)!important;
+      transform-origin:center top!important;
+      background:#dfe5d0!important;
+      box-shadow:
+        0 16px 28px rgba(66,56,44,.14),
+        0 6px 10px rgba(66,56,44,.08)!important;
+      overflow:visible!important;
+      z-index:1!important;
+    }
+
+    .daily-sticky{
+      min-height:102px!important;
+      padding-top:20px!important;
+    }
+
+    .sticky-note::before{
+      width:78px!important;
+      height:18px!important;
+      left:50%!important;
+      top:-11px!important;
+      transform:translateX(-50%) rotate(3.4deg)!important;
+      background:rgba(221,198,157,.78)!important;
+      box-shadow:
+        0 3px 7px rgba(77,64,48,.13),
+        0 1px 2px rgba(77,64,48,.08)!important;
+      border-radius:2px!important;
+      z-index:3!important;
+    }
+
+    /* vorheriger Zusatzschatten erzeugte optisch einen Rahmen */
+    .sticky-note::after{
+      content:none!important;
+      display:none!important;
+    }
+
+    .daily-sticky b{
+      font-size:20px!important;
+      margin-bottom:6px!important;
+    }
+
+    .daily-sticky .sticky-text{
+      min-height:auto!important;
+      margin-top:4px!important;
+      font-size:16px!important;
+      line-height:1.42!important;
+    }
+
+    #stickyContext{
+      margin-top:7px!important;
+      font-size:11px!important;
+    }
+
+    @media(max-width:390px){
+      .sticky-note,
+      .daily-sticky{
+        width:min(74%, 252px)!important;
+        margin:14px auto 6px auto!important;
+        transform:rotate(-2.9deg)!important;
+      }
+      .sticky-note::before{
+        width:72px!important;
+      }
+      .daily-sticky b{font-size:18.5px!important}
+      .daily-sticky .sticky-text{font-size:15px!important}
+    }
+
   </style>
 </head>
 <body>
@@ -1645,7 +1721,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v34</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v35</div>
   </header>
 
   <main>
@@ -2612,7 +2688,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=34");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=35");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

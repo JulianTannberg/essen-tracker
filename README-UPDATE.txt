@@ -1,11 +1,9 @@
-ESSEN TRACKER – UPDATE v34
+ESSEN TRACKER – UPDATE v35
 
 NOTIZZETTEL
-- weiter zur Mitte gesetzt
-- deutlich stärkerer Schatten
-- etwas schiefer, damit eine Ecke optisch höher sitzt
-- Klebestreifen oben mit mehr Schatten und etwas mehr Präsenz
-- insgesamt näher an einem echten angeklebten Notizzettel
+- der optische Rahmen um den Notizzettel wurde entfernt
+- Schatten bleibt erhalten, aber weicher und sauberer
+- Zettel bleibt mittig, leicht schief und mit Tape oben
 
-Sonst keine Funktionsänderungen gegenüber v33.
+Sonst keine Funktionsänderungen gegenüber v34.
 Lokale Daten bleiben erhalten.
