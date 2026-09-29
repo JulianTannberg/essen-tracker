@@ -2066,6 +2066,30 @@
     .meal-photo-badge{width:30px;height:30px;border-radius:10px}
   }
 
+
+  /* ===== v39: Frühstück / Mittag / Abend / Snack ===== */
+  .meal-kind-wrap{display:none;gap:8px;margin:2px 0 0}
+  .meal-kind-wrap.show{display:grid}
+  .meal-kind-label{font-size:13px;font-weight:750;color:#5e584f}
+  .meal-kind-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .meal-kind-btn{
+    border:1px solid var(--line);background:#fffaf3;border-radius:13px;
+    padding:9px 5px 8px;color:#625d55;font:inherit;font-size:11px;
+    font-weight:700;line-height:1.12
+  }
+  .meal-kind-btn span{display:block;font-size:18px;margin-bottom:3px}
+  .meal-kind-btn.active{
+    background:var(--accent-soft);border-color:#b9c3aa;color:var(--accent-dark);
+    box-shadow:0 3px 8px rgba(88,95,73,.08)
+  }
+  .meal-kind-note{font-size:10.5px;line-height:1.3;color:var(--muted)}
+  .meal-kind-icon{font-size:18px;line-height:1;margin-right:2px}
+  @media(max-width:390px){
+    .meal-kind-options{gap:5px}
+    .meal-kind-btn{font-size:10px;padding:8px 3px 7px}
+    .meal-kind-btn span{font-size:17px}
+  }
+
 </style>
 </head>
 <body>
@@ -2076,7 +2100,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v38</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v39</div>
   </header>
 
   <main>
@@ -2262,6 +2286,17 @@
       <form id="entryForm">
         <input type="hidden" id="entryType" value="food">
         <label>Uhrzeit<input id="entryTime" type="time" required></label>
+        <div id="mealKindWrap" class="meal-kind-wrap">
+          <div class="meal-kind-label">Mahlzeit</div>
+          <input id="mealKind" type="hidden" value="">
+          <div class="meal-kind-options">
+            <button type="button" class="meal-kind-btn" data-meal-kind="breakfast"><span>☀️</span>Frühstück</button>
+            <button type="button" class="meal-kind-btn" data-meal-kind="lunch"><span>🍴</span>Mittag</button>
+            <button type="button" class="meal-kind-btn" data-meal-kind="dinner"><span>☾</span>Abend</button>
+            <button type="button" class="meal-kind-btn" data-meal-kind="snack"><span>🍎</span>Snack</button>
+          </div>
+          <div class="meal-kind-note">Wird nach Uhrzeit vorausgewählt – du kannst es jederzeit ändern.</div>
+        </div>
         <label id="entryValueWrap"><span id="entryValueText">Was?</span><input id="entryValue" list="knownItems" autocomplete="off"><datalist id="knownItems"></datalist></label>
         <label id="entryAmountWrap" style="display:none"><span id="entryAmountText">Menge</span><div class="input-unit"><input id="entryAmount" type="number" inputmode="decimal"><span id="entryUnit">ml</span></div><div id="amountChips" class="chips"></div></label>
         <label id="periodFlowWrap" style="display:none">Stärke<select id="periodFlow"><option value="">ohne Angabe</option><option value="leicht">leicht</option><option value="mittel">mittel</option><option value="stark">stark</option></select></label>
@@ -2364,6 +2399,7 @@ let editingDate=null;
 let printFilters=["all"];
 let entryPhotoData="";
 let removeEntryPhoto=false;
+let mealKindTouched=false;
 
 function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT))}
 function load(){
@@ -2439,7 +2475,7 @@ function addEntry(type,value,opts={}){
   state.entries.push({
     id:uid(),date:opts.date||selectedDate||localDate(),time:opts.time||localTime(),type,
     value:String(value||"").trim(),note:opts.note||"",mealId:opts.mealId||null,createdAt:new Date().toISOString(),
-    tags:opts.tags||[],amountMl:opts.amountMl??null,weightKg:opts.weightKg??null,periodFlow:opts.periodFlow||""
+    tags:opts.tags||[],amountMl:opts.amountMl??null,weightKg:opts.weightKg??null,periodFlow:opts.periodFlow||"",mealKind:opts.mealKind||""
   });
 }
 const BUILTIN_ENTRY_CATEGORIES=[
@@ -2860,11 +2896,11 @@ function renderTimeline(){
     const catLabels=categoryLabelsFromEntries(g.items);
     if(isMeal){
       const values=g.items.map(e=>escapeHtml(e.value)).join(", ");
-      const photo=mealPhoto(g.mealId);
+      const photo=mealPhoto(g.mealId),kind=mealKindMeta(first.mealKind,g.time);
       return `<div class="meal-card editable" data-edit-id="${first.id}" role="button" tabindex="0">
         <div class="meal-thumb${photo?"":" empty"}">${photo?`<img src="${photo}" alt="Essensfoto">`:"🍽️"}</div>
         <div class="meal-content">
-          <div class="meal-head"><div class="meal-title">Mahlzeit</div><div class="meal-time">${g.time} Uhr</div></div>
+          <div class="meal-head"><span class="meal-kind-icon">${kind.icon}</span><div class="meal-title">${kind.label}</div><div class="meal-time">${g.time} Uhr</div></div>
           <div class="meal-desc">${values}</div>
           ${(notes||catLabels.length)?`<div class="meal-note">${notes?escapeHtml(notes):""}${notes&&catLabels.length?" · ":""}${catLabels.map(escapeHtml).join(" · ")}</div>`:""}
         </div>
@@ -2884,6 +2920,37 @@ function renderTimeline(){
   box.querySelectorAll("[data-edit-id]").forEach(card=>{const open=()=>openEditDialog(card.dataset.editId);card.onclick=open;card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}});
 }
 function renderKnown(){document.querySelector("#knownItems").innerHTML=knownItems().map(x=>`<option value="${escapeHtml(x)}"></option>`).join("")}
+
+
+const MEAL_KIND_META={
+  breakfast:{label:"Frühstück",icon:"☀️"},
+  lunch:{label:"Mittagessen",icon:"🍴"},
+  dinner:{label:"Abendessen",icon:"☾"},
+  snack:{label:"Snack",icon:"🍎"}
+};
+function guessMealKind(time){
+  const [hRaw,mRaw]=String(time||localTime()).split(":");
+  const mins=(Number(hRaw)||0)*60+(Number(mRaw)||0);
+  if(mins < 11*60)return "breakfast";
+  if(mins < 14*60+30)return "lunch";
+  if(mins < 17*60)return "snack";
+  if(mins < 21*60+30)return "dinner";
+  return "snack";
+}
+function setMealKind(kind,manual=false){
+  const input=document.querySelector("#mealKind");if(!input)return;
+  const safe=MEAL_KIND_META[kind]?kind:"snack";
+  input.value=safe;
+  document.querySelectorAll("[data-meal-kind]").forEach(b=>b.classList.toggle("active",b.dataset.mealKind===safe));
+  if(manual)mealKindTouched=true;
+}
+function currentMealKind(){
+  return document.querySelector("#mealKind")?.value||guessMealKind(document.querySelector("#entryTime")?.value||localTime());
+}
+function mealKindMeta(kind,time){
+  const safe=MEAL_KIND_META[kind]?kind:guessMealKind(time);
+  return MEAL_KIND_META[safe];
+}
 
 const TYPE_UI={
   food:{title:"Essen eintragen",valueLabel:"Was gegessen?",placeholder:"z. B. Kartoffeln, Möhren, Salat",hint:"Mehrere Bestandteile mit Komma trennen – sie werden als eine Mahlzeit zusammengefasst.",amount:false,value:true},
@@ -2941,9 +3008,10 @@ function clearEditing(){editingIds=[];editingDate=null;document.querySelector("#
 function openTypeDialog(){document.querySelector("#typeDialog").showModal()}
 function configureEntryForm(type){
   const cfg=TYPE_UI[type]||TYPE_UI.food;document.querySelector("#entryType").value=type;document.querySelector("#entryDialogTitle").textContent=cfg.title;
-  const vw=document.querySelector("#entryValueWrap"),aw=document.querySelector("#entryAmountWrap"),pw=document.querySelector("#periodFlowWrap"),ph=document.querySelector("#entryPhotoWrap");
+  const vw=document.querySelector("#entryValueWrap"),aw=document.querySelector("#entryAmountWrap"),pw=document.querySelector("#periodFlowWrap"),ph=document.querySelector("#entryPhotoWrap"),mk=document.querySelector("#mealKindWrap");
   vw.style.display=cfg.value?"grid":"none";aw.style.display=cfg.amount?"grid":"none";pw.style.display=cfg.period?"grid":"none";
   if(ph)ph.classList.toggle("show",type==="food");
+  if(mk)mk.classList.toggle("show",type==="food");
   document.querySelector("#entryValueText").textContent=cfg.valueLabel||"Was?";document.querySelector("#entryValue").placeholder=cfg.placeholder||"";
   document.querySelector("#entryAmountText").textContent=cfg.amountLabel||"Menge";document.querySelector("#entryUnit").textContent=cfg.unit||"";document.querySelector("#entryAmount").step=type==="weight"?"0.1":"1";document.querySelector("#entryAmount").min=type==="weight"?"1":"0";
   document.querySelector("#entryHint").textContent=cfg.hint||"";
@@ -2951,10 +3019,39 @@ function configureEntryForm(type){
   renderEntryCategories(type,[]);
 }
 function openNewEntry(type){
-  clearEditing();document.querySelector("#typeDialog").close();configureEntryForm(type);document.querySelector("#entryTime").value=localTime();document.querySelector("#entryValue").value="";document.querySelector("#entryAmount").value="";document.querySelector("#periodFlow").value="";document.querySelector("#entryNote").value="";resetPhotoField();renderEntryCategories(type,[]);document.querySelector("#entryDialog").showModal();
+  clearEditing();mealKindTouched=false;document.querySelector("#typeDialog").close();configureEntryForm(type);
+  const now=localTime();
+  document.querySelector("#entryTime").value=now;
+  document.querySelector("#entryValue").value="";
+  document.querySelector("#entryAmount").value="";
+  document.querySelector("#periodFlow").value="";
+  document.querySelector("#entryNote").value="";
+  resetPhotoField();renderEntryCategories(type,[]);
+  if(type==="food")setMealKind(guessMealKind(now),false);
+  document.querySelector("#entryDialog").showModal();
 }
 function openEditDialog(id){
-  const first=state.entries.find(e=>e.id===id);if(!first)return;const items=first.mealId?state.entries.filter(e=>e.mealId===first.mealId&&e.date===first.date):[first];editingIds=items.map(e=>e.id);editingDate=first.date;configureEntryForm(first.type);document.querySelector("#entryDialogTitle").textContent=items.length>1?"Mahlzeit ändern":TYPE_UI[first.type]?.title||"Eintrag ändern";document.querySelector("#entryTime").value=first.time;document.querySelector("#entryValue").value=first.type==="food"&&items.length>1?items.map(e=>e.value).join(", "):first.value||"";document.querySelector("#entryAmount").value=first.type==="weight"?first.weightKg??"":first.type==="drink"?first.amountMl??"":"";document.querySelector("#periodFlow").value=first.periodFlow||"";document.querySelector("#entryNote").value=first.note||"";resetPhotoField();if(first.type==="food"){entryPhotoData=mealPhoto(first.mealId);setPhotoPreview(entryPhotoData)}const editCats=new Set();items.forEach(e=>(e.tags||[]).forEach(t=>{if(String(t).startsWith("cat:"))editCats.add(String(t).slice(4))}));if(items.some(e=>normalizedItem(e.value)==="bier"))editCats.add("beer");renderEntryCategories(first.type,[...editCats]);document.querySelector("#deleteEntry").style.display="block";document.querySelector("#entryDialog").showModal();
+  const first=state.entries.find(e=>e.id===id);if(!first)return;
+  const items=first.mealId?state.entries.filter(e=>e.mealId===first.mealId&&e.date===first.date):[first];
+  editingIds=items.map(e=>e.id);editingDate=first.date;mealKindTouched=!!first.mealKind;
+  configureEntryForm(first.type);
+  document.querySelector("#entryDialogTitle").textContent=items.length>1?"Mahlzeit ändern":TYPE_UI[first.type]?.title||"Eintrag ändern";
+  document.querySelector("#entryTime").value=first.time;
+  document.querySelector("#entryValue").value=first.type==="food"&&items.length>1?items.map(e=>e.value).join(", "):first.value||"";
+  document.querySelector("#entryAmount").value=first.type==="weight"?(first.weightKg??""):first.type==="drink"?(first.amountMl??""):"";
+  document.querySelector("#periodFlow").value=first.periodFlow||"";
+  document.querySelector("#entryNote").value=first.note||"";
+  resetPhotoField();
+  if(first.type==="food"){
+    entryPhotoData=mealPhoto(first.mealId);setPhotoPreview(entryPhotoData);
+    setMealKind(first.mealKind||guessMealKind(first.time),false);
+  }
+  const editCats=new Set();
+  items.forEach(e=>(e.tags||[]).forEach(t=>{if(String(t).startsWith("cat:"))editCats.add(String(t).slice(4))}));
+  if(items.some(e=>normalizedItem(e.value)==="bier"))editCats.add("beer");
+  renderEntryCategories(first.type,[...editCats]);
+  document.querySelector("#deleteEntry").style.display="block";
+  document.querySelector("#entryDialog").showModal();
 }
 function saveDialog(ev){
   ev.preventDefault();
@@ -2978,8 +3075,8 @@ function saveDialog(ev){
   const catTags=categoryIds.map(categoryTag);
   if(editingIds.length)state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
   if(type==="food"){
-    const mealId=oldMealId||uid(),parts=raw.split(",").map(x=>x.trim()).filter(Boolean);
-    parts.forEach(v=>{addEntry("food",v,{date,time,note,mealId,tags:catTags});rememberCategories(v,categoryIds)});
+    const mealId=oldMealId||uid(),parts=raw.split(",").map(x=>x.trim()).filter(Boolean),mealKind=currentMealKind();
+    parts.forEach(v=>{addEntry("food",v,{date,time,note,mealId,tags:catTags,mealKind});rememberCategories(v,categoryIds)});
     state.mealPhotos=state.mealPhotos||{};
     if(removeEntryPhoto) delete state.mealPhotos[mealId];
     else if(entryPhotoData) state.mealPhotos[mealId]=entryPhotoData;
@@ -3109,7 +3206,16 @@ if(entryPhotoInput)entryPhotoInput.addEventListener("change",async e=>{
 const pickPhotoBtn=document.querySelector("#pickPhotoBtn"); if(pickPhotoBtn) pickPhotoBtn.onclick=()=>document.querySelector("#entryPhotoInput").click();
 const removePhotoBtn=document.querySelector("#removePhotoBtn"); if(removePhotoBtn) removePhotoBtn.onclick=()=>{removeEntryPhoto=true;entryPhotoData="";const inp=document.querySelector("#entryPhotoInput"); if(inp) inp.value=""; setPhotoPreview("")};
 
-document.querySelector("#entryForm").addEventListener("submit",saveDialog);document.querySelector("#entryValue").addEventListener("change",refreshEntryCategoriesFromValue);document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
+
+document.querySelectorAll("[data-meal-kind]").forEach(b=>b.onclick=()=>setMealKind(b.dataset.mealKind,true));
+const entryTimeInput=document.querySelector("#entryTime");
+if(entryTimeInput)entryTimeInput.addEventListener("change",()=>{
+  if(document.querySelector("#entryType").value==="food"&&!mealKindTouched){
+    setMealKind(guessMealKind(entryTimeInput.value),false);
+  }
+});
+
+document.querySelector("#entryForm").addEventListener("submit",saveDialog);document.querySelector("#entryValue").addEventListener("change",refreshEntryCategoriesFromValue);document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
 document.querySelector("#printMonth").onclick=()=>{renderPrintFilterDialog();document.querySelector("#printDialog").showModal()};document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#startPrint").onclick=startPrint;
 document.querySelector("#saveSettings").onclick=()=>{state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"Wasser";state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;save();showToast("Wasser-Einstellung gespeichert")};
@@ -3129,7 +3235,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=35");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=39");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
