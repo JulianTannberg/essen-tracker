@@ -915,6 +915,86 @@
       }
     }
 
+  
+    /* ===== v19: Untertitel über die ganze Breite ===== */
+
+    .topbar{
+      padding-right:214px!important;
+      min-height:120px!important;
+      overflow:visible!important;
+    }
+
+    .date-line{
+      display:block!important;
+      white-space:nowrap!important;
+      font-size:15.8px!important;
+      line-height:1.1!important;
+      padding-right:0!important;
+      width:calc(100% + 190px)!important;
+      max-width:calc(100vw - 32px)!important;
+      overflow:visible!important;
+      position:relative!important;
+      margin-top:6px!important;
+    }
+
+    .moon-chip{
+      top:14px!important;
+    }
+
+    @media(max-width:390px){
+      .topbar{
+        padding-right:194px!important;
+        min-height:116px!important;
+      }
+      .date-line{
+        font-size:14.6px!important;
+        width:calc(100% + 172px)!important;
+        max-width:calc(100vw - 24px)!important;
+      }
+    }
+
+  
+    /* ===== v20: Notizzettel nach oben, Jahreskreis-Block weg ===== */
+
+    .date-line{
+      white-space:nowrap!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      font-size:clamp(13.5px,3.9vw,15.8px)!important;
+      width:auto!important;
+      max-width:none!important;
+      padding-right:0!important;
+    }
+
+    .daily-sticky{
+      width:calc(100% - 18px)!important;
+      max-width:none!important;
+      margin:12px auto 14px!important;
+      min-height:116px!important;
+      transform:rotate(-.35deg)!important;
+    }
+
+    .daily-sticky .sticky-text{
+      font-size:16.5px!important;
+      line-height:1.42!important;
+    }
+
+    #calendarSpecial{
+      display:none!important;
+    }
+
+    @media(max-width:390px){
+      .date-line{
+        font-size:13.7px!important;
+      }
+      .daily-sticky{
+        width:calc(100% - 12px)!important;
+      }
+      .daily-sticky .sticky-text{
+        font-size:15.7px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -924,18 +1004,22 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v18</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v20</div>
   </header>
 
   <main>
     <section id="todayView" class="view active">
       <div id="weekStrip" class="week-strip" aria-label="Tage auswählen"></div>
-<div id="calendarSpecial" class="calendar-special">
-        <h3>Heute im Jahreskreis</h3>
-        <div id="calendarSpecialList"></div>
+
+      <div id="dailySticky" class="sticky-note daily-sticky">
+        <b id="stickyTitle">Kleiner Gedanke ♡</b>
+        <span id="dailyQuote" class="sticky-text"></span>
+        <span id="stickyContext" class="sticky-context"></span>
+        <button id="rerollQuote" class="sticky-reroll" type="button" aria-label="Anderen Spruch für diesen Tag anzeigen">↻</button>
       </div>
 
-      <div id="todaySummary" class="summary-card">
+      
+<div id="todaySummary" class="summary-card">
         <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small></div>
         <div id="freeDaysTodayCard" class="beer-card"><small id="freeDaysLabel">Bierfreie Tage</small><span id="beerStreak" class="big">0</span><small id="beerStreakSub">Tage am Stück</small></div>
       </div>
@@ -961,15 +1045,7 @@
         <h3>Heute für mich ♡</h3>
         <div id="wellbeingList" class="wellbeing-list"></div>
       </div>
-
-      <div id="dailySticky" class="sticky-note daily-sticky">
-        <b id="stickyTitle">Kleiner Gedanke ♡</b>
-        <span id="dailyQuote" class="sticky-text"></span>
-        <span id="stickyContext" class="sticky-context"></span>
-        <button id="rerollQuote" class="sticky-reroll" type="button" aria-label="Anderen Spruch für diesen Tag anzeigen">↻</button>
-      </div>
-
-      <div id="timelineSection" class="timeline-section">
+<div id="timelineSection" class="timeline-section">
         <div class="section-title"><h2>Zeitleiste</h2><small id="timelineDayLabel"></small></div>
         <div id="timeline" class="timeline"></div>
       </div>
@@ -1486,9 +1562,7 @@ function renderMoon(){
     document.querySelector("#moonSignName").textContent="Phase konnte nicht geladen werden";
   }
 }
-function renderCalendarSpecial(){
-  const card=document.querySelector("#calendarSpecial"),box=document.querySelector("#calendarSpecialList");if(!card||!box)return;const events=specialEventsFor(selectedDate);card.classList.toggle("show",events.length>0);box.innerHTML=events.slice(0,4).map(e=>`<div class="calendar-event"><b><span class="event-tag">${escapeHtml(e.kind)}</span>${escapeHtml(e.title)}</b><p>${escapeHtml(e.text)}</p></div>`).join("")
-}
+function renderCalendarSpecial(){return}
 function renderDailyQuote(){const q=quoteForDate(selectedDate),el=document.querySelector("#dailyQuote"),ctx=document.querySelector("#stickyContext");if(el)el.textContent=q.text||"Heute darf der Zettel einfach leer bleiben. ♡";if(ctx)ctx.textContent=q.context||""}
 function enabledTodoItems(){
   let items=Array.isArray(state.settings.todoItems)?state.settings.todoItems:[];
@@ -1816,7 +1890,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=18");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=20");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

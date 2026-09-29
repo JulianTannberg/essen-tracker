@@ -2,5 +2,6 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 18 verfeinert den Kopfbereich: breiterer Mond-Reiter, einzeiliger
-Untertitel unter „Heute“ und keine sichtbare Versionsanzeige mehr auf der Startseite.
+Version 20: Der Tages-Klebezettel sitzt jetzt oben direkt unter der Wochenleiste.
+Der separate Block „Heute im Jahreskreis“ wurde entfernt, damit Feiertage,
+Naturtage, Jahreskreis, Mond- und Sternschnuppenhinweise nicht doppelt erscheinen.

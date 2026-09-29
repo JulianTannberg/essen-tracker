@@ -1,8 +1,15 @@
-ESSEN TRACKER – UPDATE v18
+ESSEN TRACKER – UPDATE v20
 
-FEINSCHLIFF
-- Mond-Reiter oben rechts noch etwas breiter.
-- Untertitel unter „Heute“ bleibt möglichst in einer Zeile.
-- Sichtbare Versionsanzeige auf der Startseite ausgeblendet.
+LAYOUT
+- „Kleine Schritte, große Veränderung“ bleibt einzeilig.
+- Der Klebezettel steht jetzt direkt unter der Wochenleiste.
+- Der separate Block „Heute im Jahreskreis“ ist entfernt.
 
-Sonst keine Funktionsänderungen gegenüber v17.
+INHALT
+- Feiertage, Naturtage, Jahreskreisfeste, Rauhnächte, Bauernregeln,
+  besondere Mondnächte und Sternschnuppen erscheinen weiterhin über den
+  Klebezettel, wenn für den Tag etwas Besonderes anliegt.
+- Dadurch gibt es keine doppelte Anzeige mehr.
+
+Sonst bleiben Wasser, freie Tage, Gewicht, Schnell-Einträge, „Heute für mich“
+und die Zeitleiste unverändert.

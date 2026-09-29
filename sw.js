@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v18";
-const ASSETS=["./?app=v18","./index.html","./manifest.webmanifest","./icon.svg","./top-branch.png"];
+const CACHE="essen-tracker-pages-v20";
+const ASSETS=["./?app=v20","./index.html","./manifest.webmanifest","./icon.svg","./top-branch.png"];
 
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
