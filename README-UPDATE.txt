@@ -1,10 +1,10 @@
-ESSEN TRACKER – UPDATE v30
+ESSEN TRACKER – UPDATE v31
 
-HEUTE
-- Der große Leerraum unter „Heute“ und „Kleine Schritte, große Veränderung“ ist deutlich reduziert.
-- Der Spruch bleibt groß, schräg und einzeilig.
-- Das aktuelle Datum wird wieder angezeigt, z. B. „Dienstag, 29. September“.
-- Die Wochenleiste rückt dadurch sichtbar nach oben.
+HEUTE-KOPF
+- Das Datum steht direkt unter „Heute“.
+- „Kleine Schritte, große Veränderung“ nutzt jetzt die freie Zeile darunter.
+- Der Satz beginnt erst unterhalb des Mond-Reiters und kann dadurch komplett
+  über die Breite laufen, ohne hinter dem Mond zu verschwinden.
+- Die freie Fläche im Kopf wird damit sinnvoll genutzt.
 
-PDF-Fix aus v29 bleibt unverändert enthalten.
-Lokale Daten bleiben erhalten.
+PDF-Fix aus v29/v30 bleibt enthalten.

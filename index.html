@@ -1381,6 +1381,64 @@
       }
     }
 
+  
+    /* ===== v31: Satz komplett sichtbar ===== */
+
+    .topbar{
+      min-height:148px!important;
+      padding-top:20px!important;
+      padding-bottom:4px!important;
+    }
+
+    .today-actual-date{
+      display:none;
+      margin:3px 0 0 10px!important;
+      font-family:var(--serif)!important;
+      font-size:12px!important;
+      line-height:1!important;
+      color:#8a847a!important;
+    }
+
+    .date-line{
+      display:block!important;
+      position:relative!important;
+      top:auto!important;
+      margin-top:28px!important;
+      margin-left:8px!important;
+      width:calc(100vw - 36px)!important;
+      max-width:none!important;
+      padding-right:0!important;
+      white-space:nowrap!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      font-size:21px!important;
+      line-height:1!important;
+      transform:rotate(-2.1deg)!important;
+      transform-origin:left center!important;
+      z-index:1!important;
+    }
+
+    .week-strip{
+      margin-top:0!important;
+    }
+
+    @media(max-width:390px){
+      .topbar{
+        min-height:142px!important;
+        padding-top:18px!important;
+      }
+      .today-actual-date{
+        margin-left:8px!important;
+        font-size:11px!important;
+      }
+      .date-line{
+        margin-top:27px!important;
+        margin-left:6px!important;
+        width:calc(100vw - 24px)!important;
+        font-size:18.5px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1388,10 +1446,10 @@
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
       <h1 id="pageTitle">Heute</h1>
-      <div id="dateLine" class="date-line"></div>
       <div id="todayActualDate" class="today-actual-date"></div>
+      <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v30</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v31</div>
   </header>
 
   <main>
@@ -2358,7 +2416,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=30");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=31");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

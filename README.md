@@ -1,4 +1,4 @@
 # essen-tracker
 
-Version 30 verkleinert den unnötigen Leerraum im Heute-Kopf und zeigt das
-aktuelle Datum wieder zusätzlich an.
+Version 31 setzt den handschriftlichen Satz unter die Mondanzeige, damit er
+nicht mehr vom Mond-Reiter verdeckt wird.
