@@ -1048,6 +1048,67 @@
       .free-goal-add{grid-template-columns:1fr}.free-goal-add button{grid-column:auto}
     }
 
+  
+    /* ===== v23: größerer schräger Untertitel + kompaktere Karten ===== */
+
+    .topbar{
+      min-height:128px!important;
+      overflow:visible!important;
+    }
+
+    .date-line{
+      display:block!important;
+      width:calc(100vw - 34px)!important;
+      max-width:none!important;
+      margin-top:6px!important;
+      margin-left:4px!important;
+      white-space:nowrap!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      font-size:20px!important;
+      line-height:1.02!important;
+      transform:rotate(-2.2deg)!important;
+      transform-origin:left center!important;
+      letter-spacing:.01em!important;
+      opacity:.96;
+    }
+
+    .sticky-reroll,
+    .sticky-context,
+    #stickyContext{
+      display:none!important;
+    }
+
+    .daily-sticky{
+      min-height:150px!important;
+      padding-bottom:22px!important;
+    }
+
+    /* Freie-Tage-Karte kompakter */
+    .free-days-card .free-days-title,
+    .free-days-heading{
+      display:none!important;
+    }
+    .free-days-card,
+    #freeDaysTodayCard{
+      padding-top:16px!important;
+    }
+    .free-days-card .series-list,
+    .free-days-card .free-days-list{
+      margin-top:0!important;
+    }
+
+    @media(max-width:390px){
+      .topbar{
+        min-height:123px!important;
+      }
+      .date-line{
+        width:calc(100vw - 24px)!important;
+        font-size:18px!important;
+        margin-top:5px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1057,7 +1118,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v22</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v23</div>
   </header>
 
   <main>
@@ -1067,8 +1128,8 @@
       <div id="dailySticky" class="sticky-note daily-sticky">
         <b id="stickyTitle">Kleiner Gedanke ♡</b>
         <span id="dailyQuote" class="sticky-text"></span>
-        <span id="stickyContext" class="sticky-context"></span>
-        <button id="rerollQuote" class="sticky-reroll" type="button" aria-label="Anderen Spruch für diesen Tag anzeigen">↻</button>
+        
+        
       </div>
 
       
@@ -1985,7 +2046,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=22");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=23");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

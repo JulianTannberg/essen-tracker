@@ -1,11 +1,11 @@
-ESSEN TRACKER – UPDATE v22
+ESSEN TRACKER – UPDATE v23
 
-- Gewicht folgt jetzt dem ausgewählten Tag: angezeigt wird die letzte Messung bis zu diesem Datum.
-- Auch die Gewichtsvergleiche beziehen sich nur auf Werte bis zu diesem Datum.
-- Neben Spaziergang, Bewegung, Ruhepause und Abendroutine steht jetzt die aktuelle Serie in Tagen.
-- Mehrere freie Tage-Serien gleichzeitig möglich, z. B. Bierfrei + Süßigkeitenfrei + Milchfrei.
-- Jede Serie hat eigenen Namen, Startdatum und eine Kategorie, die sie unterbricht.
-- Alle aktiven Serien stehen gemeinsam in einer Karte auf der Startseite.
-- Vorhandene Bier-/Alkoholfrei-Einstellung wird beim Update automatisch als erste Serie übernommen.
+FEINSCHLIFF
+- Der Satz unter „Heute“ ist jetzt deutlich größer.
+- Er nutzt die freie Breite besser aus und liegt leicht schräg.
+- Unter „Kleiner Gedanke“ wird kein zusätzlicher Kontext mehr angezeigt.
+- Der Wechsel-Button beim Klebezettel ist entfernt.
+- Die Karte mit den freien Tagen ist kompakter; die Überschrift „Freie Tage“
+  entfällt, damit mehr Platz für die eigentlichen Serien bleibt.
 
-Lokale Einträge bleiben erhalten.
+Sonst bleiben die Funktionen aus v22 erhalten.
