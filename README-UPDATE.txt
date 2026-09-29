@@ -1,9 +1,10 @@
-ESSEN TRACKER – UPDATE v16
+ESSEN TRACKER – UPDATE v17
 
-BUGFIX
-- Die Mondanzeige wurde durch eine ältere CSS-Regel versehentlich wieder
-  relativ positioniert und rutschte deshalb links unter die Überschrift.
-- Sie ist jetzt ausdrücklich absolut oben rechts positioniert.
-- Der Mond-Chip ist etwas kompakter, damit er auf schmalen Handys sauber passt.
+- Mond-Reiter oben rechts deutlich breiter.
+- Mondphase bleibt möglichst in einer Zeile.
+- Mondzeichen steht weiterhin klein darunter.
+- Bei ausgewählten Tagen wird die große Datumsüberschrift etwas kompakter,
+  damit Mond und Datum nebeneinander genug Platz haben.
 
-Sonst keine Layout- oder Funktionsänderungen gegenüber v15.
+WICHTIG:
+Lokale Tracker-Daten werden durch dieses Update nicht gelöscht.
