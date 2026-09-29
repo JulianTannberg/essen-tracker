@@ -2,5 +2,5 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 26 reduziert den Leerraum im Kopfbereich, macht den Notizzettel schmaler
-und vergrößert die rechten Gewichtsangaben.
+Version 27 verbessert den Druck/PDF-Bereich der Monatsübersicht:
+Die Gewichtskarte sitzt jetzt unter dem Kalender statt in der rechten Seitenleiste.

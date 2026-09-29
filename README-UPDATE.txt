@@ -1,6 +1,8 @@
-ESSEN TRACKER – UPDATE v26
+ESSEN TRACKER – UPDATE v27
 
-- Weniger Leerraum zwischen dem Satz unter „Heute“ und der Wochenleiste.
-- Der Notizzettel ist schmaler und wirkt mehr wie „dazwischen geklebt“.
-- In der Gewichtskarte sind die rechten Angaben größer und sitzen etwas kompakter.
-- Sonst keine Funktionsänderungen gegenüber v25.
+DRUCK / PDF
+- Die Gewichtsbox wurde in der Monatsübersicht unter den Kalender verschoben.
+- Rechts in der Seitenleiste bleiben nur noch „Freie Tage“ und die Legende.
+- Dadurch bekommt der Kalender oben mehr Platz und die Übersicht wirkt ruhiger.
+
+Sonst keine Funktionsänderungen gegenüber v26.

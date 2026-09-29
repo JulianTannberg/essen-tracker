@@ -128,15 +128,23 @@
       #printPage{display:block!important;width:100%;height:100%;font-family:Arial,sans-serif;color:#222}
       .print-title-row{display:flex;justify-content:space-between;align-items:end;margin:0 0 3mm}
       .print-title-row h1{font-size:17pt;margin:0}.print-title-row div{font-size:8pt;color:#666}
-      .print-layout{display:grid;grid-template-columns:minmax(0,1fr) 57mm;gap:4mm;align-items:start}
+      .print-layout{display:grid;grid-template-columns:minmax(0,1fr) 52mm;gap:4mm;align-items:start}
+      .print-main{min-width:0}
       .print-calendar-head,.print-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1.4mm}
       .print-calendar-head>div{font-size:7.5pt;font-weight:700;text-align:center;padding:1mm 0}
       .print-calendar{grid-auto-rows:24.7mm}
       .print-day{border:.35mm solid #d8d0c5;border-radius:2mm;padding:1.6mm;background:#fff;overflow:hidden;position:relative}
       .print-day.out{opacity:.28}.print-day.no-beer{background:#e9f4ec}.print-day.period-day{box-shadow:inset 0 0 0 .55mm #c65a5a}
       .print-date{font-size:7.3pt;font-weight:700;margin-bottom:1mm}.print-entry{font-size:6.4pt;line-height:1.16;margin-bottom:.7mm;overflow-wrap:anywhere}.print-time{font-weight:700}.print-empty{font-size:6.3pt;color:#aaa}
-      .print-side{border-left:.35mm solid #ded7cc;padding-left:3mm;min-height:160mm}.print-side h2{font-size:10.5pt;margin:0 0 2mm}.print-box{border:.35mm solid #ddd5c9;border-radius:2mm;padding:2.2mm;margin-bottom:2.5mm;break-inside:avoid}.print-box h3{font-size:8.2pt;margin:0 0 1.2mm}.print-box p{font-size:7pt;margin:.8mm 0}.print-box strong{font-size:9pt}
-      #printWeightChart{width:100%;height:43mm;display:block}.print-legend{font-size:6.5pt;color:#666;display:grid;gap:1mm}.print-legend span{display:flex;align-items:center;gap:1.3mm}.print-dot{width:2.2mm;height:2.2mm;border-radius:50%;display:inline-block}.print-dot.period{background:#b74444}.print-dot.beer{background:#cfe3d6;border:.2mm solid #89b197}
+      .print-side{border-left:.35mm solid #ded7cc;padding-left:3mm;min-height:160mm}.print-side h2{font-size:10.5pt;margin:0 0 2mm}
+      .print-box{border:.35mm solid #ddd5c9;border-radius:2mm;padding:2.2mm;margin-bottom:2.5mm;break-inside:avoid}.print-box h3{font-size:8.2pt;margin:0 0 1.2mm}.print-box p{font-size:7pt;margin:.8mm 0}.print-box strong{font-size:9pt}
+      .print-weight-row{grid-column:1 / -1;margin-top:.5mm}
+      .print-weight-row .print-box{display:grid;grid-template-columns:40mm 1fr;gap:3.5mm;align-items:start}
+      .print-weight-row .print-box h3{grid-column:1 / -1}
+      .print-weight-row .print-box p,.print-weight-row .print-box strong{grid-column:1}
+      .print-weight-row #printWeightChart{grid-column:2;grid-row:2 / span 3;height:40mm}
+      #printWeightChart{width:100%;height:43mm;display:block}
+      .print-legend{font-size:6.5pt;color:#666;display:grid;gap:1mm}.print-legend span{display:flex;align-items:center;gap:1.3mm}.print-dot{width:2.2mm;height:2.2mm;border-radius:50%;display:inline-block}.print-dot.period{background:#b74444}.print-dot.beer{background:#cfe3d6;border:.2mm solid #89b197}
     }
   
     /* ===== Planner-Redesign v8 ===== */
@@ -1247,7 +1255,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v26</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v27</div>
   </header>
 
   <main>
@@ -1475,12 +1483,17 @@
   <section id="printPage" aria-hidden="true">
     <div class="print-title-row"><h1 id="printTitle">Monatsübersicht</h1><div id="printMeta"></div></div>
     <div class="print-layout">
-      <div><div class="print-calendar-head"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div><div id="printCalendar" class="print-calendar"></div></div>
+      <div class="print-main">
+        <div class="print-calendar-head"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
+        <div id="printCalendar" class="print-calendar"></div>
+      </div>
       <aside class="print-side">
-        <div class="print-box"><h3>Gewicht</h3><p>Letzte Messung</p><strong id="printWeightLatest">–</strong><p id="printWeightDelta">–</p><canvas id="printWeightChart" width="280" height="180"></canvas></div>
         <div class="print-box"><h3 id="printFreeDaysTitle">Freie Tage</h3><strong id="printBeerStreak">–</strong><p id="printBeerInfo"></p></div>
         <div class="print-box"><h3>Legende</h3><div class="print-legend"><span><i class="print-dot period"></i> Periode</span><span><i class="print-dot beer"></i> <span id="printFreeLegend">freier Tag</span></span></div></div>
       </aside>
+      <div class="print-weight-row">
+        <div class="print-box"><h3>Gewicht</h3><p>Letzte Messung</p><strong id="printWeightLatest">–</strong><p id="printWeightDelta">–</p><canvas id="printWeightChart" width="280" height="180"></canvas></div>
+      </div>
     </div>
   </section>
 
@@ -2175,7 +2188,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=26");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=27");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
