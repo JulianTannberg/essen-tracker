@@ -1,22 +1,9 @@
-ESSEN TRACKER – UPDATE v15
+ESSEN TRACKER – UPDATE v16
 
-LAYOUT
-- Mond sitzt oben rechts im freien Kopfbereich.
-- Der Zweig ist oben entfernt und liegt jetzt nur noch einmal rechts über der
-  Karte „Bierfreie Tage/Freie Tage“.
-- Kein weiterer Zweig an anderen Stellen.
-- Die Zeitleiste ist jetzt zweispaltig und steht ganz unten auf der Heute-Seite.
+BUGFIX
+- Die Mondanzeige wurde durch eine ältere CSS-Regel versehentlich wieder
+  relativ positioniert und rutschte deshalb links unter die Überschrift.
+- Sie ist jetzt ausdrücklich absolut oben rechts positioniert.
+- Der Mond-Chip ist etwas kompakter, damit er auf schmalen Handys sauber passt.
 
-JAHRESKREIS
-- Der blasse Deko-Mond im Feld „Heute im Jahreskreis“ ist entfernt.
-- Vollmond/Neumond erscheinen dort nicht mehr als eigener Eintrag.
-- Besondere Mondnächte und Sternschnuppen können weiterhin den Klebezettel-Spruch
-  beeinflussen.
-
-BAUERNREGELN
-- Der erklärende Zusatz über Bauernregeln/Wettervorhersage ist entfernt.
-- Es wird nur noch die eigentliche Bauernregel angezeigt.
-
-UPDATE
-- Dateien aus der ZIP ins Repository übernehmen/ersetzen.
-- Lokale Tracker-Daten bleiben erhalten.
+Sonst keine Layout- oder Funktionsänderungen gegenüber v15.
