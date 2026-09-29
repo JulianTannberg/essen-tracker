@@ -2570,6 +2570,152 @@
     margin-top:1px!important;
   }
 
+
+  /* ===== v42: Oberer Bereich näher am Referenzbild ===== */
+  .today-top-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr)!important;
+    gap:10px!important;
+    align-items:center!important;
+    margin:12px 2px 12px!important;
+  }
+
+  /* Heute-für-mich-Karte kompakter, klarer und nicht gequetscht */
+  .today-top-grid .wellbeing-card{
+    min-height:166px!important;
+    height:166px!important;
+    padding:13px 11px 11px 12px!important;
+    margin:0!important;
+    border-radius:18px!important;
+    background:#fdfbf7!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .today-top-grid .wellbeing-card h3{
+    margin:0 0 8px!important;
+    font-size:16px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    max-width:none!important;
+  }
+  .today-top-grid .wellbeing-list{
+    display:grid!important;
+    grid-template-rows:repeat(4,1fr)!important;
+    gap:2px!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+  }
+  .today-top-grid .wellbeing-item{
+    display:grid!important;
+    grid-template-columns:20px minmax(0,1fr) 34px!important;
+    align-items:center!important;
+    gap:6px!important;
+    padding:0!important;
+    min-height:0!important;
+  }
+  .today-top-grid .wellbeing-check{
+    width:19px!important;
+    height:19px!important;
+    border-radius:6px!important;
+    font-size:11px!important;
+  }
+  .today-top-grid .wellbeing-label{
+    font-size:11.7px!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .today-top-grid .wellbeing-streak{
+    width:34px!important;
+    text-align:right!important;
+    font-size:8.8px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    color:#8c857a!important;
+  }
+
+  /* Zettel kleiner und quadratisch, leicht versetzt wie aufgeklebt */
+  .today-top-grid .daily-sticky{
+    width:100%!important;
+    max-width:166px!important;
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:1 / 1!important;
+    justify-self:end!important;
+    align-self:center!important;
+    margin:3px 0 0!important;
+    padding:15px 13px 12px!important;
+    border-radius:7px!important;
+    transform:rotate(-1.8deg)!important;
+    background:#dfe7d5!important;
+    box-shadow:
+      0 16px 25px rgba(64,56,45,.17),
+      0 6px 11px rgba(64,56,45,.10)!important;
+  }
+  .today-top-grid .daily-sticky::before{
+    width:70px!important;
+    height:16px!important;
+    top:-9px!important;
+    background:rgba(223,201,163,.80)!important;
+    transform:translateX(-50%) rotate(2.2deg)!important;
+    box-shadow:
+      0 4px 7px rgba(95,79,55,.17),
+      0 1px 2px rgba(95,79,55,.09)!important;
+  }
+  .today-top-grid .daily-sticky b{
+    font-size:15.5px!important;
+    line-height:1.04!important;
+    margin-bottom:7px!important;
+    white-space:nowrap!important;
+  }
+  .today-top-grid .daily-sticky .sticky-text{
+    font-size:12.2px!important;
+    line-height:1.42!important;
+    display:-webkit-box!important;
+    -webkit-line-clamp:6!important;
+    -webkit-box-orient:vertical!important;
+    overflow:hidden!important;
+  }
+
+  /* Sehr schmale Displays */
+  @media(max-width:390px){
+    .today-top-grid{
+      grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;
+      gap:8px!important;
+      margin-left:0!important;
+      margin-right:0!important;
+    }
+    .today-top-grid .wellbeing-card{
+      height:158px!important;
+      min-height:158px!important;
+      padding:12px 8px 10px 10px!important;
+    }
+    .today-top-grid .wellbeing-card h3{
+      font-size:14.7px!important;
+      margin-bottom:7px!important;
+    }
+    .today-top-grid .wellbeing-item{
+      grid-template-columns:19px minmax(0,1fr) 31px!important;
+      gap:5px!important;
+    }
+    .today-top-grid .wellbeing-label{font-size:10.8px!important}
+    .today-top-grid .wellbeing-streak{
+      width:31px!important;
+      font-size:8.2px!important;
+    }
+    .today-top-grid .daily-sticky{
+      max-width:158px!important;
+      padding:14px 11px 10px!important;
+    }
+    .today-top-grid .daily-sticky b{font-size:14.2px!important}
+    .today-top-grid .daily-sticky .sticky-text{
+      font-size:11.4px!important;
+      line-height:1.38!important;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -2580,7 +2726,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v41</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v42</div>
   </header>
 
   <main>
@@ -3815,7 +3961,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=41");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=42");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
