@@ -625,6 +625,106 @@
       }
     }
 
+  
+    /* ===== v15 Layout-Feinschliff ===== */
+
+    /* Zweig oben weg; Mond nutzt den freien Platz oben rechts. */
+    .topbar::before{display:none!important;content:none!important;background:none!important}
+    .topbar{
+      padding-right:150px!important;
+      min-height:104px!important;
+      overflow:visible!important;
+    }
+    .moon-chip{
+      right:12px!important;
+      top:18px!important;
+      z-index:5!important;
+    }
+
+    /* Nur EIN Zweig: rechts über der Karte mit den freien Tagen. */
+    #freeDaysTodayCard{
+      overflow:visible!important;
+      padding-right:52px!important;
+      z-index:2;
+    }
+    #freeDaysTodayCard::after{
+      content:""!important;
+      display:block!important;
+      position:absolute;
+      right:-18px;
+      top:18px;
+      width:66px;
+      height:145px;
+      background:url("./top-branch.png") no-repeat center/contain!important;
+      opacity:.62;
+      pointer-events:none;
+      transform:rotate(5deg);
+      z-index:3;
+    }
+
+    /* Kein dekorativer Mond im Jahreskreis-Feld. */
+    .calendar-special::after{
+      display:none!important;
+      content:none!important;
+    }
+
+    /* Timeline kompakt, zweispaltig und unten. */
+    .timeline-section{
+      margin-top:16px;
+      padding-bottom:4px;
+    }
+    .timeline{
+      display:grid!important;
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:8px!important;
+      padding-left:0!important;
+    }
+    .timeline-item{
+      display:flex!important;
+      flex-direction:column!important;
+      gap:3px!important;
+      margin:0!important;
+      min-width:0;
+    }
+    .timeline-item .time{
+      padding:0 5px!important;
+      text-align:left!important;
+      font-size:10px!important;
+      line-height:1.1;
+      min-height:11px;
+    }
+    .timeline-item .entry-card{
+      min-height:66px;
+      padding:10px 11px!important;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .timeline-item .entry-title{
+      font-size:16px!important;
+      line-height:1.15;
+      overflow-wrap:anywhere;
+    }
+    .timeline-item .entry-meta{
+      font-size:10.5px!important;
+      line-height:1.25;
+      margin-top:4px;
+    }
+    .timeline .empty{
+      grid-column:1/-1;
+    }
+
+    @media(max-width:390px){
+      .topbar{padding-right:138px!important}
+      #freeDaysTodayCard{padding-right:43px!important}
+      #freeDaysTodayCard::after{
+        right:-15px;
+        width:58px;
+        height:132px;
+      }
+      .timeline-item .entry-title{font-size:15px!important}
+    }
+
   </style>
 </head>
 <body>
@@ -634,7 +734,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v14</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v15</div>
   </header>
 
   <main>
@@ -667,9 +767,6 @@
       <div id="quickSectionTitle" class="section-title"><h2>Schnell eintragen</h2><small>1 Tipp</small></div>
       <div id="quickGrid" class="quick-grid"></div>
 
-      <div class="section-title"><h2>Zeitleiste</h2><small id="timelineDayLabel"></small></div>
-      <div id="timeline" class="timeline"></div>
-
       <div id="wellbeingCard" class="wellbeing-card">
         <h3>Heute für mich ♡</h3>
         <div id="wellbeingList" class="wellbeing-list"></div>
@@ -680,6 +777,11 @@
         <span id="dailyQuote" class="sticky-text"></span>
         <span id="stickyContext" class="sticky-context"></span>
         <button id="rerollQuote" class="sticky-reroll" type="button" aria-label="Anderen Spruch für diesen Tag anzeigen">↻</button>
+      </div>
+
+      <div id="timelineSection" class="timeline-section">
+        <div class="section-title"><h2>Zeitleiste</h2><small id="timelineDayLabel"></small></div>
+        <div id="timeline" class="timeline"></div>
       </div>
     </section>
 
@@ -1135,29 +1237,38 @@ function specialEventsFor(ds){
   if(cfg.seasons)out.push(...seasonEvents(ds));
   if(cfg.wheel){const w=wheelEvent(ds);if(w)out.push(w)}
   if(cfg.rauhnacht){const r=rauhnachtEvent(ds);if(r)out.push(r)}
-  if(cfg.farmers){const rule=FARMERS_RULES[ds.slice(5)];if(rule)out.push({kind:"Bauernregel",title:"Alter Lostag",text:rule+" Bauernregeln sind Überlieferungen, keine verlässliche Wettervorhersage."})}
+  if(cfg.farmers){const rule=FARMERS_RULES[ds.slice(5)];if(rule)out.push({kind:"Bauernregel",title:"Alter Lostag",text:rule})}
   const hol=schoolHolidayFor(ds);
   if(cfg.schoolHolidays&&hol&&schoolHolidayOccasion(ds,hol))out.push({kind:"Ferien",title:`${hol.name} · Niedersachsen`,text:ds===hol.start?"Die Ferien beginnen. Versuch, sie dir auch wirklich ein bisschen zu erlauben. ♡":ds===hol.end?"Letzter Ferientag – vielleicht noch einmal bewusst langsam machen.":"Du hast Ferien. Nicht jeder freie Tag braucht einen Plan."});
 
-  if(cfg.moon&&BLOOD_MOON_DATES[ds])out.push({kind:"Besonderer Mond",title:"Blutmond · totale Mondfinsternis",text:BLOOD_MOON_DATES[ds]});
-
-  if(cfg.moon&&mi.isFull){
-    const moonName=FULL_MOON_NAMES[parseDate(ds).getMonth()+1];
-    out.push({kind:"Mond",title:`Vollmond · ${moonName} · Mond im ${mi.sign}`,text:`${moonName} – vielleicht heute Abend einmal nach draußen schauen. Die astrologische Zuordnung zum Zeichen ist eine traditionelle Deutung.`});
-  }else if(cfg.moon&&mi.isNew){
-    out.push({kind:"Mond",title:`Neumond · Mond im ${mi.sign}`,text:"Neumond – ein schöner Anlass für einen ruhigen Gedanken an etwas, das neu beginnen darf."});
-  }
-
-  if(cfg.seasons){
-    const meteor=meteorShowerEvent(ds);
-    if(meteor)out.push(meteor);
-  }
   return out
 }
+
+function skyQuoteEventFor(ds){
+  const cfg=state.settings.calendar||DEFAULT.settings.calendar;
+  if(!cfg.moon&&!cfg.seasons)return null;
+  if(cfg.moon&&BLOOD_MOON_DATES[ds])return {kind:"Besonderer Mond",title:"Blutmond · totale Mondfinsternis",text:BLOOD_MOON_DATES[ds]};
+  if(cfg.moon){
+    const mi=moonInfo(ds);
+    if(mi.isFull){
+      const moonName=FULL_MOON_NAMES[parseDate(ds).getMonth()+1];
+      return {kind:"Mond",title:`Vollmond · ${moonName}`,text:`${moonName} – vielleicht heute Abend einmal nach draußen schauen. ♡`};
+    }
+    if(mi.isNew)return {kind:"Mond",title:"Neumond",text:"Neumond – vielleicht ein schöner Abend für einen ruhigen Gedanken an etwas, das neu beginnen darf. ♡"};
+  }
+  if(cfg.seasons){
+    const meteor=meteorShowerEvent(ds);
+    if(meteor)return meteor;
+  }
+  return null
+}
+
 function quoteForDate(ds){
   const cfg=state.settings.calendar||DEFAULT.settings.calendar,custom=Array.isArray(cfg.customQuotes)?cfg.customQuotes.filter(Boolean):[],choice=state.quoteChoices?.[ds];
   if(Number.isInteger(choice)){const pool=[...DAILY_QUOTES,...custom];return {text:pool[mod(choice,pool.length)]||DAILY_QUOTES[0],context:"Für diesen Tag von dir gewechselt"}}
-  const events=specialEventsFor(ds);if(events.length){const e=events[0];return {text:e.text,context:`${e.kind} · ${e.title}`}}
+  const events=specialEventsFor(ds);
+  if(events.length){const e=events[0];return {text:e.text,context:`${e.kind} · ${e.title}`}}
+  const sky=skyQuoteEventFor(ds);if(sky)return {text:sky.text,context:`${sky.kind} · ${sky.title}`};
   if(!cfg.dailyQuotes)return {text:"",context:""};
   const pool=[...DAILY_QUOTES,...custom],idx=(dayOfYear(ds)-1)%pool.length;return {text:pool[idx],context:"Tagesgedanke"}
 }
@@ -1515,7 +1626,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=14");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=15");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

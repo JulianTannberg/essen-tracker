@@ -2,5 +2,6 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 14 ergänzt den von dir ausgewählten einzelnen Zweig oben und erweitert
-die täglichen Spezial-Sprüche um Sternschnuppen-Nächte und besondere Mondnächte.
+Version 15: Mond oben rechts, nur ein Zweig an der Karte für freie Tage,
+Jahreskreis ohne Mond-Deko/Mondeinträge und kompakte zweispaltige Zeitleiste
+ganz unten.

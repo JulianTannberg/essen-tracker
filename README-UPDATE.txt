@@ -1,25 +1,22 @@
-ESSEN TRACKER – UPDATE v14
+ESSEN TRACKER – UPDATE v15
 
-NEUES DESIGN
-- Oben ist jetzt dein ausgewählter einzelne Zweig eingebaut.
-- Nur dieser eine Zweig wird verwendet; unten bleibt alles ruhig.
-- Der Zweig liegt als eigene Datei top-branch.png in der App und kann später
-  leicht wieder ersetzt werden.
+LAYOUT
+- Mond sitzt oben rechts im freien Kopfbereich.
+- Der Zweig ist oben entfernt und liegt jetzt nur noch einmal rechts über der
+  Karte „Bierfreie Tage/Freie Tage“.
+- Kein weiterer Zweig an anderen Stellen.
+- Die Zeitleiste ist jetzt zweispaltig und steht ganz unten auf der Heute-Seite.
 
-NEUE TAGESBESONDERHEITEN
-- Besondere Vollmonde mit traditionellen Namen:
-  Wolfsmond, Schneemond, Wurmmond, Rosa Mond, Blumenmond, Erdbeermond,
-  Bockmond, Störmond, Erntemond, Jägermond, Bibermond und Julmond.
-- Sternschnuppen-Nächte / Meteorschauer:
-  Quadrantiden, Lyriden, Eta-Aquariiden, Perseiden, Orioniden,
-  Leoniden und Geminiden.
-- Zusätzlich sind Blutmond-Hinweise für hinterlegte besondere Nächte eingebaut.
+JAHRESKREIS
+- Der blasse Deko-Mond im Feld „Heute im Jahreskreis“ ist entfernt.
+- Vollmond/Neumond erscheinen dort nicht mehr als eigener Eintrag.
+- Besondere Mondnächte und Sternschnuppen können weiterhin den Klebezettel-Spruch
+  beeinflussen.
 
-WEITERHIN ENTHALTEN
-- Mond-Fix
-- Heute-für-mich und Klebezettel wieder funktionierend
-- „Heute im Blick“ bleibt entfernt
+BAUERNREGELN
+- Der erklärende Zusatz über Bauernregeln/Wettervorhersage ist entfernt.
+- Es wird nur noch die eigentliche Bauernregel angezeigt.
 
 UPDATE
-- Alle Dateien aus der ZIP ins Repository übernehmen/ersetzen.
-- Lokale Tracker-Daten bleiben beim normalen Update erhalten.
+- Dateien aus der ZIP ins Repository übernehmen/ersetzen.
+- Lokale Tracker-Daten bleiben erhalten.
