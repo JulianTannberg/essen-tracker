@@ -1,9 +1,8 @@
-ESSEN TRACKER – UPDATE v35
-
-NOTIZZETTEL
-- der optische Rahmen um den Notizzettel wurde entfernt
-- Schatten bleibt erhalten, aber weicher und sauberer
-- Zettel bleibt mittig, leicht schief und mit Tape oben
-
-Sonst keine Funktionsänderungen gegenüber v34.
-Lokale Daten bleiben erhalten.
+v36
+- wärmere Kartenfarben
+- Freie-Tage-Karte farblich angeglichen
+- quadratischer Klebezettel rechts mit stärkerem Schatten
+- Kopfbereich kompakter
+- Gewicht rechts größer
+- Druck/PDF kompakter für eine Seite optimiert
+- Komma-getrennte Essenseinträge bleiben als einzelne Bestandteile gespeichert

@@ -1711,7 +1711,235 @@
       .daily-sticky .sticky-text{font-size:15px!important}
     }
 
-  </style>
+  
+
+/* ===== v36: wärmere Karten, rechter quadratischer Zettel, kompakter Kopf, PDF kompakter ===== */
+:root{
+  --paper:#fbf6ee!important;
+  --card:#f8f4eb!important;
+  --soft:#e9e0d1!important;
+}
+
+.version{display:none!important}
+
+.topbar{
+  min-height:auto!important;
+  padding:18px 18px 0!important;
+}
+.topbar > div:first-child{
+  padding-right:150px!important;
+}
+.today-actual-date{
+  display:block!important;
+  margin:4px 0 0 4px!important;
+  font-family:var(--serif)!important;
+  font-size:13px!important;
+  line-height:1.05!important;
+  color:#817a72!important;
+}
+.date-line{
+  display:block!important;
+  position:relative!important;
+  top:auto!important;
+  margin:12px 0 0 0!important;
+  margin-left:0!important;
+  width:calc(100% - 6px)!important;
+  max-width:none!important;
+  padding-right:0!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  font-size:18px!important;
+  line-height:1.04!important;
+  transform:rotate(-1.6deg)!important;
+  transform-origin:left center!important;
+}
+#todayView .week-strip{
+  margin-top:8px!important;
+}
+
+.summary-card>div,
+.settings-card,
+.filter-card,
+.weight-card,
+.achievement-card,
+.pattern-card,
+.planner-card,
+.weight-month-card,
+.quick-btn,
+.entry-card,
+.wellbeing-card,
+.empty,
+.type-btn,.icon-btn,input,select,textarea,.chip,.secondary-btn,.file-label,.print-filter-option{
+  background:rgba(249,245,236,.96)!important;
+}
+
+.beer-card,
+#freeDaysTodayCard,
+.free-days-card{
+  background:rgba(249,245,236,.96)!important;
+}
+
+.weight-grid{
+  grid-template-columns:.92fr 1.08fr!important;
+  gap:4px!important;
+  align-items:center!important;
+}
+.delta-list{
+  gap:9px!important;
+  padding-left:4px!important;
+}
+.delta-row{
+  gap:8px!important;
+}
+.delta-row .label{
+  font-size:16px!important;
+  line-height:1.08!important;
+}
+.delta-row strong{
+  font-size:23px!important;
+  line-height:1!important;
+}
+
+.sticky-note,
+.daily-sticky{
+  width:min(58vw, 224px)!important;
+  min-height:188px!important;
+  margin:12px 12px 8px auto!important;
+  padding:18px 16px 16px!important;
+  border:none!important;
+  outline:none!important;
+  border-radius:7px!important;
+  background:#dce4cf!important;
+  transform:rotate(-2.2deg)!important;
+  transform-origin:center top!important;
+  box-shadow:
+    0 18px 26px rgba(67,58,45,.17),
+    0 8px 14px rgba(67,58,45,.12)!important;
+  overflow:visible!important;
+  z-index:1!important;
+}
+.sticky-note::before,
+.daily-sticky::before{
+  content:""!important;
+  position:absolute!important;
+  width:84px!important;
+  height:18px!important;
+  left:50%!important;
+  top:-10px!important;
+  transform:translateX(-50%) rotate(2.8deg)!important;
+  background:rgba(222,198,156,.82)!important;
+  box-shadow:
+    0 5px 8px rgba(92,77,53,.18),
+    0 1px 2px rgba(92,77,53,.10)!important;
+  border-radius:2px!important;
+  z-index:3!important;
+}
+.sticky-note::after,
+.daily-sticky::after{
+  content:none!important;
+  display:none!important;
+}
+.daily-sticky b{
+  font-size:20px!important;
+  line-height:1.1!important;
+  margin-bottom:10px!important;
+}
+.daily-sticky .sticky-text{
+  font-size:15.5px!important;
+  line-height:1.52!important;
+  margin-top:0!important;
+}
+#stickyContext{display:none!important}
+
+.wellbeing-card{
+  margin-top:14px!important;
+}
+
+.quickSectionTitle h2,
+#quickSectionTitle h2,
+.section-title h2{
+  font-family:var(--script)!important;
+  font-size:24px!important;
+  font-weight:500!important;
+}
+#timelineSection .section-title h2,
+#monthView .section-title h2,
+#analysisView .section-title h2,
+#settingsView .section-title h2{
+  font-family:var(--serif)!important;
+}
+
+@media(max-width:390px){
+  .topbar{
+    padding:16px 14px 0!important;
+  }
+  .topbar > div:first-child{
+    padding-right:142px!important;
+  }
+  .today-actual-date{
+    font-size:11px!important;
+    margin-left:2px!important;
+  }
+  .date-line{
+    margin-top:10px!important;
+    font-size:16.8px!important;
+    width:calc(100% - 2px)!important;
+  }
+  #todayView .week-strip{
+    margin-top:6px!important;
+  }
+  .sticky-note,
+  .daily-sticky{
+    width:min(57vw, 212px)!important;
+    min-height:176px!important;
+    margin:10px 8px 8px auto!important;
+    padding:17px 14px 14px!important;
+    transform:rotate(-2deg)!important;
+  }
+  .sticky-note::before,
+  .daily-sticky::before{
+    width:76px!important;
+    height:17px!important;
+  }
+  .daily-sticky b{font-size:18px!important}
+  .daily-sticky .sticky-text{font-size:14.6px!important;line-height:1.48!important}
+  .delta-row .label{font-size:14px!important}
+  .delta-row strong{font-size:20px!important}
+  #quickSectionTitle h2,.section-title h2{font-size:21px!important}
+}
+
+@media print{
+  @page{size:A4 landscape;margin:5mm}
+  .print-layout{display:block!important}
+  .print-side{
+    float:right!important;
+    width:44mm!important;
+    border-left:.3mm solid #ded7cc!important;
+    padding-left:2.5mm!important;
+    min-height:auto!important;
+  }
+  .print-main{
+    margin-right:47mm!important;
+  }
+  .print-calendar-head,
+  .print-calendar{gap:1mm!important}
+  .print-calendar{grid-auto-rows:19mm!important}
+  .print-day{padding:1mm!important}
+  .print-entry{font-size:5.4pt!important;line-height:1.06!important;margin-bottom:.35mm!important}
+  .print-title-row{margin-bottom:2.4mm!important}
+  .print-weight-below{margin-top:1.4mm!important;break-inside:avoid!important}
+  .print-weight-below .print-box{
+    grid-template-columns:28mm minmax(0,1fr)!important;
+    gap:2.4mm!important;
+    padding:1.8mm!important;
+  }
+  #printWeightChart{height:22mm!important}
+  .print-weight-below #printWeightChart{height:22mm!important}
+  .print-box p{margin:.45mm 0!important}
+}
+
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -1721,7 +1949,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v35</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v36</div>
   </header>
 
   <main>
