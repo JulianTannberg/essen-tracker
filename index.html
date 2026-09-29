@@ -2808,6 +2808,60 @@
     .meal-photo-badge{width:28px!important;height:28px!important;}
   }
 
+
+  /* ===== v44: größerer Zetteltext + sichtbare Tagesdetails ===== */
+
+  /* Der Titel bleibt gut lesbar, der eigentliche Zetteltext wird dynamisch skaliert. */
+  .today-top-grid .daily-sticky b{
+    font-size:18.5px!important;
+    line-height:1.05!important;
+  }
+  .today-top-grid .daily-sticky .sticky-text{
+    font-size:var(--sticky-font,15.4px)!important;
+    line-height:1.43!important;
+    -webkit-line-clamp:7!important;
+  }
+
+  /* Aufklappbarer Tagesbereich soll deutlich als Bedienelement erkennbar sein. */
+  .timeline-extra-details{
+    margin-top:9px!important;
+    border:1px solid var(--cream-border)!important;
+    background:#fdfbf7!important;
+    box-shadow:0 4px 12px rgba(73,61,47,.04)!important;
+  }
+  .timeline-extra-details summary{
+    padding:12px 14px!important;
+    font-size:13px!important;
+    font-weight:750!important;
+    min-height:42px!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  .timeline-extra-details summary::after{
+    top:10px!important;
+  }
+  .timeline-extra-list{
+    padding:0 11px 11px!important;
+    gap:7px!important;
+  }
+  .extra-entry-card{
+    padding:9px 11px!important;
+  }
+
+  /* Wenn Mahlzeiten vorhanden sind, bleiben sie direkt sichtbar. */
+  .meal-list{
+    display:grid!important;
+    gap:8px!important;
+  }
+
+  @media(max-width:390px){
+    .today-top-grid .daily-sticky b{font-size:17.5px!important}
+    .today-top-grid .daily-sticky .sticky-text{
+      font-size:var(--sticky-font-small,14.5px)!important;
+      line-height:1.4!important;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -2818,7 +2872,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v43</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v44</div>
   </header>
 
   <main>
@@ -3275,20 +3329,20 @@ const FARMERS_RULES={
   "01-06":"Ist bis Dreikönig kein Winter, folgt oft keiner mehr dahinter.",
   "02-02":"Ist's an Lichtmess hell und rein, wird's ein langer Winter sein.",
   "02-24":"Mattheis bricht's Eis; hat er keins, so macht er eins.",
-  "03-19":"Ist's am Josefstag klar, folgt ein gutes Jahr – so sagt die alte Regel.",
-  "04-25":"Vor Markus soll man die Bohnen nicht verstecken – ein alter Hinweis auf späte Kälte.",
-  "05-11":"Mamertus ist der erste der Eisheiligen – traditionell wird noch mit Kälte gerechnet.",
-  "05-12":"Pankratius zählt zu den Eisheiligen: Spätfrost blieb früher besonders im Blick.",
-  "05-13":"Servatius ist einer der Eisheiligen – Gärtner warteten oft noch mit Empfindlichem.",
-  "05-14":"Bonifatius gehört zu den Eisheiligen und erinnert an mögliche späte Kälte.",
-  "05-15":"Die kalte Sophie beschließt traditionell die Eisheiligen.",
-  "06-24":"Vor Johanni bitt um Regen, nachher kommt er ungelegen – eine alte Ernte-Regel.",
-  "06-27":"Der Siebenschläfertag galt als Lostag für die Wetterlage der nächsten Wochen.",
-  "08-24":"Wie Bartholomäus sich hält, so ist der ganze Herbst bestellt – sagt die Überlieferung.",
-  "09-29":"Um Michaelis in der Tat gedeiht die beste Wintersaat – eine alte Bauernregel.",
-  "11-11":"Ist Martini klar und rein, bricht bald ein kalter Winter ein – so lautet eine traditionelle Regel.",
-  "11-25":"Wie das Wetter um Kathrein, wird's den ganzen Winter sein – eine überlieferte Bauernregel.",
-  "12-04":"Knospen an St. Barbara, sind zum Christfest Blüten da – daher stammen die Barbarazweige."
+  "03-19":"Ist's am Josefstag klar, folgt ein gutes Jahr.",
+  "04-25":"Vor Markus soll man die Bohnen nicht verstecken.",
+  "05-11":"Mamertus ist der erste der Eisheiligen.",
+  "05-12":"Pankratius zählt zu den Eisheiligen.",
+  "05-13":"Servatius ist einer der Eisheiligen.",
+  "05-14":"Bonifatius gehört zu den Eisheiligen.",
+  "05-15":"Die kalte Sophie beschließt die Eisheiligen.",
+  "06-24":"Vor Johanni bitt um Regen, nachher kommt er ungelegen.",
+  "06-27":"Wie das Wetter am Siebenschläfer sich verhält, ist es sieben Wochen lang bestellt.",
+  "08-24":"Wie Bartholomäus sich hält, so ist der ganze Herbst bestellt.",
+  "09-29":"Um Michaelis in der Tat gedeiht die beste Wintersaat.",
+  "11-11":"Ist Martini klar und rein, bricht bald ein kalter Winter ein.",
+  "11-25":"Wie das Wetter um Kathrein, wird's den ganzen Winter sein.",
+  "12-04":"Knospen an St. Barbara, sind zum Christfest Blüten da."
 };
 const ZODIAC=["Widder","Stier","Zwillinge","Krebs","Löwe","Jungfrau","Waage","Skorpion","Schütze","Steinbock","Wassermann","Fische"];
 const ZODIAC_NOTES={Widder:"Tatkraft, Anfang und Direktheit",Stier:"Ruhe, Genuss und Beständigkeit",Zwillinge:"Neugier, Austausch und Beweglichkeit",Krebs:"Geborgenheit, Gefühl und Zuhause",Löwe:"Ausdruck, Wärme und Kreativität",Jungfrau:"Ordnung, Alltag und Sorgfalt",Waage:"Ausgleich, Begegnung und Schönheit",Skorpion:"Tiefe, Wandel und Intensität",Schütze:"Weite, Lernen und Zuversicht",Steinbock:"Struktur, Ausdauer und Verantwortung",Wassermann:"Freiheit, Ideen und Eigenständigkeit",Fische:"Fantasie, Mitgefühl und Rückzug"};
@@ -3465,7 +3519,27 @@ function renderMoon(){
   }
 }
 function renderCalendarSpecial(){return}
-function renderDailyQuote(){const q=quoteForDate(selectedDate),el=document.querySelector("#dailyQuote"),ctx=document.querySelector("#stickyContext");if(el)el.textContent=q.text||"Heute darf der Zettel einfach leer bleiben. ♡";if(ctx)ctx.textContent=q.context||""}
+function renderDailyQuote(){
+  const q=quoteForDate(selectedDate),
+    el=document.querySelector("#dailyQuote"),
+    ctx=document.querySelector("#stickyContext"),
+    note=document.querySelector("#dailySticky"),
+    text=q.text||"Heute darf der Zettel einfach leer bleiben. ♡";
+
+  if(el)el.textContent=text;
+  if(ctx)ctx.textContent="";
+
+  if(note){
+    const len=text.length;
+    let normal="15.4px", small="14.5px";
+    if(len<=62){normal="17px";small="16px";}
+    else if(len<=88){normal="16px";small="15.1px";}
+    else if(len<=118){normal="14.8px";small="14px";}
+    else {normal="13.5px";small="12.9px";}
+    note.style.setProperty("--sticky-font",normal);
+    note.style.setProperty("--sticky-font-small",small);
+  }
+}
 function enabledTodoItems(){
   let items=Array.isArray(state.settings.todoItems)?state.settings.todoItems:[];
   if(!items.length)items=DEFAULT.settings.todoItems;
@@ -3660,7 +3734,7 @@ function renderTimeline(){
   if(extraEntries.length){
     const extras = summarizeExtraEntries(extraEntries);
     extrasHtml = `<details class="timeline-extra-details">
-      <summary>Weitere Einträge des Tages (${extraEntries.length})</summary>
+      <summary>Getränke, Beschwerden &amp; weitere Einträge anzeigen (${extraEntries.length})</summary>
       <div class="timeline-extra-list">
         ${extras.map(x => `<div class="extra-entry-card"><b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.meta || "")}</span></div>`).join("")}
       </div>
@@ -3699,50 +3773,93 @@ function cameraIconSvg(){
 function plateIconSvg(){
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.3"/><circle cx="12" cy="12" r="3.1"/><path d="M4 5v5M2.5 5v3.7A1.5 1.5 0 0 0 4 10.2V19M5.5 5v3.7A1.5 1.5 0 0 1 4 10.2M18.5 5v14M18.5 5c2.3 1.5 3 3.4 3 5.8h-3"/></svg>';
 }
+
+function formatMlTotal(n){
+  const ml=Number(n)||0;
+  if(ml>=1000){
+    const l=ml/1000;
+    return `${l.toFixed(l%1?1:0).replace(".",",")} L`;
+  }
+  return `${Math.round(ml)} ml`;
+}
+function formatWeightValue(n){
+  const x=Number(n);
+  return Number.isFinite(x)?x.toFixed(1).replace(".",","):"–";
+}
 function summarizeExtraEntries(entries){
   const out=[];
   const drinks=new Map(), symptoms=new Map(), meds=new Map();
   let periodItems=[], weightItems=[];
+
   for(const e of entries){
     if(e.type==="drink"){
       const key=(e.value||"Getränk").trim();
       if(!drinks.has(key))drinks.set(key,{count:0,total:0});
-      const item=drinks.get(key); item.count+=1; item.total+=Number(e.amountMl)||0;
+      const item=drinks.get(key);
+      item.count+=1;
+      item.total+=Number(e.amountMl)||0;
     }else if(e.type==="symptom"){
       const key=(e.value||"Beschwerde").trim();
-      if(!symptoms.has(key))symptoms.set(key,{count:0, notes:[]});
-      const item=symptoms.get(key); item.count+=1; if(e.note)item.notes.push(e.note);
+      if(!symptoms.has(key))symptoms.set(key,{count:0,times:[],notes:[]});
+      const item=symptoms.get(key);
+      item.count+=1;
+      if(e.time)item.times.push(e.time);
+      if(e.note)item.notes.push(e.note);
     }else if(e.type==="medicine"){
       const key=(e.value||"Medikament").trim();
-      if(!meds.has(key))meds.set(key,{count:0, notes:[]});
-      const item=meds.get(key); item.count+=1; if(e.note)item.notes.push(e.note);
+      if(!meds.has(key))meds.set(key,{count:0,times:[],notes:[]});
+      const item=meds.get(key);
+      item.count+=1;
+      if(e.time)item.times.push(e.time);
+      if(e.note)item.notes.push(e.note);
     }else if(e.type==="period"){
       periodItems.push(e);
     }else if(e.type==="weight"){
       weightItems.push(e);
     }else{
-      const label=e.value||typeLabel(e.type);
-      out.push({title:label, meta:typeLabel(e.type)});
+      out.push({title:e.value||typeLabel(e.type),meta:typeLabel(e.type)});
     }
   }
+
   drinks.forEach((v,k)=>{
-    out.push({title:k, meta:`Getränk · ${v.count} Eintrag${v.count===1?"":"e"}${v.total?` · ${formatMl(v.total)}`:""}`});
+    out.push({
+      title:k,
+      meta:`Getränk · ${v.count} Eintrag${v.count===1?"":"e"}${v.total?` · ${formatMlTotal(v.total)}`:""}`
+    });
   });
+
   symptoms.forEach((v,k)=>{
+    const times=v.times.length?` · ${v.times.join(", ")} Uhr`:"";
     const note=v.notes[0]?` · ${v.notes[0]}`:"";
-    out.push({title:k, meta:`Beschwerde · ${v.count} Eintrag${v.count===1?"":"e"}${note}`});
+    out.push({
+      title:k,
+      meta:`Beschwerde · ${v.count} Eintrag${v.count===1?"":"e"}${times}${note}`
+    });
   });
+
   meds.forEach((v,k)=>{
+    const times=v.times.length?` · ${v.times.join(", ")} Uhr`:"";
     const note=v.notes[0]?` · ${v.notes[0]}`:"";
-    out.push({title:k, meta:`Medikament · ${v.count} Eintrag${v.count===1?"":"e"}${note}`});
+    out.push({
+      title:k,
+      meta:`Medikament · ${v.count} Eintrag${v.count===1?"":"e"}${times}${note}`
+    });
   });
+
   if(weightItems.length){
     const latest=weightItems[weightItems.length-1];
-    out.push({title:`Gewicht ${formatNumber(latest.weightKg,1)} kg`, meta:`Messung · ${latest.time} Uhr`});
+    out.push({
+      title:`Gewicht ${formatWeightValue(latest.weightKg)} kg`,
+      meta:`Messung · ${latest.time} Uhr`
+    });
   }
+
   if(periodItems.length){
     const latest=periodItems[periodItems.length-1];
-    out.push({title:`Periode${latest.periodFlow?` · ${latest.periodFlow}`:""}`, meta:`${periodItems.length} Eintrag${periodItems.length===1?"":"e"}`});
+    out.push({
+      title:`Periode${latest.periodFlow?` · ${latest.periodFlow}`:""}`,
+      meta:`${periodItems.length} Eintrag${periodItems.length===1?"":"e"}`
+    });
   }
   return out;
 }
@@ -4053,7 +4170,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=43");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=44");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
