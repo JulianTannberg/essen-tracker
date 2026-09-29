@@ -1,4 +1,4 @@
 # essen-tracker
 
-Version 33 passt den Notizzettel stärker an den gewünschten Stil an:
-kleiner, etwas quadratischer, deutlicherer Schatten und schiefer aufgehängt.
+Version 34 passt den Notizzettel weiter an:
+mittiger platziert, stärkerer Schatten, schiefer aufgehängt und mit deutlicherem Klebestreifen.
