@@ -1,15 +1,11 @@
-ESSEN TRACKER – UPDATE v20
+ESSEN TRACKER – UPDATE v22
 
-LAYOUT
-- „Kleine Schritte, große Veränderung“ bleibt einzeilig.
-- Der Klebezettel steht jetzt direkt unter der Wochenleiste.
-- Der separate Block „Heute im Jahreskreis“ ist entfernt.
+- Gewicht folgt jetzt dem ausgewählten Tag: angezeigt wird die letzte Messung bis zu diesem Datum.
+- Auch die Gewichtsvergleiche beziehen sich nur auf Werte bis zu diesem Datum.
+- Neben Spaziergang, Bewegung, Ruhepause und Abendroutine steht jetzt die aktuelle Serie in Tagen.
+- Mehrere freie Tage-Serien gleichzeitig möglich, z. B. Bierfrei + Süßigkeitenfrei + Milchfrei.
+- Jede Serie hat eigenen Namen, Startdatum und eine Kategorie, die sie unterbricht.
+- Alle aktiven Serien stehen gemeinsam in einer Karte auf der Startseite.
+- Vorhandene Bier-/Alkoholfrei-Einstellung wird beim Update automatisch als erste Serie übernommen.
 
-INHALT
-- Feiertage, Naturtage, Jahreskreisfeste, Rauhnächte, Bauernregeln,
-  besondere Mondnächte und Sternschnuppen erscheinen weiterhin über den
-  Klebezettel, wenn für den Tag etwas Besonderes anliegt.
-- Dadurch gibt es keine doppelte Anzeige mehr.
-
-Sonst bleiben Wasser, freie Tage, Gewicht, Schnell-Einträge, „Heute für mich“
-und die Zeitleiste unverändert.
+Lokale Einträge bleiben erhalten.

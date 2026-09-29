@@ -995,6 +995,59 @@
       }
     }
 
+  
+    /* ===== v21: ausgewähltes Datum kompakter ===== */
+    #pageTitle.selected-date-title{
+      font-size:32px!important;
+      line-height:1!important;
+      white-space:nowrap!important;
+      letter-spacing:-.01em!important;
+      max-width:160px!important;
+      overflow:visible!important;
+    }
+
+    #pageTitle.selected-date-title + .date-line{
+      margin-top:7px!important;
+      font-size:14px!important;
+      white-space:nowrap!important;
+    }
+
+    @media(max-width:390px){
+      #pageTitle.selected-date-title{
+        font-size:29px!important;
+        max-width:145px!important;
+      }
+      #pageTitle.selected-date-title + .date-line{
+        font-size:13.2px!important;
+      }
+    }
+
+  
+    /* ===== v22: mehrere freie Serien + Tagesstreaks ===== */
+    #freeDaysTodayCard{min-height:0!important;padding-top:14px!important;padding-bottom:14px!important}
+    .free-goals-heading{display:block;font-size:15px!important;font-weight:800!important;margin-bottom:8px;color:#5d5952!important}
+    .free-goals-today-list{display:grid;gap:8px;position:relative;z-index:2;padding-right:14px}
+    .free-goal-today{display:grid;grid-template-columns:1fr auto;grid-template-areas:"label days" "sub sub";column-gap:10px;align-items:end;border-bottom:1px solid rgba(130,139,113,.18);padding-bottom:7px}
+    .free-goal-today:last-child{border-bottom:0;padding-bottom:0}
+    .free-goal-today>span{grid-area:label;font-size:13px;font-weight:750;line-height:1.15}
+    .free-goal-today>strong{grid-area:days;font-family:var(--serif);font-size:28px;line-height:.9;color:var(--beer);font-weight:500}
+    .free-goal-today>small{grid-area:sub;font-size:10.5px!important;color:var(--muted);margin-top:2px}
+    .free-goal-empty{font-size:12px;color:var(--muted)}
+    .wellbeing-item{width:100%}
+    .wellbeing-label{flex:1;min-width:0}
+    .wellbeing-streak{margin-left:auto;font-size:11px;color:var(--accent-dark);font-weight:800;white-space:nowrap;padding-left:8px}
+    .free-goal-settings{display:grid;gap:9px}
+    .free-goal-setting-row{display:grid;grid-template-columns:26px 1.1fr 1fr 120px 34px;gap:7px;align-items:center}
+    .free-goal-setting-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent)}
+    .free-goal-setting-row input,.free-goal-setting-row select{min-width:0;padding:9px 8px}
+    .free-goal-add{display:grid;grid-template-columns:1fr 1fr 130px;gap:8px;margin-top:8px}
+    .free-goal-add button{grid-column:1/-1}
+    @media(max-width:560px){
+      .free-goal-setting-row{grid-template-columns:24px 1fr 34px;grid-template-areas:"enabled label del" ". category ." ". start ."}
+      .free-goal-setting-row [data-free-enabled]{grid-area:enabled}.free-goal-setting-row [data-free-label]{grid-area:label}.free-goal-setting-row [data-free-delete]{grid-area:del}.free-goal-setting-row [data-free-category]{grid-area:category}.free-goal-setting-row [data-free-start]{grid-area:start}
+      .free-goal-add{grid-template-columns:1fr}.free-goal-add button{grid-column:auto}
+    }
+
   </style>
 </head>
 <body>
@@ -1004,7 +1057,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v20</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v22</div>
   </header>
 
   <main>
@@ -1021,7 +1074,10 @@
       
 <div id="todaySummary" class="summary-card">
         <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small></div>
-        <div id="freeDaysTodayCard" class="beer-card"><small id="freeDaysLabel">Bierfreie Tage</small><span id="beerStreak" class="big">0</span><small id="beerStreakSub">Tage am Stück</small></div>
+        <div id="freeDaysTodayCard" class="beer-card">
+          <small class="free-goals-heading">Freie Tage</small>
+          <div id="freeGoalsTodayList" class="free-goals-today-list"></div>
+        </div>
       </div>
 
       <div id="weightTodayCard" class="weight-card">
@@ -1106,21 +1162,20 @@
       </div>
       <div class="settings-card">
         <h3>Freie Tage</h3>
-        <p>Die Überschrift kannst du frei nennen. Für die Serie kannst du zwischen „Bier“ und „Alkohol“ wählen.</p>
-        <label>Überschrift<input id="freeDaysCustomLabel" type="text" value="Bierfreie Tage" placeholder="z. B. Bierfreie Tage"></label>
-        <label>Was unterbricht die Serie?
-          <select id="freeDaysMode">
-            <option value="beer">Bier</option>
-            <option value="alcohol">Alkohol</option>
-          </select>
-        </label>
-        <label>Startdatum<input id="freeDaysStart" type="date"></label>
-        <button id="saveFreeDays" class="secondary-btn" type="button">Freie Tage speichern</button>
+        <p>Du kannst mehrere unabhängige Serien gleichzeitig führen. Jede Serie hat einen eigenen Namen, ein Startdatum und eine Kategorie, die den Tag unterbricht.</p>
+        <div id="freeGoalSettings" class="free-goal-settings"></div>
+        <div class="free-goal-add">
+          <input id="newFreeGoalLabel" type="text" placeholder="z. B. Süßigkeitenfrei">
+          <select id="newFreeGoalCategory"></select>
+          <input id="newFreeGoalStart" type="date">
+          <button id="addFreeGoal" class="secondary-btn" type="button">Serie hinzufügen</button>
+        </div>
+        <button id="saveFreeGoals" class="primary-btn" type="button">Freie Tage speichern</button>
       </div>
 
       <div class="settings-card">
         <h3>Kategorien für Essen & Trinken</h3>
-        <p>Beim Eintragen kannst du Dinge neutral markieren, z. B. Alkohol, Milch/Milchprodukte, Süßigkeit oder fettig. So kann die App später Muster erkennen. Diese Essenskategorien werden nicht als Verzichts-Serie gewertet.</p>
+        <p>Beim Eintragen kannst du Dinge markieren, z. B. Alkohol, Milch/Milchprodukte, Süßigkeit oder fettig. Diese Kategorien können für Muster und auch als Auslöser deiner „Freie Tage“-Serien verwendet werden.</p>
         <div class="custom-category-row">
           <input id="newEntryCategory" type="text" placeholder="Eigene Kategorie, z. B. scharf">
           <button id="addEntryCategory" class="secondary-btn" type="button">Hinzufügen</button>
@@ -1247,6 +1302,7 @@ const DEFAULT={
   settings:{
     waterLabel:"Wasser",waterMl:700,beerStart:"2026-09-10",
     freeDays:{label:"Bierfreie Tage",start:"2026-09-10",mode:"beer"},
+    freeGoals:[{id:"beer-free",label:"Bierfreie Tage",start:"2026-09-10",categoryId:"beer",enabled:true}],
     homeVisibility:{moon:true,weight:true,water:true,freeDays:true,calendarSpecial:true,quick:true,wellbeing:true,sticky:true},
     customEntryCategories:[],
     calendar:{dailyQuotes:true,moon:true,seasons:true,holidays:true,wheel:true,rauhnacht:true,farmers:true,schoolHolidays:true,customQuotes:[]},todoItems:[{id:"walk",label:"Spaziergang",enabled:true},{id:"move",label:"Bewegung",enabled:true},{id:"rest",label:"Ruhepause",enabled:true},{id:"evening",label:"Abendroutine",enabled:true}]},
@@ -1279,6 +1335,7 @@ function load(){
       settings:{
         ...base.settings,...xs,
         freeDays:{...base.settings.freeDays,...(xs.freeDays||{}),start:(xs.freeDays?.start||xs.beerStart||base.settings.freeDays.start)},
+        freeGoals:(Array.isArray(xs.freeGoals)&&xs.freeGoals.length)?xs.freeGoals:[{id:"migrated-free",label:(xs.freeDays?.label||"Bierfreie Tage"),start:(xs.freeDays?.start||xs.beerStart||base.settings.freeDays.start),categoryId:(xs.freeDays?.mode==="alcohol"?"alcohol":"beer"),enabled:true}],
         homeVisibility:{...base.settings.homeVisibility,...(xs.homeVisibility||{})},
         customEntryCategories:Array.isArray(xs.customEntryCategories)?xs.customEntryCategories:base.settings.customEntryCategories,
         calendar:{...base.settings.calendar,...(xs.calendar||{})},
@@ -1329,29 +1386,41 @@ function entryHasCategory(e,id){
   if(id==="alcohol"&&tags.includes(categoryTag("beer")))return true;
   return false
 }
+function freeGoalsSettings(){
+  let goals=Array.isArray(state.settings.freeGoals)?state.settings.freeGoals:[];
+  if(!goals.length){
+    const old=state.settings.freeDays||DEFAULT.settings.freeDays;
+    goals=[{id:"migrated-free",label:old.label||"Bierfreie Tage",start:old.start||state.settings.beerStart||localDate(),categoryId:old.mode==="alcohol"?"alcohol":"beer",enabled:true}];
+    state.settings.freeGoals=goals;
+  }
+  return goals.map(g=>({id:g.id||uid(),label:(g.label||"Freie Tage").trim()||"Freie Tage",start:g.start||localDate(),categoryId:g.categoryId||"beer",enabled:g.enabled!==false}))
+}
 function freeDaysSettings(){
-  const f=state.settings.freeDays||DEFAULT.settings.freeDays;
-  return {label:(f.label||"Freie Tage").trim()||"Freie Tage",start:f.start||state.settings.beerStart||DEFAULT.settings.freeDays.start,mode:f.mode==="alcohol"?"alcohol":"beer"}
+  const g=freeGoalsSettings()[0]||{label:"Freie Tage",start:localDate(),categoryId:"beer"};
+  return {label:g.label,start:g.start,mode:g.categoryId}
 }
-function hasFreeBreakerOn(ds){const f=freeDaysSettings();return state.entries.some(e=>e.date===ds&&entryHasCategory(e,f.mode))}
-function isFreeDay(ds){const f=freeDaysSettings();if(!f.start||ds<f.start||ds>localDate())return false;return !hasFreeBreakerOn(ds)}
-function isBeerFreeDay(ds){return isFreeDay(ds)} // alter Funktionsname bleibt intern kompatibel
-function freeStreakInfo(){
-  const f=freeDaysSettings(),today=localDate();
-  if(!f.start||f.start>today)return {days:0,start:f.start,next:7,progress:0};
+function hasFreeBreakerOnGoal(goal,ds){return state.entries.some(e=>e.date===ds&&entryHasCategory(e,goal.categoryId))}
+function freeGoalStreakInfo(goal,endDate=selectedDate){
+  const today=localDate(),target=endDate>today?today:endDate;
+  if(!goal.start||goal.start>target)return {days:0,start:goal.start,lastBreak:null};
   let lastBreak=null;
-  state.entries.filter(e=>entryHasCategory(e,f.mode)&&e.date>=f.start&&e.date<=today)
+  state.entries.filter(e=>entryHasCategory(e,goal.categoryId)&&e.date>=goal.start&&e.date<=target)
     .sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>lastBreak=e.date);
-  const streakStart=lastBreak?localDate(new Date(parseDate(lastBreak).getTime()+86400000)):f.start;
-  const days=streakStart>today?0:daysBetween(streakStart,today)+1;
-  let next,prev;
-  if(days<28){next=Math.max(7,Math.ceil((days+0.001)/7)*7);prev=Math.floor(days/7)*7}
-  else if(days<30){next=30;prev=28}
-  else{next=Math.ceil((days+0.001)/30)*30;prev=Math.floor(days/30)*30}
-  const span=Math.max(1,next-prev),progress=Math.max(0,Math.min(100,((days-prev)/span)*100));
-  return {days,start:streakStart,next,progress,lastBreak}
+  const streakStart=lastBreak?addDays(lastBreak,1):goal.start;
+  const days=streakStart>target?0:daysBetween(streakStart,target)+1;
+  return {days,start:streakStart,lastBreak,target}
 }
-function beerStreakInfo(){return freeStreakInfo()} // Kompatibilität
+function freeStreakInfo(endDate=selectedDate){
+  const g=freeGoalsSettings().find(x=>x.enabled!==false)||freeGoalsSettings()[0];
+  return g?{...freeGoalStreakInfo(g,endDate),label:g.label,mode:g.categoryId}:{days:0,start:null}
+}
+function isFreeDay(ds){
+  if(ds>localDate())return false;
+  const started=freeGoalsSettings().filter(g=>g.enabled!==false&&g.start&&ds>=g.start);
+  return started.length>0&&started.every(g=>!hasFreeBreakerOnGoal(g,ds))
+}
+function isBeerFreeDay(ds){return isFreeDay(ds)}
+function beerStreakInfo(){return freeStreakInfo(selectedDate)} // Kompatibilität
 function periodOn(ds){return state.entries.some(e=>e.date===ds&&e.type==="period")}
 function weightEntriesSorted(){
   return state.entries.filter(e=>e.type==="weight"&&Number.isFinite(Number(e.weightKg))).slice().sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
@@ -1569,8 +1638,16 @@ function enabledTodoItems(){
   if(!items.length)items=DEFAULT.settings.todoItems;
   return items.filter(x=>x.enabled&&x.label)
 }
+function wellbeingStreak(id,ds=selectedDate){
+  let cur=ds,count=0;
+  while(state.wellbeingDone?.[cur]?.[id]){count++;cur=addDays(cur,-1)}
+  return count
+}
 function renderWellbeing(){
-  const box=document.querySelector("#wellbeingList");if(!box)return;const items=enabledTodoItems(),done=state.wellbeingDone?.[selectedDate]||{};box.innerHTML=items.length?items.map(x=>`<button class="wellbeing-item${done[x.id]?" done":""}" data-todo="${escapeHtml(x.id)}" type="button"><span class="wellbeing-check">${done[x.id]?"✓":""}</span><span class="wellbeing-label">${escapeHtml(x.label)}</span></button>`).join(""):'<div class="wellbeing-empty">Hier erscheinen deine kleinen Ziele wie Spaziergang, Bewegung, Ruhepause oder Abendroutine. Falls nichts angezeigt wird, kannst du sie in den Einstellungen wieder aktivieren.</div>';box.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{state.wellbeingDone=state.wellbeingDone||{};state.wellbeingDone[selectedDate]=state.wellbeingDone[selectedDate]||{};const id=b.dataset.todo;state.wellbeingDone[selectedDate][id]=!state.wellbeingDone[selectedDate][id];save()})
+  const box=document.querySelector("#wellbeingList");if(!box)return;
+  const items=enabledTodoItems(),done=state.wellbeingDone?.[selectedDate]||{};
+  box.innerHTML=items.length?items.map(x=>{const streak=wellbeingStreak(x.id,selectedDate);return `<button class="wellbeing-item${done[x.id]?" done":""}" data-todo="${escapeHtml(x.id)}" type="button"><span class="wellbeing-check">${done[x.id]?"✓":""}</span><span class="wellbeing-label">${escapeHtml(x.label)}</span><span class="wellbeing-streak">${streak} ${streak===1?"Tag":"Tage"}</span></button>`}).join(""):'<div class="wellbeing-empty">Hier erscheinen deine kleinen Ziele wie Spaziergang, Bewegung, Ruhepause oder Abendroutine. Falls nichts angezeigt wird, kannst du sie in den Einstellungen wieder aktivieren.</div>';
+  box.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{state.wellbeingDone=state.wellbeingDone||{};state.wellbeingDone[selectedDate]=state.wellbeingDone[selectedDate]||{};const id=b.dataset.todo;state.wellbeingDone[selectedDate][id]=!state.wellbeingDone[selectedDate][id];save()})
 }
 function renderTodoSettings(){
   const box=document.querySelector("#todoSettings");if(!box)return;box.innerHTML=(state.settings.todoItems||[]).map((x,i)=>`<div class="todo-setting-row"><input type="checkbox" data-todo-enable="${i}" ${x.enabled?"checked":""}><input type="text" data-todo-label="${i}" value="${escapeHtml(x.label)}"><button class="todo-delete" type="button" data-todo-delete="${i}">×</button></div>`).join("");box.querySelectorAll("[data-todo-delete]").forEach(b=>b.onclick=()=>{state.settings.todoItems.splice(Number(b.dataset.todoDelete),1);renderTodoSettings()})
@@ -1595,8 +1672,9 @@ function renderWeekStrip(){
 }
 
 function renderHeader(){
-  const title=document.querySelector("#pageTitle"),line=document.querySelector("#dateLine");
-  if(selectedDate===localDate()){
+  const title=document.querySelector("#pageTitle"),line=document.querySelector("#dateLine"),isToday=selectedDate===localDate();
+  title.classList.toggle("selected-date-title",!isToday);
+  if(isToday){
     title.textContent="Heute";
     line.textContent="Kleine Schritte, große Veränderung";
   }else{
@@ -1633,19 +1711,18 @@ function renderSummary(){
   document.querySelector("#waterCount").textContent=`${liters.toFixed(1).replace(".",",")} / 3,0 L`;
   document.querySelector("#waterSub").textContent=totalMl?`${waters.length} Wasser-Eintrag${waters.length===1?"":"e"}`:"Noch nichts eingetragen";
   const bar=document.querySelector("#waterProgressBar");if(bar)bar.style.width=`${Math.min(100,(totalMl/3000)*100)}%`;
-  const free=freeStreakInfo(),cfg=freeDaysSettings();
-  document.querySelector("#freeDaysLabel").textContent=cfg.label;
-  document.querySelector("#beerStreak").textContent=free.days;
-  document.querySelector("#beerStreakSub").textContent=free.days===1?"Tag am Stück":"Tage am Stück";
-  const legend=document.querySelector("#calendarFreeLegend");if(legend)legend.textContent=cfg.label.toLocaleLowerCase("de-DE");
-  maybeCelebrateFreeDays(free.days);
+  const goalBox=document.querySelector("#freeGoalsTodayList"),goals=freeGoalsSettings().filter(g=>g.enabled!==false);
+  if(goalBox)goalBox.innerHTML=goals.length?goals.map(g=>{const info=freeGoalStreakInfo(g,selectedDate);return `<div class="free-goal-today"><span>${escapeHtml(g.label)}</span><strong>${info.days}</strong><small>${info.days===1?"Tag":"Tage"} am Stück</small></div>`}).join(""):'<div class="free-goal-empty">Noch keine Serie angelegt.</div>';
+  const legend=document.querySelector("#calendarFreeLegend");if(legend)legend.textContent="freie Ziele";
+  if(selectedDate===localDate())goals.forEach(g=>maybeCelebrateFreeGoal(g,freeGoalStreakInfo(g,selectedDate).days));
   renderHomeVisibility();
 }
 function renderWeightToday(){
   const all=weightEntriesSorted(),card=document.querySelector("#weightTodayCard");if(!homeVisibility().weight){card.style.display="none";return}
-  if(!all.length){card.style.display="none";return}
-  const latest=all[all.length-1],latestKey=latest.date+"T"+latest.time;
-  const prev=[...all].reverse().find(e=>(e.date+"T"+e.time)<latestKey),first=all[0];
+  const upto=all.filter(e=>e.date<=selectedDate);
+  if(!upto.length){card.style.display="none";return}
+  const latest=upto[upto.length-1],latestKey=latest.date+"T"+latest.time;
+  const prev=[...upto].reverse().find(e=>(e.date+"T"+e.time)<latestKey),first=upto[0];
   card.style.display="block";
   document.querySelector("#weightTodayValue").textContent=`${Number(latest.weightKg).toFixed(1).replace(".",",")} kg`;
   document.querySelector("#weightTodayTime").textContent=`${parseDate(latest.date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})} · ${latest.time}`;
@@ -1653,12 +1730,12 @@ function renderWeightToday(){
   document.querySelector("#weightTodayDeltaFirst").textContent=first?formatWeightDelta(Number(latest.weightKg)-Number(first.weightKg)):"–";
 }
 function celebrationState(){try{return JSON.parse(localStorage.getItem(CELEBRATION_KEY))||{beer:[],freeDays:[],weight:[]}}catch(e){return {beer:[],freeDays:[],weight:[]}}}
-function maybeCelebrateFreeDays(days){
+function maybeCelebrateFreeGoal(goal,days){
   const milestones=[];for(let d=7;d<=28;d+=7)milestones.push(d);for(let d=30;d<=720;d+=30)milestones.push(d);
   const reached=milestones.filter(m=>m<=days).sort((a,b)=>b-a)[0];if(!reached)return;
-  const cfg=freeDaysSettings(),c=celebrationState(),key=`${cfg.mode}:${reached}`;c.freeDays=c.freeDays||[];
+  const c=celebrationState(),key=`${goal.id}:${reached}`;c.freeDays=c.freeDays||[];
   if(c.freeDays.includes(key))return;c.freeDays.push(key);localStorage.setItem(CELEBRATION_KEY,JSON.stringify(c));
-  setTimeout(()=>{confetti(reached%30===0?70:34);showToast(`${reached} ${cfg.label.toLocaleLowerCase("de-DE")} – ${reached%30===0?"Monatsmeilenstein!":"volle Woche!"}`)},350);
+  setTimeout(()=>{confetti(reached%30===0?70:34);showToast(`${goal.label}: ${reached} Tage – ${reached%30===0?"Monatsmeilenstein!":"volle Woche!"}`)},350);
 }
 function confetti(count){
   const colors=["#2f6555","#c9a75e","#d57575","#8caf9c","#e1cfae"];
@@ -1831,6 +1908,26 @@ function renderMonth(){
 function renderPatterns(){
   const signals=[{type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},{type:"symptom",value:"Durchfall",label:"Durchfall"},{type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}],foods=state.entries.filter(e=>e.type==="food"),rows=[];signals.forEach(signal=>{const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value),counts=new Map();events.forEach(s=>{const st=new Date(`${s.date}T${s.time}`);foods.forEach(f=>{const ft=new Date(`${f.date}T${f.time}`),h=(st-ft)/36e5;if(h>=0&&h<=8)counts.set(f.value,(counts.get(f.value)||0)+1)})});[...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`))});document.querySelector("#patternList").innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
 }
+function freeGoalCategoryOptions(selected){
+  const cats=allEntryCategories();
+  return cats.map(c=>`<option value="${escapeHtml(c.id)}" ${c.id===selected?"selected":""}>${escapeHtml(c.label)}</option>`).join("")
+}
+function renderFreeGoalSettings(){
+  const box=document.querySelector("#freeGoalSettings"),addSel=document.querySelector("#newFreeGoalCategory"),addStart=document.querySelector("#newFreeGoalStart");if(!box)return;
+  const goals=freeGoalsSettings();
+  box.innerHTML=goals.map((g,i)=>`<div class="free-goal-setting-row"><input type="checkbox" data-free-enabled="${i}" ${g.enabled!==false?"checked":""} aria-label="Serie anzeigen"><input type="text" data-free-label="${i}" value="${escapeHtml(g.label)}"><select data-free-category="${i}">${freeGoalCategoryOptions(g.categoryId)}</select><input type="date" data-free-start="${i}" value="${escapeHtml(g.start||"")}"><button class="todo-delete" data-free-delete="${i}" type="button">×</button></div>`).join("");
+  box.querySelectorAll("[data-free-delete]").forEach(b=>b.onclick=()=>{state.settings.freeGoals.splice(Number(b.dataset.freeDelete),1);renderFreeGoalSettings()});
+  if(addSel)addSel.innerHTML=freeGoalCategoryOptions(addSel.value||"sweets");
+  if(addStart&&!addStart.value)addStart.value=localDate();
+}
+function collectFreeGoalSettings(){
+  const goals=state.settings.freeGoals||[];
+  document.querySelectorAll("[data-free-label]").forEach(x=>{const i=Number(x.dataset.freeLabel);if(goals[i])goals[i].label=x.value.trim()||"Freie Tage"});
+  document.querySelectorAll("[data-free-category]").forEach(x=>{const i=Number(x.dataset.freeCategory);if(goals[i])goals[i].categoryId=x.value});
+  document.querySelectorAll("[data-free-start]").forEach(x=>{const i=Number(x.dataset.freeStart);if(goals[i])goals[i].start=x.value||localDate()});
+  document.querySelectorAll("[data-free-enabled]").forEach(x=>{const i=Number(x.dataset.freeEnabled);if(goals[i])goals[i].enabled=x.checked});
+  state.settings.freeGoals=goals;
+}
 function renderCustomEntryCategorySettings(){
   const box=document.querySelector("#customEntryCategoryList");if(!box)return;
   const rows=state.settings.customEntryCategories||[];
@@ -1840,10 +1937,7 @@ function renderCustomEntryCategorySettings(){
 function renderSettings(){
   document.querySelector("#waterLabel").value=state.settings.waterLabel||"Wasser";
   document.querySelector("#waterMl").value=state.settings.waterMl||700;
-  const free=freeDaysSettings();
-  document.querySelector("#freeDaysCustomLabel").value=free.label;
-  document.querySelector("#freeDaysStart").value=free.start||"";
-  document.querySelector("#freeDaysMode").value=free.mode;
+  renderFreeGoalSettings();
   const v=homeVisibility();
   [["showMoon","moon"],["showWeight","weight"],["showWater","water"],["showFreeDays","freeDays"],["showCalendarSpecial","calendarSpecial"],["showQuick","quick"],["showWellbeing","wellbeing"],["showSticky","sticky"]]
     .forEach(([id,key])=>{const el=document.querySelector("#"+id);if(el)el.checked=v[key]!==false});
@@ -1851,7 +1945,7 @@ function renderSettings(){
   [["setDailyQuotes","dailyQuotes"],["setMoon","moon"],["setSeasons","seasons"],["setHolidays","holidays"],["setWheel","wheel"],["setRauhnacht","rauhnacht"],["setFarmers","farmers"],["setSchoolHolidays","schoolHolidays"]]
     .forEach(([id,key])=>{const el=document.querySelector("#"+id);if(el)el.checked=c[key]!==false});
   const cq=document.querySelector("#customQuotes");if(cq)cq.value=(c.customQuotes||[]).join("\n");
-  renderTodoSettings();renderCustomEntryCategorySettings();
+  renderTodoSettings();renderCustomEntryCategorySettings();renderFreeGoalSettings();
 }
 
 function printFilterOptions(){const opts=[["all","Alles"],["type:food","Essen"],["type:drink","Trinken"],["type:symptom","Beschwerden"],["type:medicine","Mittel"],["type:weight","Gewicht"],["type:period","Periode"],["drink:Bier","Bier"],["drink:Wasser","Wasser"]];allEntryCategories().forEach(c=>opts.push(["category:"+c.id,"Kategorie: "+c.label]));const seen=new Set();knownItems().forEach(v=>opts.push(["value:"+v,v]));return opts.filter(([v])=>!seen.has(v)&&seen.add(v))}
@@ -1863,7 +1957,7 @@ function compactPrintEntries(dayEntries){
 function renderPrintPage(){
   const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries();document.querySelector("#printTitle").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});document.querySelector("#printMeta").textContent="Mein Tracker · Monatsübersicht";let out="";
   for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),outside=d.getMonth()!==m;let dayEntries=entries.filter(e=>e.date===ds);if(!printFilters.includes("all"))dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));const compact=compactPrintEntries(dayEntries),period=!outside&&periodOn(ds),beer=!outside&&isFreeDay(ds);out+=`<div class="print-day${outside?" out":""}${beer?" no-beer":""}${period?" period-day":""}"><div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>${compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):'<div class="print-empty">–</div>'}</div>`}
-  document.querySelector("#printCalendar").innerHTML=out;const weights=weightEntriesSorted(),latest=weights[weights.length-1],firstW=weights[0];document.querySelector("#printWeightLatest").textContent=latest?`${Number(latest.weightKg).toFixed(1).replace(".",",")} kg · ${latest.date}`:"–";document.querySelector("#printWeightDelta").textContent=latest&&firstW?`Seit erster Messung: ${formatWeightDelta(Number(latest.weightKg)-Number(firstW.weightKg))}`:"Noch keine Vergleichswerte";drawWeightChart(document.querySelector("#printWeightChart"),monthWeightEntries(),150);const free=freeStreakInfo(),freeCfg=freeDaysSettings();document.querySelector("#printFreeDaysTitle").textContent=freeCfg.label;document.querySelector("#printBeerStreak").textContent=`${free.days} Tage`;document.querySelector("#printBeerInfo").textContent=`Start: ${freeCfg.start||"–"}`;const pfl=document.querySelector("#printFreeLegend");if(pfl)pfl.textContent=freeCfg.label.toLocaleLowerCase("de-DE");
+  document.querySelector("#printCalendar").innerHTML=out;const weights=weightEntriesSorted(),latest=weights[weights.length-1],firstW=weights[0];document.querySelector("#printWeightLatest").textContent=latest?`${Number(latest.weightKg).toFixed(1).replace(".",",")} kg · ${latest.date}`:"–";document.querySelector("#printWeightDelta").textContent=latest&&firstW?`Seit erster Messung: ${formatWeightDelta(Number(latest.weightKg)-Number(firstW.weightKg))}`:"Noch keine Vergleichswerte";drawWeightChart(document.querySelector("#printWeightChart"),monthWeightEntries(),150);const goals=freeGoalsSettings().filter(g=>g.enabled!==false);document.querySelector("#printFreeDaysTitle").textContent="Freie Tage";document.querySelector("#printBeerStreak").textContent=goals.length?goals.map(g=>`${g.label}: ${freeGoalStreakInfo(g,localDate()).days} Tage`).join(" · "):"–";document.querySelector("#printBeerInfo").textContent=goals.length?goals.map(g=>`Start ${g.label}: ${g.start}`).join(" · "):"Noch keine Serien";const pfl=document.querySelector("#printFreeLegend");if(pfl)pfl.textContent="freie Ziele";
 }
 function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();setTimeout(()=>window.print(),100)}
 
@@ -1875,7 +1969,8 @@ document.querySelector("#entryForm").addEventListener("submit",saveDialog);docum
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
 document.querySelector("#printMonth").onclick=()=>{renderPrintFilterDialog();document.querySelector("#printDialog").showModal()};document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#startPrint").onclick=startPrint;
 document.querySelector("#saveSettings").onclick=()=>{state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"Wasser";state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;save();showToast("Wasser-Einstellung gespeichert")};
-document.querySelector("#saveFreeDays").onclick=()=>{state.settings.freeDays={label:document.querySelector("#freeDaysCustomLabel").value.trim()||"Freie Tage",start:document.querySelector("#freeDaysStart").value||localDate(),mode:document.querySelector("#freeDaysMode").value==="alcohol"?"alcohol":"beer"};state.settings.beerStart=state.settings.freeDays.start;save();showToast("Freie Tage gespeichert")};
+document.querySelector("#saveFreeGoals").onclick=()=>{collectFreeGoalSettings();save();showToast("Freie Tage gespeichert")};
+document.querySelector("#addFreeGoal").onclick=()=>{collectFreeGoalSettings();const label=document.querySelector("#newFreeGoalLabel").value.trim(),categoryId=document.querySelector("#newFreeGoalCategory").value,start=document.querySelector("#newFreeGoalStart").value||localDate();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.freeGoals=state.settings.freeGoals||[];state.settings.freeGoals.push({id:"free-"+uid(),label,start,categoryId,enabled:true});document.querySelector("#newFreeGoalLabel").value="";renderFreeGoalSettings();showToast("Serie hinzugefügt")};
 document.querySelector("#saveHomeSettings").onclick=()=>{const v=state.settings.homeVisibility||{};[["showMoon","moon"],["showWeight","weight"],["showWater","water"],["showFreeDays","freeDays"],["showCalendarSpecial","calendarSpecial"],["showQuick","quick"],["showWellbeing","wellbeing"],["showSticky","sticky"]].forEach(([id,key])=>v[key]=document.querySelector("#"+id).checked);state.settings.homeVisibility=v;save();showToast("Startseite gespeichert")};
 document.querySelector("#addEntryCategory").onclick=()=>{const input=document.querySelector("#newEntryCategory"),label=input.value.trim();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.customEntryCategories=state.settings.customEntryCategories||[];const id="custom-"+uid();state.settings.customEntryCategories.push({id,label});input.value="";renderCustomEntryCategorySettings();showToast("Kategorie hinzugefügt")};
 document.querySelector("#exportData").onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};document.querySelector("#importData").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());state={...cloneDefault(),...x,settings:{...DEFAULT.settings,...x.settings}};save();showToast("Sicherung importiert")}catch(err){alert("Datei konnte nicht gelesen werden.")}};
@@ -1890,7 +1985,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=20");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=22");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
