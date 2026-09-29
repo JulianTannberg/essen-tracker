@@ -1109,6 +1109,10 @@
       }
     }
 
+  
+    /* ===== v24 Bugfix ===== */
+    .free-goals-heading{display:none!important}
+
   </style>
 </head>
 <body>
@@ -1118,7 +1122,7 @@
       <h1 id="pageTitle">Heute</h1>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v23</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v24</div>
   </header>
 
   <main>
@@ -1136,7 +1140,7 @@
 <div id="todaySummary" class="summary-card">
         <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small></div>
         <div id="freeDaysTodayCard" class="beer-card">
-          <small class="free-goals-heading">Freie Tage</small>
+          
           <div id="freeGoalsTodayList" class="free-goals-today-list"></div>
         </div>
       </div>
@@ -2038,7 +2042,7 @@ document.querySelector("#exportData").onclick=()=>{const blob=new Blob([JSON.str
 
 document.querySelector("#moonChip").onclick=()=>{renderMoon();document.querySelector("#moonDialog").showModal()};
 document.querySelector("#closeMoonDialog").onclick=()=>document.querySelector("#moonDialog").close();
-document.querySelector("#rerollQuote").onclick=rerollDailyQuote;
+const rerollQuoteBtn=document.querySelector("#rerollQuote");if(rerollQuoteBtn)rerollQuoteBtn.onclick=rerollDailyQuote;
 document.querySelector("#addTodo").onclick=()=>{collectTodoSettings();const input=document.querySelector("#newTodoText"),label=input.value.trim();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.todoItems.push({id:"custom-"+uid(),label,enabled:true});input.value="";renderTodoSettings()};
 document.querySelector("#saveTodoSettings").onclick=()=>{collectTodoSettings();save();showToast("Tagesliste gespeichert")};
 document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.settings.calendar||{};c.dailyQuotes=document.querySelector("#setDailyQuotes").checked;c.moon=document.querySelector("#setMoon").checked;c.seasons=document.querySelector("#setSeasons").checked;c.holidays=document.querySelector("#setHolidays").checked;c.wheel=document.querySelector("#setWheel").checked;c.rauhnacht=document.querySelector("#setRauhnacht").checked;c.farmers=document.querySelector("#setFarmers").checked;c.schoolHolidays=document.querySelector("#setSchoolHolidays").checked;c.customQuotes=document.querySelector("#customQuotes").value.split(/\n+/).map(x=>x.trim()).filter(Boolean);state.settings.calendar=c;save();showToast("Kalender-Einstellungen gespeichert")};
@@ -2046,7 +2050,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=23");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=24");await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();

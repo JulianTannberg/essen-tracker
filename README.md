@@ -2,7 +2,6 @@
 
 Lokaler privater Planer/Tracker als PWA.
 
-Version 23 vergrößert den Untertitel unter „Heute“ deutlich, legt ihn leicht
-schräg über die freie Breite und vereinfacht den oberen Bereich weiter:
-kein Kontext unter „Kleiner Gedanke“, kein Wechsel-Button und eine kompaktere
-Freie-Tage-Karte ohne extra Überschrift.
+Version 24 behebt einen Initialisierungsfehler aus v23. Der entfernte
+Spruch-Wechselknopf wurde im JavaScript noch angesprochen; dadurch brach
+die App beim Laden ab und mehrere Bereiche blieben leer.

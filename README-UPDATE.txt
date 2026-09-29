@@ -1,11 +1,14 @@
-ESSEN TRACKER – UPDATE v23
+ESSEN TRACKER – UPDATE v24
 
-FEINSCHLIFF
-- Der Satz unter „Heute“ ist jetzt deutlich größer.
-- Er nutzt die freie Breite besser aus und liegt leicht schräg.
-- Unter „Kleiner Gedanke“ wird kein zusätzlicher Kontext mehr angezeigt.
-- Der Wechsel-Button beim Klebezettel ist entfernt.
-- Die Karte mit den freien Tagen ist kompakter; die Überschrift „Freie Tage“
-  entfällt, damit mehr Platz für die eigentlichen Serien bleibt.
+WICHTIGER BUGFIX
+- v23 hatte den Wechsel-Button beim Klebezettel entfernt, aber der JavaScript-Code
+  versuchte ihn weiterhin anzusprechen.
+- Dadurch wurde die Initialisierung abgebrochen. Deshalb waren Mond, Wochenleiste,
+  Klebezettel-Spruch, freie Serien, „Heute für mich“ und Zeitleiste leer.
+- Das ist jetzt behoben.
 
-Sonst bleiben die Funktionen aus v22 erhalten.
+AUSSERDEM
+- Die sichtbare Überschrift „Freie Tage“ in der Serien-Karte ist entfernt.
+- Deine bestehenden lokalen Daten werden nicht gelöscht.
+
+Bitte v24 statt v23 verwenden.
