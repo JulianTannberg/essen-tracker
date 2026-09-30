@@ -3043,9 +3043,155 @@
     }
   }
 
+
+  /* ===== v50: kleine Details, Fotopool und sicherer 2-Seiten-Druck ===== */
+
+  /* Die kleinen handschriftlichen Hinweise dürfen sichtbar sein. */
+  #quickSectionTitle small{
+    font-size:13.5px!important;
+    right:5px!important;
+    bottom:4px!important;
+  }
+  #timelineDayLabel{
+    font-family:var(--script)!important;
+    font-size:14px!important;
+    color:#9a9081!important;
+    margin-left:8px!important;
+  }
+
+  .meal-photo-badge{
+    width:36px!important;
+    height:36px!important;
+    border-radius:11px!important;
+  }
+  .meal-photo-badge svg{
+    width:22px!important;
+    height:22px!important;
+  }
+
+  /* Kleiner handschriftlicher Akzent, wenn das Wasserziel erreicht ist. */
+  #waterTodayCard{
+    overflow:visible!important;
+    z-index:2!important;
+  }
+  .goal-flourish{
+    display:none;
+    position:absolute;
+    left:42%;
+    bottom:-5px;
+    font-family:var(--script)!important;
+    font-size:20px!important;
+    line-height:1!important;
+    color:#7f9270!important;
+    white-space:nowrap!important;
+    transform:rotate(-7deg);
+    pointer-events:none;
+    z-index:4;
+    text-shadow:0 1px 0 rgba(255,255,255,.8);
+  }
+  .goal-flourish.show{display:block}
+
+  /* Wiederverwendbare Mahlzeitenfotos. */
+  .meal-photo-suggestions-wrap{
+    margin-top:12px!important;
+    padding-top:10px!important;
+    border-top:1px dashed rgba(130,118,101,.28)!important;
+  }
+  .meal-photo-suggestions-head{
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+    margin-bottom:8px!important;
+  }
+  .meal-photo-suggestions-head>span{
+    font-weight:750!important;
+    font-size:13px!important;
+    color:#514b43!important;
+  }
+  .meal-photo-suggestions-head small{
+    font-size:10.5px!important;
+    color:#8b8276!important;
+    text-align:right!important;
+  }
+  .meal-photo-suggestions{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .meal-photo-suggestion{
+    appearance:none!important;
+    border:1px solid var(--cream-border)!important;
+    background:#fdfbf7!important;
+    border-radius:13px!important;
+    padding:5px!important;
+    min-width:0!important;
+    text-align:left!important;
+    color:#4f4941!important;
+    font:inherit!important;
+  }
+  .meal-photo-suggestion img{
+    width:100%!important;
+    aspect-ratio:1 / 1!important;
+    object-fit:cover!important;
+    display:block!important;
+    border-radius:9px!important;
+    margin-bottom:4px!important;
+  }
+  .meal-photo-suggestion b{
+    display:block!important;
+    font-size:10.5px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .meal-photo-suggestion small{
+    display:block!important;
+    font-size:9px!important;
+    color:#91887b!important;
+    margin-top:1px!important;
+  }
+  .meal-photo-suggestion.selected{
+    outline:2px solid #9aa886!important;
+    outline-offset:1px!important;
+  }
+
+  @media(max-width:390px){
+    #quickSectionTitle small{font-size:12.5px!important}
+    #timelineDayLabel{font-size:13px!important}
+    .meal-photo-badge{width:34px!important;height:34px!important}
+    .meal-photo-badge svg{width:21px!important;height:21px!important}
+    .goal-flourish{font-size:18px!important;left:38%;bottom:-4px}
+    .meal-photo-suggestions{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  }
+
+  @media print{
+    .print-calendar-sheet{
+      break-after:page!important;
+      page-break-after:always!important;
+    }
+    .print-report-sheet{
+      break-before:page!important;
+      page-break-before:always!important;
+      break-after:auto!important;
+      page-break-after:auto!important;
+    }
+    #printPage{
+      height:auto!important;
+      min-height:0!important;
+      overflow:visible!important;
+    }
+    .print-sheet{
+      display:block!important;
+      height:auto!important;
+      overflow:visible!important;
+    }
+  }
+
 </style>
 </head>
-<body data-app-build="49">
+<body data-app-build="50">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3053,7 +3199,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v49</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v50</div>
   </header>
 
   <main>
@@ -3072,7 +3218,7 @@
       </div>
 
       <div id="todaySummary" class="summary-card">
-        <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small></div>
+        <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small><span id="waterCelebrate" class="goal-flourish" aria-hidden="true"></span></div>
         <div id="freeDaysTodayCard" class="beer-card">
           
           <div id="freeGoalsTodayList" class="free-goals-today-list"></div>
@@ -3271,6 +3417,13 @@
               <div class="photo-help">Es wird nur eine verkleinerte Version gespeichert.</div>
             </div>
           </div>
+          <div id="mealPhotoSuggestionsWrap" class="meal-photo-suggestions-wrap" hidden>
+            <div class="meal-photo-suggestions-head">
+              <span>Schon einmal fotografiert</span>
+              <small>Passende Fotos aus früheren Mahlzeiten</small>
+            </div>
+            <div id="mealPhotoSuggestions" class="meal-photo-suggestions"></div>
+          </div>
         </label>
         <div class="dialog-actions"><button type="button" id="deleteEntry" class="danger-btn" style="display:none">Löschen</button><button type="button" id="cancelEntryDialog" class="secondary-btn">Abbrechen</button><button type="submit" class="primary-btn">Speichern</button></div>
       </form>
@@ -3292,7 +3445,7 @@
   <dialog id="printDialog">
     <div class="dialog-wrap">
       <div class="dialog-head"><h2>Drucken / PDF</h2><button type="button" id="closePrintDialog" class="icon-btn">×</button></div>
-      <div class="hint" style="margin-top:10px">Mehrere Bereiche können gleichzeitig ausgewählt werden.</div>
+      <div class="hint" style="margin-top:10px">Die Auswahl gilt für den Kalender auf Seite 1. Der Monatsbericht auf Seite 2 wird immer vollständig mitgedruckt.</div>
       <div id="printFilterList" class="print-filter-list"></div>
       <div class="dialog-actions" style="margin-top:14px"><button type="button" id="cancelPrintDialog" class="secondary-btn">Abbrechen</button><button type="button" id="startPrint" class="primary-btn">Drucken</button></div>
     </div>
@@ -3445,13 +3598,90 @@ function showToast(msg){const t=document.querySelector("#toast");t.textContent=m
 
 
 function mealPhoto(mealId){return mealId&&state.mealPhotos?state.mealPhotos[mealId]||"":""}
+function currentFoodTerms(raw){
+  return String(raw||"").split(",").map(normalizedItem).filter(Boolean)
+}
+function mealPhotoSuggestionData(raw){
+  const wanted=currentFoodTerms(raw);
+  if(!wanted.length)return [];
+
+  const meals=new Map();
+  state.entries.filter(e=>e.type==="food"&&e.mealId&&mealPhoto(e.mealId)).forEach(e=>{
+    if(!meals.has(e.mealId))meals.set(e.mealId,{mealId:e.mealId,date:e.date,time:e.time,values:[],photo:mealPhoto(e.mealId)});
+    meals.get(e.mealId).values.push(e.value);
+  });
+
+  const seenPhotos=new Set(), results=[];
+  meals.forEach(m=>{
+    const have=m.values.map(normalizedItem).filter(Boolean);
+    let score=0, matched=[];
+    wanted.forEach(w=>{
+      const hits=have.filter(h=>h===w || h.includes(w) || w.includes(h));
+      if(hits.length){score+=hits.some(h=>h===w)?3:1;matched.push(w)}
+    });
+    if(!score || seenPhotos.has(m.photo))return;
+    seenPhotos.add(m.photo);
+    results.push({...m,score,matched:[...new Set(matched)]});
+  });
+
+  return results
+    .sort((a,b)=>b.score-a.score || (b.date+b.time).localeCompare(a.date+a.time))
+    .slice(0,8);
+}
+function renderMealPhotoSuggestions(){
+  const wrap=document.querySelector("#mealPhotoSuggestionsWrap"),
+    box=document.querySelector("#mealPhotoSuggestions"),
+    type=document.querySelector("#entryType")?.value,
+    raw=document.querySelector("#entryValue")?.value||"";
+  if(!wrap||!box)return;
+
+  if(type!=="food"){
+    wrap.hidden=true; box.innerHTML=""; return;
+  }
+
+  const items=mealPhotoSuggestionData(raw);
+  if(!items.length){
+    wrap.hidden=true; box.innerHTML=""; return;
+  }
+
+  wrap.hidden=false;
+  box.innerHTML=items.map((m,i)=>{
+    const label=m.values.slice(0,2).join(", ");
+    const date=parseDate(m.date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+    return `<button type="button" class="meal-photo-suggestion${entryPhotoData===m.photo?" selected":""}" data-photo-suggestion="${i}">
+      <img src="${m.photo}" alt="${escapeHtml(label)}">
+      <b>${escapeHtml(label)}</b>
+      <small>${date}</small>
+    </button>`;
+  }).join("");
+
+  box.querySelectorAll("[data-photo-suggestion]").forEach(btn=>{
+    btn.onclick=()=>{
+      const item=items[Number(btn.dataset.photoSuggestion)];
+      if(!item)return;
+      entryPhotoData=item.photo;
+      removeEntryPhoto=false;
+      const inp=document.querySelector("#entryPhotoInput"); if(inp)inp.value="";
+      setPhotoPreview(entryPhotoData);
+      renderMealPhotoSuggestions();
+      showToast("Vorhandenes Foto übernommen");
+    };
+  });
+}
+
 function setPhotoPreview(data){
   const box=document.querySelector("#entryPhotoPreview");
   if(!box)return;
   if(data){box.innerHTML=`<img src="${data}" alt="Essensfoto">`}
   else {box.textContent="🍽️"}
 }
-function resetPhotoField(){entryPhotoData="";removeEntryPhoto=false;const inp=document.querySelector("#entryPhotoInput");if(inp)inp.value="";setPhotoPreview("")}
+function resetPhotoField(){
+  entryPhotoData="";removeEntryPhoto=false;
+  const inp=document.querySelector("#entryPhotoInput");if(inp)inp.value="";
+  setPhotoPreview("");
+  const wrap=document.querySelector("#mealPhotoSuggestionsWrap"),box=document.querySelector("#mealPhotoSuggestions");
+  if(wrap)wrap.hidden=true;if(box)box.innerHTML="";
+}
 function resizeImageFile(file,max=420,quality=.78){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
@@ -3907,6 +4137,12 @@ function renderSummary(){
   document.querySelector("#waterCount").textContent=`${liters.toFixed(1).replace(".",",")} / 3,0 L`;
   document.querySelector("#waterSub").textContent=totalMl?`${waters.length} Wasser-Eintrag${waters.length===1?"":"e"}`:"Noch nichts eingetragen";
   const bar=document.querySelector("#waterProgressBar");if(bar)bar.style.width=`${Math.min(100,(totalMl/3000)*100)}%`;
+  const waterCelebrate=document.querySelector("#waterCelebrate");
+  if(waterCelebrate){
+    const words=["geschafft ♡","prima ♡","voll ♡","passt ♡"];
+    waterCelebrate.textContent=words[(dayOfYear(selectedDate)-1)%words.length];
+    waterCelebrate.classList.toggle("show",totalMl>=3000);
+  }
   const goalBox=document.querySelector("#freeGoalsTodayList"),goals=freeGoalsSettings().filter(g=>g.enabled!==false);
   if(goalBox)goalBox.innerHTML=goals.length?goals.map(g=>{const info=freeGoalStreakInfo(g,selectedDate);return `<div class="free-goal-today"><span>${escapeHtml(g.label)}</span><strong>${info.days}</strong><small>${info.days===1?"Tag":"Tage"} am Stück</small></div>`}).join(""):'<div class="free-goal-empty">Noch keine Serie angelegt.</div>';
   const legend=document.querySelector("#calendarFreeLegend");if(legend)legend.textContent="freie Ziele";
@@ -3964,13 +4200,18 @@ function renderQuick(){
     {label:"Sodbrennenmittel",sub:"genommen",type:"medicine",value:"Sodbrennenmittel"}
   ];
   qs.forEach(q=>{const b=document.createElement("button");b.className="quick-btn";b.innerHTML=`${escapeHtml(q.label)}<small>${escapeHtml(q.sub)}</small>`;b.onclick=()=>{addEntry(q.type,q.value,{tags:q.tag?[q.tag]:[],amountMl:q.amountMl||null});save();showToast(`${q.label} gespeichert`)};g.appendChild(b)});
+  const micro=document.querySelector("#quickSectionTitle small");
+  if(micro){
+    const sayings=["Ich bin stolz auf dich ♡","Kleine Dinge zählen ♡","Ganz in Ruhe ♡","Du darfst stolz sein ♡","Ein Schritt reicht ♡","Schön, dass du dran denkst ♡"];
+    micro.textContent=sayings[(dayOfYear(selectedDate)-1)%sayings.length];
+  }
 }
 
 function renderTimeline(){
   renderHeader();
   const list=todayEntries(), box=document.querySelector("#timeline");
   const dayLabel=document.querySelector("#timelineDayLabel");
-  if(dayLabel)dayLabel.textContent=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+  if(dayLabel)dayLabel.textContent=selectedDate===localDate()?"heute ♡":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
 
   const groups=[];
   for(const e of list){
@@ -4242,6 +4483,7 @@ function openNewEntry(type){
   resetPhotoField();renderEntryCategories(type,[]);
   if(type==="food")setMealKind(guessMealKind(now),false);
   document.querySelector("#entryDialog").showModal();
+  if(type==="food")renderMealPhotoSuggestions();
 }
 function openEditDialog(id){
   const first=state.entries.find(e=>e.id===id);if(!first)return;
@@ -4265,6 +4507,7 @@ function openEditDialog(id){
   renderEntryCategories(first.type,[...editCats]);
   document.querySelector("#deleteEntry").style.display="block";
   document.querySelector("#entryDialog").showModal();
+  if(first.type==="food")renderMealPhotoSuggestions();
 }
 function saveDialog(ev){
   ev.preventDefault();
@@ -4606,7 +4849,7 @@ function renderPrintPage(){
 
   buildMonthlyReport();
 }
-function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();setTimeout(()=>window.print(),100)}
+function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();document.body.classList.add("printing");setTimeout(()=>window.print(),180)}
 
 function renderAll(){renderSummary();renderWeightToday();renderQuick();renderTimeline();renderKnown();renderSettings();renderHomeVisibility();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
 
@@ -4620,11 +4863,11 @@ if(entryPhotoInput)entryPhotoInput.addEventListener("change",async e=>{
   try{
     entryPhotoData=await resizeImageFile(file,420,.78);
     removeEntryPhoto=false;
-    setPhotoPreview(entryPhotoData);
+    setPhotoPreview(entryPhotoData);renderMealPhotoSuggestions();
   }catch(err){showToast("Foto konnte nicht geladen werden")}
 });
 const pickPhotoBtn=document.querySelector("#pickPhotoBtn"); if(pickPhotoBtn) pickPhotoBtn.onclick=()=>document.querySelector("#entryPhotoInput").click();
-const removePhotoBtn=document.querySelector("#removePhotoBtn"); if(removePhotoBtn) removePhotoBtn.onclick=()=>{removeEntryPhoto=true;entryPhotoData="";const inp=document.querySelector("#entryPhotoInput"); if(inp) inp.value=""; setPhotoPreview("")};
+const removePhotoBtn=document.querySelector("#removePhotoBtn"); if(removePhotoBtn) removePhotoBtn.onclick=()=>{removeEntryPhoto=true;entryPhotoData="";const inp=document.querySelector("#entryPhotoInput"); if(inp) inp.value=""; setPhotoPreview("");renderMealPhotoSuggestions()};
 
 
 document.querySelectorAll("[data-meal-kind]").forEach(b=>b.onclick=()=>setMealKind(b.dataset.mealKind,true));
@@ -4635,8 +4878,11 @@ if(entryTimeInput)entryTimeInput.addEventListener("change",()=>{
   }
 });
 
-document.querySelector("#entryForm").addEventListener("submit",saveDialog);document.querySelector("#entryValue").addEventListener("change",refreshEntryCategoriesFromValue);document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
+document.querySelector("#entryForm").addEventListener("submit",saveDialog);
+document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntryCategoriesFromValue();renderMealPhotoSuggestions()});
+document.querySelector("#entryValue").addEventListener("input",()=>{if(document.querySelector("#entryType").value==="food")renderMealPhotoSuggestions()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
+window.addEventListener("afterprint",()=>document.body.classList.remove("printing"));
 document.querySelector("#printMonth").onclick=()=>{renderPrintFilterDialog();document.querySelector("#printDialog").showModal()};document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#startPrint").onclick=startPrint;
 document.querySelector("#saveSettings").onclick=()=>{state.settings.waterLabel=document.querySelector("#waterLabel").value.trim()||"Wasser";state.settings.waterMl=Number(document.querySelector("#waterMl").value)||700;save();showToast("Wasser-Einstellung gespeichert")};
 document.querySelector("#saveFreeGoals").onclick=()=>{collectFreeGoalSettings();save();showToast("Freie Tage gespeichert")};
@@ -4655,7 +4901,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=49",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=50",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
