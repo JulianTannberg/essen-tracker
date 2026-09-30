@@ -1941,77 +1941,7 @@
 
 
 
-/* ===== v37: Heute für mich neben dem Notizzettel ===== */
-#todayTopPair{
-  display:grid;
-  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
-  gap:12px;
-  align-items:start;
-  margin:10px 14px 8px;
-}
-#todayTopPair #wellbeingCard{
-  margin:0!important;
-  min-height:188px;
-  background:rgba(249,245,236,.96)!important;
-}
-#todayTopPair #wellbeingCard::after{
-  content:none!important;
-  display:none!important;
-}
-#todayTopPair #wellbeingCard h3{
-  margin-bottom:10px!important;
-}
-#todayTopPair #wellbeingList{
-  gap:10px!important;
-}
-#todayTopPair #dailySticky{
-  width:100%!important;
-  min-height:188px!important;
-  aspect-ratio:1 / 1;
-  margin:0!important;
-  justify-self:end!important;
-  align-self:start!important;
-  padding:16px 15px 14px!important;
-  transform:rotate(-1.6deg)!important;
-  box-shadow:0 14px 26px rgba(67,58,45,.19),0 7px 14px rgba(67,58,45,.14)!important;
-}
-#todayTopPair #dailySticky::before{
-  width:80px!important;
-  height:17px!important;
-  top:-9px!important;
-  box-shadow:0 5px 8px rgba(92,77,53,.22),0 1px 2px rgba(92,77,53,.12)!important;
-}
-#todayTopPair #dailySticky b{
-  font-size:19px!important;
-  line-height:1.08!important;
-  margin-bottom:8px!important;
-}
-#todayTopPair #dailySticky .sticky-text{
-  font-size:14.6px!important;
-  line-height:1.45!important;
-}
-#todayView #todaySummary{
-  margin-top:6px!important;
-}
-@media (max-width:390px){
-  #todayTopPair{
-    grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
-    gap:10px;
-    margin:8px 12px 8px;
-  }
-  #todayTopPair #wellbeingCard{
-    min-height:176px;
-  }
-  #todayTopPair #dailySticky{
-    min-height:176px!important;
-    padding:14px 13px 12px!important;
-  }
-  #todayTopPair #dailySticky b{font-size:17px!important}
-  #todayTopPair #dailySticky .sticky-text{font-size:13.5px!important;line-height:1.38!important}
-}
-
-
-  /* ===== v38: einseitige Mahlzeiten + Fotos ===== */
+/* ===== v38: einseitige Mahlzeiten + Fotos ===== */
   .today-top-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin:14px 0 8px}
   .today-top-grid .wellbeing-card,
   .today-top-grid .daily-sticky{margin:0;width:auto;min-width:0}
@@ -2952,7 +2882,7 @@
 
 </style>
 </head>
-<body data-app-build="46">
+<body data-app-build="47">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -2960,7 +2890,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v46</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v47</div>
   </header>
 
   <main>
@@ -4264,39 +4194,12 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=46",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=47",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
 
 
-function applyTodayTopPairLayout(){
-  const todayView = document.getElementById('todayView');
-  const sticky = document.getElementById('dailySticky');
-  const wellbeing = document.getElementById('wellbeingCard');
-  const summary = document.getElementById('todaySummary');
-  if(!todayView || !sticky || !wellbeing || !summary) return;
-
-  let row = document.getElementById('todayTopPair');
-  if(!row){
-    row = document.createElement('div');
-    row.id = 'todayTopPair';
-  }
-  if(row.parentElement !== todayView || row.nextElementSibling !== summary){
-    todayView.insertBefore(row, summary);
-  }
-  if(wellbeing.parentElement !== row || sticky.parentElement !== row){
-    row.innerHTML = '';
-    row.appendChild(wellbeing);
-    row.appendChild(sticky);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(applyTodayTopPairLayout, 80);
-  setTimeout(applyTodayTopPairLayout, 400);
-});
-window.addEventListener('load', () => setTimeout(applyTodayTopPairLayout, 120));
 
 </script>
 </body>

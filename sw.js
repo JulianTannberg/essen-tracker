@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v46";
-const ASSETS=["./index.html?v=46","./manifest.webmanifest?v=46","./icon.svg?v=46","./top-branch.png?v=46"];
+const CACHE="essen-tracker-pages-v47";
+const ASSETS=["./index.html?v=47","./manifest.webmanifest?v=47","./icon.svg?v=47","./top-branch.png?v=47"];
 
 self.addEventListener("install",event=>{
   event.waitUntil(
@@ -33,10 +33,10 @@ self.addEventListener("fetch",event=>{
       fetch(event.request,{cache:"no-store"})
         .then(response=>{
           const copy=response.clone();
-          caches.open(CACHE).then(cache=>cache.put("./index.html?v=46",copy)).catch(()=>{});
+          caches.open(CACHE).then(cache=>cache.put("./index.html?v=47",copy)).catch(()=>{});
           return response;
         })
-        .catch(()=>caches.match("./index.html?v=46").then(r=>r||caches.match("./index.html")))
+        .catch(()=>caches.match("./index.html?v=47").then(r=>r||caches.match("./index.html")))
     );
     return;
   }
