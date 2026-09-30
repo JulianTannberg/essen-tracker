@@ -2771,9 +2771,11 @@
     margin-bottom:8px!important;
   }
   .today-top-grid .daily-sticky .sticky-text{
-    font-size:var(--sticky-font,15.2px)!important;
-    line-height:1.42!important;
-    -webkit-line-clamp:7!important;
+    font-size:var(--sticky-font-fit,var(--sticky-font,15.2px))!important;
+    line-height:var(--sticky-line-fit,1.42)!important;
+    -webkit-line-clamp:unset!important;
+    overflow:hidden!important;
+    display:block!important;
   }
 
   /* Mahlzeiten bleiben sofort sichtbar. */
@@ -2875,14 +2877,26 @@
     }
     .today-top-grid .daily-sticky b{font-size:17.2px!important}
     .today-top-grid .daily-sticky .sticky-text{
-      font-size:var(--sticky-font-small,14.2px)!important;
-      line-height:1.39!important;
+      font-size:var(--sticky-font-fit,var(--sticky-font-small,14.2px))!important;
+      line-height:var(--sticky-line-fit,1.39)!important;
+      -webkit-line-clamp:unset!important;
+      overflow:hidden!important;
+      display:block!important;
     }
   }
 
+
+/* ===== v48: dynamische Zettel-Schrift + weißerer Druck ===== */
+@media print{
+  html,body,#printPage,.print-layout,.print-main,.print-side,.print-weight-below,.print-title-row{
+    background:#fff!important;
+  }
+  .print-box{background:#fff!important;}
+}
+
 </style>
 </head>
-<body data-app-build="47">
+<body data-app-build="48">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3550,14 +3564,54 @@ function renderDailyQuote(){
   if(note){
     const len=text.length;
     let normal="15.2px", small="14.2px";
-    if(len<=55){normal="17px";small="15.8px";}
-    else if(len<=80){normal="16px";small="15px";}
-    else if(len<=110){normal="15px";small="14px";}
+    if(len<=45){normal="17.8px";small="16.4px";}
+    else if(len<=70){normal="16.8px";small="15.6px";}
+    else if(len<=95){normal="15.8px";small="14.8px";}
+    else if(len<=125){normal="14.8px";small="13.8px";}
     else {normal="13.8px";small="13px";}
     note.style.setProperty("--sticky-font",normal);
     note.style.setProperty("--sticky-font-small",small);
   }
+  requestAnimationFrame(fitStickyQuoteText);
 }
+function fitStickyQuoteText(){
+  const note=document.querySelector("#dailySticky"), title=document.querySelector("#stickyTitle"), el=document.querySelector("#dailyQuote");
+  if(!note||!title||!el)return;
+  if(note.offsetParent===null || !note.clientWidth || !note.clientHeight)return;
+
+  const isSmall=window.innerWidth<=390;
+  const start=parseFloat(getComputedStyle(note).getPropertyValue(isSmall?"--sticky-font-small":"--sticky-font")) || (isSmall?14.6:15.4);
+  const maxFont=Math.min(isSmall?16.4:17.8,start+1.2);
+  const minFont=isSmall?12.8:13.4;
+  const step=.2;
+
+  const noteStyle=getComputedStyle(note), titleStyle=getComputedStyle(title);
+  const padTop=parseFloat(noteStyle.paddingTop)||0, padBottom=parseFloat(noteStyle.paddingBottom)||0;
+  const titleHeight=title.getBoundingClientRect().height;
+  const titleMargin=parseFloat(titleStyle.marginBottom)||0;
+  const available=Math.max(44,note.clientHeight-padTop-padBottom-titleHeight-titleMargin-2);
+
+  let font=maxFont, fitted=minFont;
+  note.style.setProperty("--sticky-line-fit","1.42");
+  el.style.maxHeight=available+"px";
+  el.style.overflow="hidden";
+  el.style.display="block";
+
+  while(font>=minFont){
+    const line=(font*(isSmall?1.39:1.42)).toFixed(2)+"px";
+    note.style.setProperty("--sticky-font-fit",font.toFixed(2)+"px");
+    note.style.setProperty("--sticky-line-fit",line);
+    void el.offsetHeight;
+    if(el.scrollHeight<=available+1 && el.scrollWidth<=el.clientWidth+1){
+      fitted=font;
+      break;
+    }
+    font-=step;
+    fitted=font;
+  }
+  note.style.setProperty("--sticky-font-fit",Math.max(fitted,minFont).toFixed(2)+"px");
+}
+window.addEventListener("resize",()=>requestAnimationFrame(fitStickyQuoteText));
 function enabledTodoItems(){
   let items=Array.isArray(state.settings.todoItems)?state.settings.todoItems:[];
   if(!items.length)items=DEFAULT.settings.todoItems;
