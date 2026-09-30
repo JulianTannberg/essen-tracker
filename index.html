@@ -2894,9 +2894,158 @@
   .print-box{background:#fff!important;}
 }
 
+
+  /* ===== v49: zweiter Druckbogen als Monatsbericht ===== */
+  @media print{
+    @page{size:A4 landscape;margin:5mm}
+
+    html,body,#printPage,.print-sheet,.print-layout,.print-main,.print-side,
+    .print-title-row,.print-box,.print-report-sheet,.print-report-grid,.print-report-card{
+      background:#fff!important;
+    }
+
+    #printPage{
+      display:block!important;
+      width:auto!important;
+      height:auto!important;
+      font-family:Arial,sans-serif!important;
+      color:#222!important;
+    }
+
+    .print-sheet{
+      width:100%!important;
+      box-sizing:border-box!important;
+      break-inside:avoid-page!important;
+      page-break-inside:avoid!important;
+      background:#fff!important;
+    }
+
+    .print-calendar-sheet{
+      min-height:190mm!important;
+    }
+
+    .print-report-sheet{
+      break-before:page!important;
+      page-break-before:always!important;
+      min-height:190mm!important;
+      padding-top:0!important;
+    }
+
+    .print-weight-box{
+      display:grid!important;
+      grid-template-columns:88mm minmax(0,1fr)!important;
+      grid-template-rows:auto 1fr!important;
+      gap:1.6mm 3mm!important;
+      padding:1.8mm!important;
+    }
+    .print-weight-box h3{
+      grid-column:1 / -1!important;
+      margin-bottom:.4mm!important;
+    }
+    .print-weight-stats{
+      display:grid!important;
+      grid-template-columns:1fr 1fr!important;
+      gap:1.1mm 2.5mm!important;
+      align-content:start!important;
+    }
+    .print-weight-stats>div{
+      min-width:0!important;
+    }
+    .print-weight-stats span{
+      display:block!important;
+      font-size:5.9pt!important;
+      color:#666!important;
+      margin-bottom:.25mm!important;
+    }
+    .print-weight-stats strong{
+      display:block!important;
+      font-size:7.4pt!important;
+      line-height:1.08!important;
+    }
+    .print-weight-box #printWeightChart{
+      grid-column:2!important;
+      grid-row:2!important;
+      height:23mm!important;
+      align-self:center!important;
+    }
+
+    #printFreeDaysSummary{
+      display:grid!important;
+      gap:1.1mm!important;
+      font-size:6.6pt!important;
+      line-height:1.2!important;
+    }
+    #printFreeDaysSummary b{
+      display:block!important;
+      font-size:7.2pt!important;
+    }
+
+    .print-report-grid{
+      display:grid!important;
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:3mm!important;
+      align-items:start!important;
+    }
+    .print-report-card{
+      border:.35mm solid #ddd5c9!important;
+      border-radius:2mm!important;
+      padding:3mm!important;
+      break-inside:avoid!important;
+      min-height:46mm!important;
+    }
+    .print-report-card h2{
+      font-size:10pt!important;
+      margin:0 0 2mm!important;
+      color:#333!important;
+    }
+    .print-report-list{
+      display:grid!important;
+      gap:1.6mm!important;
+      font-size:7pt!important;
+      line-height:1.23!important;
+    }
+    .print-report-row{
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr) auto!important;
+      gap:3mm!important;
+      border-bottom:.2mm solid #eee8df!important;
+      padding-bottom:1mm!important;
+    }
+    .print-report-row:last-child{
+      border-bottom:0!important;
+      padding-bottom:0!important;
+    }
+    .print-report-row span{
+      color:#555!important;
+    }
+    .print-report-row strong{
+      white-space:nowrap!important;
+      text-align:right!important;
+    }
+    .print-report-empty{
+      color:#999!important;
+      font-style:italic!important;
+      font-size:6.8pt!important;
+    }
+    .print-report-note{
+      margin-top:3mm!important;
+      border-top:.25mm solid #ddd5c9!important;
+      padding-top:2mm!important;
+      font-size:6.2pt!important;
+      color:#777!important;
+    }
+
+    /* keine cremefarbene Fläche im Ausdruck */
+    .print-box,
+    .print-report-card,
+    .print-weight-box{
+      background:#fff!important;
+    }
+  }
+
 </style>
 </head>
-<body data-app-build="48">
+<body data-app-build="49">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -2904,7 +3053,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v47</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v49</div>
   </header>
 
   <main>
@@ -3152,27 +3301,78 @@
   <div id="toast" class="toast"></div>
 
   <section id="printPage" aria-hidden="true">
-    <div class="print-title-row"><h1 id="printTitle">Monatsübersicht</h1><div id="printMeta"></div></div>
-    <div class="print-layout">
-      <div class="print-main">
-        <div class="print-calendar-head"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
-        <div id="printCalendar" class="print-calendar"></div>
-        <div class="print-weight-below">
-          <div class="print-box">
-            <h3>Gewicht</h3>
-            <div class="print-weight-text">
-              <p>Letzte Messung</p>
-              <strong id="printWeightLatest">–</strong>
-              <p id="printWeightDelta">–</p>
+    <div class="print-sheet print-calendar-sheet">
+      <div class="print-title-row"><h1 id="printTitle">Monatsübersicht</h1><div id="printMeta"></div></div>
+      <div class="print-layout">
+        <div class="print-main">
+          <div class="print-calendar-head"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
+          <div id="printCalendar" class="print-calendar"></div>
+          <div class="print-weight-below">
+            <div class="print-box print-weight-box">
+              <h3>Gewicht</h3>
+              <div class="print-weight-stats">
+                <div><span>Erste Messung im Monat</span><strong id="printWeightMonthFirst">–</strong></div>
+                <div><span>Letzte Messung im Monat</span><strong id="printWeightMonthLast">–</strong></div>
+                <div><span>Veränderung im Monat</span><strong id="printWeightMonthDelta">–</strong></div>
+                <div><span>Allererste Messung</span><strong id="printWeightAllFirst">–</strong></div>
+                <div><span>Veränderung seit Beginn</span><strong id="printWeightAllDelta">–</strong></div>
+              </div>
+              <canvas id="printWeightChart" width="360" height="180"></canvas>
             </div>
-            <canvas id="printWeightChart" width="280" height="180"></canvas>
           </div>
         </div>
+        <aside class="print-side">
+          <div class="print-box">
+            <h3 id="printFreeDaysTitle">Freie Tage</h3>
+            <div id="printFreeDaysSummary">–</div>
+          </div>
+          <div class="print-box">
+            <h3>Legende</h3>
+            <div class="print-legend">
+              <span><i class="print-dot period"></i> Periode</span>
+              <span><i class="print-dot beer"></i> <span id="printFreeLegend">freier Tag</span></span>
+            </div>
+          </div>
+        </aside>
       </div>
-      <aside class="print-side">
-        <div class="print-box"><h3 id="printFreeDaysTitle">Freie Tage</h3><strong id="printBeerStreak">–</strong><p id="printBeerInfo"></p></div>
-        <div class="print-box"><h3>Legende</h3><div class="print-legend"><span><i class="print-dot period"></i> Periode</span><span><i class="print-dot beer"></i> <span id="printFreeLegend">freier Tag</span></span></div></div>
-      </aside>
+    </div>
+
+    <div class="print-sheet print-report-sheet">
+      <div class="print-title-row"><h1 id="printReportTitle">Monatsbericht</h1><div id="printReportMeta"></div></div>
+      <div class="print-report-grid">
+        <section class="print-report-card">
+          <h2>Beschwerden &amp; Mittel</h2>
+          <div id="printReportSymptoms" class="print-report-list"></div>
+        </section>
+
+        <section class="print-report-card">
+          <h2>Getrackte Kategorien</h2>
+          <div id="printReportCategories" class="print-report-list"></div>
+        </section>
+
+        <section class="print-report-card">
+          <h2>Freie Tage &amp; Serien</h2>
+          <div id="printReportFreeDays" class="print-report-list"></div>
+        </section>
+
+        <section class="print-report-card">
+          <h2>Trinken</h2>
+          <div id="printReportWater" class="print-report-list"></div>
+        </section>
+
+        <section class="print-report-card">
+          <h2>Gewicht</h2>
+          <div id="printReportWeight" class="print-report-list"></div>
+        </section>
+
+        <section class="print-report-card">
+          <h2>Mahlzeiten</h2>
+          <div id="printReportMeals" class="print-report-list"></div>
+        </section>
+      </div>
+      <div class="print-report-note">
+        Zusammenfassung der im Tracker eingetragenen Daten dieses Monats. Leere Bereiche werden nicht künstlich aufgefüllt.
+      </div>
     </div>
   </section>
 
@@ -4194,10 +4394,217 @@ function selectedPrintFilters(){const vals=[...document.querySelectorAll('#print
 function compactPrintEntries(dayEntries){
   const byTime=new Map();dayEntries.forEach(e=>{if(!byTime.has(e.time))byTime.set(e.time,[]);byTime.get(e.time).push(e)});return [...byTime.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,items])=>{const parts=[],foodMeals=new Map(),rest=[];items.forEach(e=>{if(e.type==="food"&&e.mealId){if(!foodMeals.has(e.mealId))foodMeals.set(e.mealId,[]);foodMeals.get(e.mealId).push(e.value)}else rest.push(e)});foodMeals.forEach(v=>parts.push(v.join(", ")));const counts=new Map();rest.forEach(e=>{const key=`${e.type}|${e.value}|${e.periodFlow||""}`;const x=counts.get(key)||{entry:e,count:0};x.count++;counts.set(key,x)});counts.forEach(({entry,count})=>{let value=entry.value;if(entry.type==="weight")value=`Gew. ${entry.value}`;if(entry.type==="period")value=`Periode${entry.periodFlow?" "+entry.periodFlow:""}`;if(entry.type==="drink"&&entry.amountMl)value+=` ${entry.amountMl} ml`;parts.push(value+(count>1?` ×${count}`:""))});return {time,text:parts.join("; ")}})
 }
+
+function monthDateBounds(){
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
+  const start=localDate(new Date(y,m,1));
+  const end=localDate(new Date(y,m+1,0));
+  const today=localDate();
+  return {start,end,cap:end>today?today:end,y,m};
+}
+function distinctDays(entries){
+  return new Set((entries||[]).map(e=>e.date)).size;
+}
+function monthAllWeightEntries(){
+  const {y,m}=monthDateBounds();
+  return weightEntriesSorted().filter(e=>{
+    const d=parseDate(e.date);
+    return d.getFullYear()===y&&d.getMonth()===m;
+  });
+}
+function fmtWeightPrint(e){
+  return e?`${Number(e.weightKg).toFixed(1).replace(".",",")} kg · ${parseDate(e.date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"})}`:"–";
+}
+function reportRowsHtml(rows){
+  if(!rows.length)return '<div class="print-report-empty">Keine Einträge in diesem Monat.</div>';
+  return rows.map(r=>`<div class="print-report-row"><span>${escapeHtml(r.label)}</span><strong>${escapeHtml(r.value)}</strong></div>`).join("");
+}
+function countFreeDaysInMonth(goal){
+  const {start,end,cap}=monthDateBounds();
+  const from=goal.start>start?goal.start:start;
+  const to=cap<end?cap:end;
+  if(!goal.start||from>to)return {freeDays:0,longest:0,eligible:0};
+  let freeDays=0,longest=0,current=0,eligible=0;
+  for(let ds=from;ds<=to;ds=addDays(ds,1)){
+    eligible++;
+    if(!hasFreeBreakerOnGoal(goal,ds)){
+      freeDays++;current++;longest=Math.max(longest,current);
+    }else current=0;
+  }
+  return {freeDays,longest,eligible};
+}
+function buildMonthlyReport(){
+  const entries=monthEntries();
+  const {start,end,cap}=monthDateBounds();
+  const monthLabel=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+
+  // Beschwerden & Mittel
+  const symptomMap=new Map(), medicineMap=new Map();
+  entries.forEach(e=>{
+    if(e.type!=="symptom"&&e.type!=="medicine")return;
+    const map=e.type==="symptom"?symptomMap:medicineMap;
+    const key=e.value||typeLabel(e.type);
+    if(!map.has(key))map.set(key,[]);
+    map.get(key).push(e);
+  });
+  const symptomRows=[];
+  symptomMap.forEach((list,label)=>symptomRows.push({
+    label,
+    value:`${list.length}× an ${distinctDays(list)} Tag${distinctDays(list)===1?"":"en"}`
+  }));
+  medicineMap.forEach((list,label)=>symptomRows.push({
+    label,
+    value:`${list.length}× an ${distinctDays(list)} Tag${distinctDays(list)===1?"":"en"}`
+  }));
+  symptomRows.sort((a,b)=>a.label.localeCompare(b.label,"de"));
+
+  // Kategorien: nur Kategorien, die aktiv getrackt werden oder in diesem Monat vorkamen.
+  const activeGoalCategoryIds=new Set(freeGoalsSettings().filter(g=>g.enabled!==false).map(g=>g.categoryId));
+  const categoryRows=[];
+  allEntryCategories().forEach(cat=>{
+    const catEntries=entries.filter(e=>entryHasCategory(e,cat.id));
+    if(!catEntries.length&&!activeGoalCategoryIds.has(cat.id))return;
+    const days=distinctDays(catEntries);
+    categoryRows.push({
+      label:cat.label,
+      value:`an ${days} Tag${days===1?"":"en"}`
+    });
+  });
+
+  // Freie Tage / Serien
+  const freeRows=[];
+  freeGoalsSettings().filter(g=>g.enabled!==false).forEach(goal=>{
+    const s=countFreeDaysInMonth(goal);
+    freeRows.push({
+      label:goal.label,
+      value:s.eligible?`${s.freeDays} freie Tage · längste Serie ${s.longest}`:"noch nicht gestartet"
+    });
+  });
+
+  // Wasser
+  const waterEntries=entries.filter(e=>e.tags?.includes("water")||(e.type==="drink"&&normalizedItem(e.value)==="wasser"));
+  const waterByDay=new Map();
+  waterEntries.forEach(e=>{
+    const ml=Number(e.amountMl)||Number(state.settings.waterMl)||0;
+    waterByDay.set(e.date,(waterByDay.get(e.date)||0)+ml);
+  });
+  const waterRows=[];
+  if(waterEntries.length){
+    const total=[...waterByDay.values()].reduce((a,b)=>a+b,0);
+    const trackedDays=waterByDay.size;
+    const avg=trackedDays?total/trackedDays:0;
+    const goalMl=3000;
+    const goalDays=[...waterByDay.values()].filter(v=>v>=goalMl).length;
+    waterRows.push({label:"Wasser insgesamt",value:formatMlTotal(total)});
+    waterRows.push({label:"Tage mit Wassereintrag",value:String(trackedDays)});
+    waterRows.push({label:"Ø an Tagen mit Eintrag",value:formatMlTotal(avg)});
+    waterRows.push({label:"3-Liter-Ziel erreicht",value:`an ${goalDays} Tag${goalDays===1?"":"en"}`});
+  }
+
+  // Gewicht
+  const monthWeights=monthAllWeightEntries();
+  const allWeights=weightEntriesSorted();
+  const mwFirst=monthWeights[0], mwLast=monthWeights[monthWeights.length-1], allFirst=allWeights[0];
+  const weightRows=[];
+  if(mwFirst){
+    weightRows.push({label:"Erste Messung im Monat",value:fmtWeightPrint(mwFirst)});
+    weightRows.push({label:"Letzte Messung im Monat",value:fmtWeightPrint(mwLast)});
+    weightRows.push({label:"Veränderung im Monat",value:formatWeightDelta(Number(mwLast.weightKg)-Number(mwFirst.weightKg))});
+  }
+  if(allFirst){
+    weightRows.push({label:"Allererste Messung",value:fmtWeightPrint(allFirst)});
+    if(mwLast)weightRows.push({label:"Veränderung seit Beginn",value:formatWeightDelta(Number(mwLast.weightKg)-Number(allFirst.weightKg))});
+  }
+
+  // Mahlzeiten
+  const mealKinds={breakfast:0,lunch:0,dinner:0,snack:0};
+  const seenMeals=new Set();
+  entries.filter(e=>e.type==="food").forEach(e=>{
+    const key=e.mealId||e.id;
+    if(seenMeals.has(key))return;
+    seenMeals.add(key);
+    const kind=e.mealKind||guessMealKind(e.time);
+    if(mealKinds[kind]!==undefined)mealKinds[kind]++;
+  });
+  const mealRows=[];
+  if(seenMeals.size){
+    mealRows.push({label:"Mahlzeiten eingetragen",value:String(seenMeals.size)});
+    const labels={breakfast:"Frühstück",lunch:"Mittagessen",dinner:"Abendessen",snack:"Snacks"};
+    Object.keys(mealKinds).forEach(k=>{
+      if(mealKinds[k])mealRows.push({label:labels[k],value:String(mealKinds[k])});
+    });
+  }
+
+  document.querySelector("#printReportTitle").textContent=`Monatsbericht · ${monthLabel}`;
+  document.querySelector("#printReportMeta").textContent="Mein Tracker · Zusammenfassung";
+  document.querySelector("#printReportSymptoms").innerHTML=reportRowsHtml(symptomRows);
+  document.querySelector("#printReportCategories").innerHTML=reportRowsHtml(categoryRows);
+  document.querySelector("#printReportFreeDays").innerHTML=reportRowsHtml(freeRows);
+  document.querySelector("#printReportWater").innerHTML=reportRowsHtml(waterRows);
+  document.querySelector("#printReportWeight").innerHTML=reportRowsHtml(weightRows);
+  document.querySelector("#printReportMeals").innerHTML=reportRowsHtml(mealRows);
+}
+
 function renderPrintPage(){
-  const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries();document.querySelector("#printTitle").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});document.querySelector("#printMeta").textContent="Mein Tracker · Monatsübersicht";let out="";
-  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),outside=d.getMonth()!==m;let dayEntries=entries.filter(e=>e.date===ds);if(!printFilters.includes("all"))dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));const compact=compactPrintEntries(dayEntries),period=!outside&&periodOn(ds),beer=!outside&&isFreeDay(ds);out+=`<div class="print-day${outside?" out":""}${beer?" no-beer":""}${period?" period-day":""}"><div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>${compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):'<div class="print-empty">–</div>'}</div>`}
-  document.querySelector("#printCalendar").innerHTML=out;const weights=weightEntriesSorted(),latest=weights[weights.length-1],firstW=weights[0];document.querySelector("#printWeightLatest").textContent=latest?`${Number(latest.weightKg).toFixed(1).replace(".",",")} kg · ${latest.date}`:"–";document.querySelector("#printWeightDelta").textContent=latest&&firstW?`Seit erster Messung: ${formatWeightDelta(Number(latest.weightKg)-Number(firstW.weightKg))}`:"Noch keine Vergleichswerte";drawWeightChart(document.querySelector("#printWeightChart"),monthWeightEntries(),150);const goals=freeGoalsSettings().filter(g=>g.enabled!==false);document.querySelector("#printFreeDaysTitle").textContent="Freie Tage";document.querySelector("#printBeerStreak").textContent=goals.length?goals.map(g=>`${g.label}: ${freeGoalStreakInfo(g,localDate()).days} Tage`).join(" · "):"–";document.querySelector("#printBeerInfo").textContent=goals.length?goals.map(g=>`Start ${g.label}: ${g.start}`).join(" · "):"Noch keine Serien";const pfl=document.querySelector("#printFreeLegend");if(pfl)pfl.textContent="freie Ziele";
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),
+    first=new Date(y,m,1),
+    shift=(first.getDay()+6)%7,
+    start=new Date(y,m,1-shift),
+    entries=monthEntries(),
+    monthLabel=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+
+  document.querySelector("#printTitle").textContent=monthLabel;
+  document.querySelector("#printMeta").textContent="Mein Tracker · Monatsübersicht";
+
+  let out="";
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const ds=localDate(d),outside=d.getMonth()!==m;
+    let dayEntries=entries.filter(e=>e.date===ds);
+    if(!printFilters.includes("all"))dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));
+    const compact=compactPrintEntries(dayEntries),
+      period=!outside&&periodOn(ds),
+      beer=!outside&&isFreeDay(ds);
+
+    out+=`<div class="print-day${outside?" out":""}${beer?" no-beer":""}${period?" period-day":""}">
+      <div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>
+      ${compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):'<div class="print-empty">–</div>'}
+    </div>`;
+  }
+  document.querySelector("#printCalendar").innerHTML=out;
+
+  // Gewicht: wirklich der gewählte Monat + allererste Messung.
+  const monthWeights=monthAllWeightEntries(),
+    allWeights=weightEntriesSorted(),
+    mwFirst=monthWeights[0],
+    mwLast=monthWeights[monthWeights.length-1],
+    allFirst=allWeights[0];
+
+  document.querySelector("#printWeightMonthFirst").textContent=fmtWeightPrint(mwFirst);
+  document.querySelector("#printWeightMonthLast").textContent=fmtWeightPrint(mwLast);
+  document.querySelector("#printWeightMonthDelta").textContent=
+    mwFirst&&mwLast?formatWeightDelta(Number(mwLast.weightKg)-Number(mwFirst.weightKg)):"–";
+  document.querySelector("#printWeightAllFirst").textContent=fmtWeightPrint(allFirst);
+  document.querySelector("#printWeightAllDelta").textContent=
+    allFirst&&mwLast?formatWeightDelta(Number(mwLast.weightKg)-Number(allFirst.weightKg)):"–";
+
+  drawWeightChart(document.querySelector("#printWeightChart"),monthWeightEntries(),150);
+
+  // Monatsspezifische freie Tage auf Seite 1.
+  const goals=freeGoalsSettings().filter(g=>g.enabled!==false);
+  document.querySelector("#printFreeDaysTitle").textContent="Freie Tage";
+  const freeBox=document.querySelector("#printFreeDaysSummary");
+  freeBox.innerHTML=goals.length
+    ?goals.map(g=>{
+      const s=countFreeDaysInMonth(g);
+      return `<div><b>${escapeHtml(g.label)}</b>${s.eligible?`${s.freeDays} Tage im Monat<br>längste Serie: ${s.longest}`:"noch nicht gestartet"}</div>`;
+    }).join("")
+    :'<div>Keine Serien angelegt.</div>';
+
+  const pfl=document.querySelector("#printFreeLegend");
+  if(pfl)pfl.textContent="freier Tag";
+
+  buildMonthlyReport();
 }
 function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();setTimeout(()=>window.print(),100)}
 
@@ -4248,7 +4655,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=47",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=49",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
