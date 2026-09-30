@@ -3224,9 +3224,197 @@
     }
   }
 
+
+  /* ===== v53: eine einzige A4-Hochkant-Seite ===== */
+  @media print{
+    @page{size:A4 portrait;margin:5mm}
+
+    html,body,#printPage,.print-sheet,.print-one-sheet,
+    .print-calendar-wrap,.print-overview-grid,.print-overview-card{
+      background:#fff!important;
+    }
+
+    #printPage{
+      display:block!important;
+      width:100%!important;
+      height:auto!important;
+      min-height:0!important;
+      overflow:visible!important;
+      color:#222!important;
+      font-family:Arial,sans-serif!important;
+    }
+
+    .print-one-sheet{
+      width:100%!important;
+      height:auto!important;
+      min-height:0!important;
+      break-inside:avoid!important;
+      page-break-inside:avoid!important;
+    }
+
+    .print-title-row{
+      margin:0 0 2.2mm!important;
+      align-items:end!important;
+    }
+    .print-title-row h1{
+      font-size:15pt!important;
+      margin:0!important;
+    }
+    .print-title-row>div{
+      font-size:6.5pt!important;
+      color:#777!important;
+    }
+
+    .print-calendar-wrap{
+      width:100%!important;
+      min-width:0!important;
+    }
+    .print-calendar-head,
+    .print-calendar{
+      width:100%!important;
+      display:grid!important;
+      grid-template-columns:repeat(7,minmax(0,1fr))!important;
+      gap:.8mm!important;
+      min-width:0!important;
+      max-width:100%!important;
+    }
+    .print-calendar-head>div{
+      font-size:6.7pt!important;
+      padding:.45mm 0!important;
+    }
+    .print-calendar{
+      grid-auto-rows:18.2mm!important;
+    }
+    .print-day{
+      min-width:0!important;
+      max-width:100%!important;
+      padding:.85mm!important;
+      border:.3mm solid #d8d0c5!important;
+      border-radius:1.7mm!important;
+      overflow:hidden!important;
+    }
+    .print-date{
+      font-size:6.5pt!important;
+      margin-bottom:.45mm!important;
+    }
+    .print-entry{
+      font-size:5pt!important;
+      line-height:1.05!important;
+      margin-bottom:.25mm!important;
+      overflow-wrap:anywhere!important;
+    }
+    .print-empty{font-size:5pt!important}
+
+    .print-overview-heading{
+      display:flex!important;
+      align-items:end!important;
+      justify-content:space-between!important;
+      gap:4mm!important;
+      margin:3mm 0 1.5mm!important;
+      padding-top:1.6mm!important;
+      border-top:.3mm solid #ddd5c9!important;
+    }
+    .print-overview-heading h2{
+      margin:0!important;
+      font-size:10.5pt!important;
+    }
+    .print-overview-legend{
+      display:flex!important;
+      align-items:center!important;
+      gap:3mm!important;
+      font-size:5.8pt!important;
+      color:#666!important;
+      white-space:nowrap!important;
+    }
+    .print-overview-legend span{
+      display:flex!important;
+      align-items:center!important;
+      gap:1mm!important;
+    }
+    .print-dot{
+      width:2mm!important;
+      height:2mm!important;
+    }
+
+    .print-overview-grid{
+      display:grid!important;
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      gap:1.8mm!important;
+      align-items:stretch!important;
+    }
+    .print-overview-card{
+      border:.3mm solid #ddd5c9!important;
+      border-radius:1.7mm!important;
+      padding:1.8mm!important;
+      min-width:0!important;
+      min-height:35mm!important;
+      max-height:43mm!important;
+      overflow:hidden!important;
+      break-inside:avoid!important;
+    }
+    .print-overview-card h3{
+      margin:0 0 1.2mm!important;
+      font-size:7.6pt!important;
+    }
+    .print-report-list{
+      display:grid!important;
+      gap:.75mm!important;
+      font-size:5.6pt!important;
+      line-height:1.15!important;
+    }
+    .print-report-row{
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr) auto!important;
+      gap:1.4mm!important;
+      padding-bottom:.55mm!important;
+      border-bottom:.15mm solid #eee8df!important;
+    }
+    .print-report-row strong{
+      text-align:right!important;
+      white-space:nowrap!important;
+      font-size:5.6pt!important;
+    }
+    .print-report-empty{
+      font-size:5.5pt!important;
+      color:#999!important;
+    }
+
+    .print-weight-overview{
+      display:grid!important;
+      grid-template-rows:auto 21mm 1fr!important;
+      gap:.8mm!important;
+    }
+    .print-weight-overview h3{
+      margin-bottom:0!important;
+    }
+    .print-weight-overview #printWeightChart{
+      width:100%!important;
+      height:21mm!important;
+      min-height:21mm!important;
+      max-height:21mm!important;
+      display:block!important;
+    }
+    .print-weight-list{
+      gap:.45mm!important;
+    }
+    .print-weight-list .print-report-row:nth-child(1),
+    .print-weight-list .print-report-row:nth-child(2){
+      display:none!important;
+    }
+
+    .print-calendar-sheet,
+    .print-report-sheet{
+      break-before:auto!important;
+      break-after:auto!important;
+      page-break-before:auto!important;
+      page-break-after:auto!important;
+      min-height:0!important;
+    }
+  }
+
 </style>
 </head>
-<body data-app-build="52">
+<body data-app-build="53">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3234,7 +3422,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v52</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v53</div>
   </header>
 
   <main>
@@ -3480,7 +3668,7 @@
   <dialog id="printDialog">
     <div class="dialog-wrap">
       <div class="dialog-head"><h2>Drucken / PDF</h2><button type="button" id="closePrintDialog" class="icon-btn">×</button></div>
-      <div class="hint" style="margin-top:10px">Die Auswahl gilt für den Kalender auf Seite 1. Der Monatsbericht auf Seite 2 wird immer vollständig mitgedruckt.</div>
+      <div class="hint" style="margin-top:10px">Die Auswahl filtert nur die Einträge im Kalender. Die kompakte Tracker-Monatsübersicht wird immer mitgedruckt.</div>
       <div id="printFilterList" class="print-filter-list"></div>
       <div class="dialog-actions" style="margin-top:14px"><button type="button" id="cancelPrintDialog" class="secondary-btn">Abbrechen</button><button type="button" id="startPrint" class="primary-btn">Drucken</button></div>
     </div>
@@ -3489,77 +3677,58 @@
   <div id="toast" class="toast"></div>
 
   <section id="printPage" aria-hidden="true">
-    <div class="print-sheet print-calendar-sheet">
-      <div class="print-title-row"><h1 id="printTitle">Monatsübersicht</h1><div id="printMeta"></div></div>
-      <div class="print-layout">
-        <div class="print-main">
-          <div class="print-calendar-head"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
-          <div id="printCalendar" class="print-calendar"></div>
-          <div class="print-weight-below">
-            <div class="print-box print-weight-box">
-              <h3>Gewicht</h3>
-              <div class="print-weight-stats">
-                <div><span>Erste Messung im Monat</span><strong id="printWeightMonthFirst">–</strong></div>
-                <div><span>Letzte Messung im Monat</span><strong id="printWeightMonthLast">–</strong></div>
-                <div><span>Veränderung im Monat</span><strong id="printWeightMonthDelta">–</strong></div>
-                <div><span>Allererste Messung</span><strong id="printWeightAllFirst">–</strong></div>
-                <div><span>Veränderung seit Beginn</span><strong id="printWeightAllDelta">–</strong></div>
-              </div>
-              <canvas id="printWeightChart" width="360" height="180"></canvas>
-            </div>
-          </div>
-        </div>
-        <aside class="print-side">
-          <div class="print-box">
-            <h3 id="printFreeDaysTitle">Freie Tage</h3>
-            <div id="printFreeDaysSummary">–</div>
-          </div>
-          <div class="print-box">
-            <h3>Legende</h3>
-            <div class="print-legend">
-              <span><i class="print-dot period"></i> Periode</span>
-              <span><i class="print-dot beer"></i> <span id="printFreeLegend">freier Tag</span></span>
-            </div>
-          </div>
-        </aside>
+    <div class="print-sheet print-one-sheet">
+      <div class="print-title-row">
+        <h1 id="printTitle">Monatsübersicht</h1>
+        <div id="printMeta">Mein Tracker · Monatsübersicht</div>
       </div>
-    </div>
 
-    <div class="print-sheet print-report-sheet">
-      <div class="print-title-row"><h1 id="printReportTitle">Monatsbericht</h1><div id="printReportMeta"></div></div>
-      <div class="print-report-grid">
-        <section class="print-report-card">
-          <h2>Beschwerden &amp; Mittel</h2>
+      <div class="print-calendar-wrap">
+        <div class="print-calendar-head">
+          <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+        </div>
+        <div id="printCalendar" class="print-calendar"></div>
+      </div>
+
+      <div class="print-overview-heading">
+        <h2>Mein Tracker · Monatsübersicht</h2>
+        <div class="print-overview-legend">
+          <span><i class="print-dot period"></i> Periode</span>
+          <span><i class="print-dot beer"></i> freier Tag</span>
+        </div>
+      </div>
+
+      <div class="print-overview-grid">
+        <section class="print-overview-card">
+          <h3>Beschwerden &amp; Mittel</h3>
           <div id="printReportSymptoms" class="print-report-list"></div>
         </section>
 
-        <section class="print-report-card">
-          <h2>Getrackte Kategorien</h2>
+        <section class="print-overview-card">
+          <h3>Getrackte Kategorien</h3>
           <div id="printReportCategories" class="print-report-list"></div>
         </section>
 
-        <section class="print-report-card">
-          <h2>Freie Tage &amp; Serien</h2>
+        <section class="print-overview-card">
+          <h3>Freie Tage &amp; Serien</h3>
           <div id="printReportFreeDays" class="print-report-list"></div>
         </section>
 
-        <section class="print-report-card">
-          <h2>Trinken</h2>
+        <section class="print-overview-card">
+          <h3>Trinken</h3>
           <div id="printReportWater" class="print-report-list"></div>
         </section>
 
-        <section class="print-report-card">
-          <h2>Gewicht</h2>
-          <div id="printReportWeight" class="print-report-list"></div>
-        </section>
-
-        <section class="print-report-card">
-          <h2>Mahlzeiten</h2>
+        <section class="print-overview-card">
+          <h3>Mahlzeiten</h3>
           <div id="printReportMeals" class="print-report-list"></div>
         </section>
-      </div>
-      <div class="print-report-note">
-        Zusammenfassung der im Tracker eingetragenen Daten dieses Monats. Leere Bereiche werden nicht künstlich aufgefüllt.
+
+        <section class="print-overview-card print-weight-overview">
+          <h3>Gewicht</h3>
+          <canvas id="printWeightChart" width="320" height="150"></canvas>
+          <div id="printReportWeight" class="print-report-list print-weight-list"></div>
+        </section>
       </div>
     </div>
   </section>
@@ -4882,8 +5051,10 @@ function buildMonthlyReport(){
     });
   }
 
-  document.querySelector("#printReportTitle").textContent=`Monatsbericht · ${monthLabel}`;
-  document.querySelector("#printReportMeta").textContent="Mein Tracker · Zusammenfassung";
+  const reportTitle=document.querySelector("#printReportTitle");
+  const reportMeta=document.querySelector("#printReportMeta");
+  if(reportTitle)reportTitle.textContent=`Monatsbericht · ${monthLabel}`;
+  if(reportMeta)reportMeta.textContent="Mein Tracker · Zusammenfassung";
   document.querySelector("#printReportSymptoms").innerHTML=reportRowsHtml(symptomRows);
   document.querySelector("#printReportCategories").innerHTML=reportRowsHtml(categoryRows);
   document.querySelector("#printReportFreeDays").innerHTML=reportRowsHtml(freeRows);
@@ -4892,6 +5063,82 @@ function buildMonthlyReport(){
   document.querySelector("#printReportMeals").innerHTML=reportRowsHtml(mealRows);
 }
 
+
+function drawPrintWeightOverview(){
+  const canvas=document.querySelector("#printWeightChart");
+  if(!canvas)return;
+
+  const pts=monthAllWeightEntries();
+  const ctx=canvas.getContext("2d"),
+    rect=canvas.getBoundingClientRect(),
+    dpr=window.devicePixelRatio||1,
+    w=Math.max(180,rect.width||260),
+    h=Math.max(70,rect.height||105);
+
+  canvas.width=Math.round(w*dpr);
+  canvas.height=Math.round(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  if(!pts.length){
+    ctx.font="11px Arial";
+    ctx.fillStyle="#8a8378";
+    ctx.fillText("Noch keine Gewichtsmessungen",8,24);
+    return;
+  }
+
+  const vals=pts.map(p=>Number(p.weightKg)),
+    min=Math.min(...vals),
+    max=Math.max(...vals),
+    pad=Math.max(.4,(max-min)*.2),
+    lo=min-pad,
+    hi=max+pad,
+    left=18,right=18,top=18,bottom=12,
+    cw=w-left-right,
+    ch=h-top-bottom,
+    x=i=>pts.length===1?w/2:left+i*cw/(pts.length-1),
+    y=v=>top+(hi-v)/(hi-lo||1)*ch;
+
+  ctx.strokeStyle="#e8e2d8";
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(left,h-bottom);
+  ctx.lineTo(w-right,h-bottom);
+  ctx.stroke();
+
+  ctx.strokeStyle="#66775b";
+  ctx.lineWidth=2.2;
+  ctx.beginPath();
+  pts.forEach((p,i)=>{
+    const px=x(i),py=y(Number(p.weightKg));
+    if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle="#66775b";
+  pts.forEach((p,i)=>{
+    const px=x(i),py=y(Number(p.weightKg));
+    ctx.beginPath();
+    ctx.arc(px,py,2.6,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  const first=pts[0], last=pts[pts.length-1];
+  ctx.font="bold 10.5px Arial";
+  ctx.fillStyle="#3f4939";
+
+  const firstText=`${Number(first.weightKg).toFixed(1).replace(".",",")} kg`;
+  const lastText=`${Number(last.weightKg).toFixed(1).replace(".",",")} kg`;
+
+  const fy=y(Number(first.weightKg));
+  const ly=y(Number(last.weightKg));
+  const firstLabelY=fy<20?fy+15:fy-7;
+  const lastLabelY=ly<20?ly+15:ly-7;
+
+  ctx.fillText(firstText,x(0),firstLabelY);
+  const lastWidth=ctx.measureText(lastText).width;
+  ctx.fillText(lastText,Math.max(2,x(pts.length-1)-lastWidth),lastLabelY);
+}
 function renderPrintPage(){
   const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),
     first=new Date(y,m,1),
@@ -4905,53 +5152,31 @@ function renderPrintPage(){
 
   let out="";
   for(let i=0;i<42;i++){
-    const d=new Date(start);d.setDate(start.getDate()+i);
+    const d=new Date(start);
+    d.setDate(start.getDate()+i);
     const ds=localDate(d),outside=d.getMonth()!==m;
     let dayEntries=entries.filter(e=>e.date===ds);
-    if(!printFilters.includes("all"))dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));
+
+    if(!printFilters.includes("all")){
+      dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));
+    }
+
     const compact=compactPrintEntries(dayEntries),
       period=!outside&&periodOn(ds),
-      beer=!outside&&isFreeDay(ds);
+      free=!outside&&isFreeDay(ds);
 
-    out+=`<div class="print-day${outside?" out":""}${beer?" no-beer":""}${period?" period-day":""}">
+    out+=`<div class="print-day${outside?" out":""}${free?" no-beer":""}${period?" period-day":""}">
       <div class="print-date">${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>
-      ${compact.length?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join(""):'<div class="print-empty">–</div>'}
+      ${compact.length
+        ?compact.map(x=>`<div class="print-entry"><span class="print-time">${x.time}</span> ${escapeHtml(x.text)}</div>`).join("")
+        :'<div class="print-empty">–</div>'}
     </div>`;
   }
+
   document.querySelector("#printCalendar").innerHTML=out;
 
-  // Gewicht: wirklich der gewählte Monat + allererste Messung.
-  const monthWeights=monthAllWeightEntries(),
-    allWeights=weightEntriesSorted(),
-    mwFirst=monthWeights[0],
-    mwLast=monthWeights[monthWeights.length-1],
-    allFirst=allWeights[0];
-
-  document.querySelector("#printWeightMonthFirst").textContent=fmtWeightPrint(mwFirst);
-  document.querySelector("#printWeightMonthLast").textContent=fmtWeightPrint(mwLast);
-  document.querySelector("#printWeightMonthDelta").textContent=
-    mwFirst&&mwLast?formatWeightDelta(Number(mwLast.weightKg)-Number(mwFirst.weightKg)):"–";
-  document.querySelector("#printWeightAllFirst").textContent=fmtWeightPrint(allFirst);
-  document.querySelector("#printWeightAllDelta").textContent=
-    allFirst&&mwLast?formatWeightDelta(Number(mwLast.weightKg)-Number(allFirst.weightKg)):"–";
-
-  drawWeightChart(document.querySelector("#printWeightChart"),monthWeightEntries(),150);
-
-  // Monatsspezifische freie Tage auf Seite 1.
-  const goals=freeGoalsSettings().filter(g=>g.enabled!==false);
-  document.querySelector("#printFreeDaysTitle").textContent="Freie Tage";
-  const freeBox=document.querySelector("#printFreeDaysSummary");
-  freeBox.innerHTML=goals.length
-    ?goals.map(g=>{
-      const s=countFreeDaysInMonth(g);
-      return `<div><b>${escapeHtml(g.label)}</b>${s.eligible?`${s.freeDays} Tage im Monat<br>längste Serie: ${s.longest}`:"noch nicht gestartet"}</div>`;
-    }).join("")
-    :'<div>Keine Serien angelegt.</div>';
-
-  const pfl=document.querySelector("#printFreeLegend");
-  if(pfl)pfl.textContent="freier Tag";
-
   buildMonthlyReport();
+  requestAnimationFrame(drawPrintWeightOverview);
 }
 function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();document.body.classList.add("printing");setTimeout(()=>window.print(),180)}
 
@@ -4987,8 +5212,7 @@ document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntr
 document.querySelector("#entryValue").addEventListener("input",()=>{if(document.querySelector("#entryType").value==="food")renderMealPhotoSuggestions()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
 window.addEventListener("beforeprint",()=>{
-  const chart=document.querySelector("#printWeightChart");
-  if(chart)drawWeightChart(chart,monthWeightEntries(),150);
+  drawPrintWeightOverview();
 });
 window.addEventListener("afterprint",()=>document.body.classList.remove("printing"));
 document.querySelector("#printMonth").onclick=()=>{renderPrintFilterDialog();document.querySelector("#printDialog").showModal()};document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#startPrint").onclick=startPrint;
@@ -5009,7 +5233,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=52",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=53",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
