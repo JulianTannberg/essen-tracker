@@ -2809,59 +2809,104 @@
   }
 
 
-  /* ===== v45: Kartengrößen exakt wie v43 – nur Schrift angepasst ===== */
+  /* ===== v46: v43-Kartengrößen behalten, nur Lesbarkeit korrigieren ===== */
 
-  /* Heute für mich: nur Schrift größer, keine Änderung an Karte/Höhe/Breite */
+  /* Heute für mich: gleiche Karte wie v43, aber lesbarer und Zähler nicht mehr abgeschnitten */
   .today-top-grid .wellbeing-card h3{
-    font-size:18.5px!important;
+    font-size:19.5px!important;
+    line-height:1.04!important;
+  }
+  .today-top-grid .wellbeing-item{
+    grid-template-columns:22px minmax(0,1fr) 50px!important;
+    gap:6px!important;
   }
   .today-top-grid .wellbeing-label{
-    font-size:13.2px!important;
+    font-size:13.8px!important;
     line-height:1.12!important;
   }
   .today-top-grid .wellbeing-streak{
-    font-size:10.5px!important;
+    width:50px!important;
+    min-width:50px!important;
+    text-align:right!important;
+    font-size:11.5px!important;
     line-height:1!important;
+    white-space:nowrap!important;
   }
 
-  /* Klebezettel: nur Schrift größer. Kartengröße bleibt v43. */
+  /* Notizzettel: exakt dieselbe Kartengröße wie v43, nur Text größer.
+     Die Größe passt sich nur an die Textlänge an, nicht die Karte. */
   .today-top-grid .daily-sticky b{
-    font-size:17.8px!important;
+    font-size:18.5px!important;
     line-height:1.05!important;
+    margin-bottom:8px!important;
   }
   .today-top-grid .daily-sticky .sticky-text{
-    font-size:var(--sticky-font,14.8px)!important;
+    font-size:var(--sticky-font,15.2px)!important;
     line-height:1.42!important;
     -webkit-line-clamp:7!important;
   }
 
-  /* Aufklappbereich deutlich sichtbar, ohne die Mahlzeitenkarten umzubauen. */
+  /* Mahlzeiten bleiben sofort sichtbar. */
+  #timelineSection{
+    display:block!important;
+  }
+  #timeline{
+    display:grid!important;
+  }
+
+  /* Leerer Tag: sichtbarer Hinweis statt leerer Fläche. */
+  .meal-empty-state{
+    background:#fdfbf7!important;
+    border:1px solid var(--cream-border)!important;
+    border-radius:16px!important;
+    padding:12px 13px!important;
+    color:#746c61!important;
+    font-size:13px!important;
+    line-height:1.35!important;
+  }
+  .meal-empty-state button{
+    margin-top:9px!important;
+    border:1px solid #d9d0c2!important;
+    border-radius:12px!important;
+    padding:8px 11px!important;
+    background:#f5f3eb!important;
+    color:#667258!important;
+    font:inherit!important;
+    font-weight:750!important;
+  }
+
+  /* Sonstige Tagesdaten bewusst aufklappbar. */
   .timeline-extra-details{
     margin-top:8px!important;
     border:1px solid var(--cream-border)!important;
-    background:#fdfbf7!important;
     border-radius:16px!important;
+    background:#fdfbf7!important;
     overflow:hidden!important;
   }
   .timeline-extra-details summary{
     list-style:none!important;
     cursor:pointer!important;
-    padding:11px 13px!important;
+    padding:11px 34px 11px 13px!important;
     font-size:12.5px!important;
     font-weight:750!important;
-    color:#5e584f!important;
+    color:#5f594f!important;
     position:relative!important;
   }
   .timeline-extra-details summary::-webkit-details-marker{display:none!important}
   .timeline-extra-details summary::after{
-    content:"▾"!important;
+    content:"›"!important;
     position:absolute!important;
-    right:13px!important;
-    top:9px!important;
-    color:#8f8a7f!important;
-    transform:rotate(-90deg);
+    right:14px!important;
+    top:8px!important;
+    font-size:20px!important;
+    line-height:1!important;
+    color:#879077!important;
+    transform:rotate(90deg)!important;
+    transition:transform .15s ease!important;
   }
-  .timeline-extra-details[open] summary::after{transform:rotate(0deg)}
+  .timeline-extra-details[open] summary::after{
+    transform:rotate(-90deg)!important;
+  }
   .timeline-extra-list{
     display:grid!important;
     gap:7px!important;
@@ -2887,19 +2932,27 @@
   }
 
   @media(max-width:390px){
-    .today-top-grid .wellbeing-card h3{font-size:17.2px!important}
-    .today-top-grid .wellbeing-label{font-size:12.4px!important}
-    .today-top-grid .wellbeing-streak{font-size:9.8px!important}
-    .today-top-grid .daily-sticky b{font-size:16.5px!important}
+    .today-top-grid .wellbeing-card h3{font-size:18.3px!important}
+    .today-top-grid .wellbeing-item{
+      grid-template-columns:21px minmax(0,1fr) 46px!important;
+      gap:5px!important;
+    }
+    .today-top-grid .wellbeing-label{font-size:13px!important}
+    .today-top-grid .wellbeing-streak{
+      width:46px!important;
+      min-width:46px!important;
+      font-size:10.7px!important;
+    }
+    .today-top-grid .daily-sticky b{font-size:17.2px!important}
     .today-top-grid .daily-sticky .sticky-text{
-      font-size:var(--sticky-font-small,13.8px)!important;
-      line-height:1.38!important;
+      font-size:var(--sticky-font-small,14.2px)!important;
+      line-height:1.39!important;
     }
   }
 
 </style>
 </head>
-<body>
+<body data-app-build="46">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -2907,7 +2960,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v45</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v46</div>
   </header>
 
   <main>
@@ -3566,11 +3619,11 @@ function renderDailyQuote(){
 
   if(note){
     const len=text.length;
-    let normal="14.8px", small="13.8px";
-    if(len<=58){normal="16.2px";small="15px";}
-    else if(len<=82){normal="15.4px";small="14.4px";}
-    else if(len<=112){normal="14.6px";small="13.6px";}
-    else {normal="13.6px";small="12.8px";}
+    let normal="15.2px", small="14.2px";
+    if(len<=55){normal="17px";small="15.8px";}
+    else if(len<=80){normal="16px";small="15px";}
+    else if(len<=110){normal="15px";small="14px";}
+    else {normal="13.8px";small="13px";}
     note.style.setProperty("--sticky-font",normal);
     note.style.setProperty("--sticky-font-small",small);
   }
@@ -3732,23 +3785,20 @@ function renderQuick(){
 function renderTimeline(){
   renderHeader();
   const list=todayEntries(), box=document.querySelector("#timeline");
-  document.querySelector("#timelineDayLabel").textContent=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
-  if(!list.length){
-    box.innerHTML='<div class="empty">Für diesen Tag ist noch nichts eingetragen.</div>';
-    return;
-  }
+  const dayLabel=document.querySelector("#timelineDayLabel");
+  if(dayLabel)dayLabel.textContent=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
 
   const groups=[];
   for(const e of list){
     const last=groups[groups.length-1];
-    if(e.mealId && last?.mealId===e.mealId) last.items.push(e);
+    if(e.mealId && last?.mealId===e.mealId)last.items.push(e);
     else groups.push({mealId:e.mealId,time:e.time,items:[e]});
   }
 
-  const mealGroups = groups.filter(g => g.items[0]?.type==="food");
-  const extraEntries = list.filter(e => e.type!=="food");
+  const mealGroups=groups.filter(g=>g.items[0]?.type==="food");
+  const extraEntries=list.filter(e=>e.type!=="food");
 
-  const mealHtml = mealGroups.map(g=>{
+  let mealHtml=mealGroups.map(g=>{
     const first=g.items[0];
     const notes=g.items.map(e=>e.note).filter(Boolean).join(" · ");
     const catLabels=categoryLabelsFromEntries(g.items);
@@ -3765,19 +3815,28 @@ function renderTimeline(){
     </div>`;
   }).join("");
 
-  let extrasHtml = "";
+  if(!mealHtml){
+    mealHtml=`<div class="meal-empty-state">
+      ${selectedDate===localDate()?"Heute ist noch keine Mahlzeit eingetragen.":"Für diesen Tag ist keine Mahlzeit eingetragen."}
+      <br><button type="button" id="addMealFromEmpty">+ Essen eintragen</button>
+    </div>`;
+  }
+
+  let extrasHtml="";
   if(extraEntries.length){
-    const extras = summarizeExtraEntries(extraEntries);
-    extrasHtml = `<details class="timeline-extra-details">
-      <summary>Getränke, Beschwerden &amp; weitere Einträge anzeigen (${extraEntries.length})</summary>
+    const extras=summarizeExtraEntries(extraEntries);
+    extrasHtml=`<details class="timeline-extra-details">
+      <summary>Getränke, Beschwerden & weitere Einträge (${extraEntries.length})</summary>
       <div class="timeline-extra-list">
-        ${extras.map(x => `<div class="extra-entry-card"><b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.meta || "")}</span></div>`).join("")}
+        ${extras.map(x=>`<div class="extra-entry-card"><b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.meta||"")}</span></div>`).join("")}
       </div>
     </details>`;
   }
 
-  box.innerHTML = mealHtml || '<div class="empty">Für diesen Tag sind noch keine Mahlzeiten eingetragen.</div>';
-  box.innerHTML += extrasHtml;
+  box.innerHTML=mealHtml+extrasHtml;
+
+  const addMeal=document.querySelector("#addMealFromEmpty");
+  if(addMeal)addMeal.onclick=()=>openNewEntry("food");
 
   box.querySelectorAll("[data-edit-id]").forEach(card=>{
     const open=()=>openEditDialog(card.dataset.editId);
@@ -4205,7 +4264,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=45");await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=46",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
