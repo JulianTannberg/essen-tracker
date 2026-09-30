@@ -3,7 +3,7 @@
   "short_name": "Tracker",
   "description": "Privater Planer für Essen, Trinken, Beschwerden, Periode und Gewicht.",
   "id": "./",
-  "start_url": "./?app=v50",
+  "start_url": "./?app=v51",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f6f0e6",
