@@ -3412,9 +3412,31 @@
     }
   }
 
+
+  /* ===== v54: fokussierte Mehrfachauswahl für den Druck ===== */
+  @media print{
+    .print-overview-card[hidden]{
+      display:none!important;
+    }
+    .print-overview-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      grid-auto-flow:row!important;
+    }
+    .print-overview-card:only-child{
+      grid-column:1 / -1!important;
+    }
+  }
+
+
+  /* ===== v55: Trinkmenge – Wasser automatisch, ungesüßter Tee optional ===== */
+  .entry-hydration-wrap{display:grid;gap:4px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.55)}
+  .entry-hydration-line{display:flex;align-items:center;gap:9px;font-weight:750;color:#4e493f}
+  .entry-hydration-line input{width:20px;height:20px;margin:0;accent-color:var(--accent)}
+  .entry-hydration-wrap small{color:var(--muted);font-size:11px;line-height:1.3}
+
 </style>
 </head>
-<body data-app-build="53">
+<body data-app-build="55">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3422,7 +3444,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v53</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v55</div>
   </header>
 
   <main>
@@ -3622,6 +3644,13 @@
         </div>
         <label id="entryValueWrap"><span id="entryValueText">Was?</span><input id="entryValue" list="knownItems" autocomplete="off"><datalist id="knownItems"></datalist></label>
         <label id="entryAmountWrap" style="display:none"><span id="entryAmountText">Menge</span><div class="input-unit"><input id="entryAmount" type="number" inputmode="decimal"><span id="entryUnit">ml</span></div><div id="amountChips" class="chips"></div></label>
+        <label id="entryHydrationWrap" class="entry-hydration-wrap" style="display:none">
+          <span class="entry-hydration-line">
+            <input id="entryHydration" type="checkbox">
+            <span>Zählt zur Trinkmenge</span>
+          </span>
+          <small>Für ungesüßten Tee. Wasser zählt immer automatisch.</small>
+        </label>
         <label id="periodFlowWrap" style="display:none">Stärke<select id="periodFlow"><option value="">ohne Angabe</option><option value="leicht">leicht</option><option value="mittel">mittel</option><option value="stark">stark</option></select></label>
         <div id="entryHint" class="hint"></div>
         <label id="entryCategoryWrap" class="entry-category-wrap">
@@ -3668,7 +3697,9 @@
   <dialog id="printDialog">
     <div class="dialog-wrap">
       <div class="dialog-head"><h2>Drucken / PDF</h2><button type="button" id="closePrintDialog" class="icon-btn">×</button></div>
-      <div class="hint" style="margin-top:10px">Die Auswahl filtert nur die Einträge im Kalender. Die kompakte Tracker-Monatsübersicht wird immer mitgedruckt.</div>
+      <div class="hint" style="margin-top:10px">
+        Du kannst mehrere Bereiche gleichzeitig auswählen. Normale Essens- und Getränkeeinträge werden im Druck nicht mehr als eigene Auswahl angeboten.
+      </div>
       <div id="printFilterList" class="print-filter-list"></div>
       <div class="dialog-actions" style="margin-top:14px"><button type="button" id="cancelPrintDialog" class="secondary-btn">Abbrechen</button><button type="button" id="startPrint" class="primary-btn">Drucken</button></div>
     </div>
@@ -3699,32 +3730,22 @@
       </div>
 
       <div class="print-overview-grid">
-        <section class="print-overview-card">
+        <section id="printCardSymptoms" class="print-overview-card">
           <h3>Beschwerden &amp; Mittel</h3>
           <div id="printReportSymptoms" class="print-report-list"></div>
         </section>
 
-        <section class="print-overview-card">
+        <section id="printCardCategories" class="print-overview-card">
           <h3>Getrackte Kategorien</h3>
           <div id="printReportCategories" class="print-report-list"></div>
         </section>
 
-        <section class="print-overview-card">
+        <section id="printCardFreeDays" class="print-overview-card">
           <h3>Freie Tage &amp; Serien</h3>
           <div id="printReportFreeDays" class="print-report-list"></div>
         </section>
 
-        <section class="print-overview-card">
-          <h3>Trinken</h3>
-          <div id="printReportWater" class="print-report-list"></div>
-        </section>
-
-        <section class="print-overview-card">
-          <h3>Mahlzeiten</h3>
-          <div id="printReportMeals" class="print-report-list"></div>
-        </section>
-
-        <section class="print-overview-card print-weight-overview">
+        <section id="printCardWeight" class="print-overview-card print-weight-overview">
           <h3>Gewicht</h3>
           <canvas id="printWeightChart" width="320" height="150"></canvas>
           <div id="printReportWeight" class="print-report-list print-weight-list"></div>
@@ -3745,7 +3766,7 @@ const DEFAULT={
     homeVisibility:{moon:true,weight:true,water:true,freeDays:true,calendarSpecial:true,quick:true,wellbeing:true,sticky:true},
     customEntryCategories:[],
     calendar:{dailyQuotes:true,moon:true,seasons:true,holidays:true,wheel:true,rauhnacht:true,farmers:true,schoolHolidays:true,customQuotes:[]},todoItems:[{id:"walk",label:"Spaziergang",enabled:true},{id:"move",label:"Bewegung",enabled:true},{id:"rest",label:"Ruhepause",enabled:true},{id:"evening",label:"Abendroutine",enabled:true}]},
-  wellbeingDone:{},quoteChoices:{},itemTagMemory:{},mealPhotos:{},
+  wellbeingDone:{},quoteChoices:{},itemTagMemory:{},drinkHydrationMemory:{},mealPhotos:{},
   quick:[
     {label:"Wasser",sub:"700 ml",type:"drink",value:"Wasser",tag:"water",amountMl:700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
@@ -3774,6 +3795,7 @@ function load(){
       wellbeingDone:(x.wellbeingDone&&typeof x.wellbeingDone==="object")?x.wellbeingDone:{},
       quoteChoices:(x.quoteChoices&&typeof x.quoteChoices==="object")?x.quoteChoices:{},
       itemTagMemory:(x.itemTagMemory&&typeof x.itemTagMemory==="object")?x.itemTagMemory:{},
+      drinkHydrationMemory:(x.drinkHydrationMemory&&typeof x.drinkHydrationMemory==="object")?x.drinkHydrationMemory:{},
       mealPhotos:(x.mealPhotos&&typeof x.mealPhotos==="object")?x.mealPhotos:{},
       settings:{
         ...base.settings,...xs,
@@ -3930,6 +3952,67 @@ function allEntryCategories(){
 }
 function categoryTag(id){return `cat:${id}`}
 function normalizedItem(s){return String(s||"").trim().toLocaleLowerCase("de-DE")}
+function isWaterDrink(value){
+  const v=normalizedItem(value);
+  return v==="wasser" || v.endsWith(" wasser");
+}
+function isTeaDrink(value){
+  const v=normalizedItem(value);
+  return v.includes("tee") && !v.includes("eistee");
+}
+function looksSweetDrink(value){
+  const v=normalizedItem(value);
+  return ["gesüßt","gesuesst","süß","suess","zucker","sirup","honig","limo","limonade","cola","saft","nektar","eistee"].some(x=>v.includes(x));
+}
+function defaultHydrationForDrink(value){
+  if(isWaterDrink(value))return true;
+  if(isTeaDrink(value) && !looksSweetDrink(value))return true;
+  return false;
+}
+function rememberedHydrationForDrink(value){
+  const key=normalizedItem(value);
+  if(!key)return null;
+  const mem=state.drinkHydrationMemory||{};
+  return Object.prototype.hasOwnProperty.call(mem,key)?!!mem[key]:null;
+}
+function rememberHydrationForDrink(value,counts){
+  const key=normalizedItem(value);
+  if(!key||isWaterDrink(value))return;
+  state.drinkHydrationMemory=state.drinkHydrationMemory||{};
+  state.drinkHydrationMemory[key]=!!counts;
+}
+function isHydrationEntry(e){
+  if(!e || e.type!=="drink")return false;
+  const tags=Array.isArray(e.tags)?e.tags:[];
+  if(tags.includes("no-hydration"))return false;
+  if(tags.includes("water") || tags.includes("hydration"))return true;
+  return defaultHydrationForDrink(e.value);
+}
+function hydrationChoiceForEntry(e){
+  if(!e || e.type!=="drink")return false;
+  const tags=Array.isArray(e.tags)?e.tags:[];
+  if(tags.includes("no-hydration"))return false;
+  if(tags.includes("hydration")||tags.includes("water")||isWaterDrink(e.value))return true;
+  const remembered=rememberedHydrationForDrink(e.value);
+  return remembered!==null?remembered:defaultHydrationForDrink(e.value);
+}
+function refreshHydrationOption(explicitValue=null){
+  const wrap=document.querySelector("#entryHydrationWrap"),
+    cb=document.querySelector("#entryHydration"),
+    type=document.querySelector("#entryType")?.value,
+    value=document.querySelector("#entryValue")?.value||"";
+  if(!wrap||!cb)return;
+  if(type!=="drink" || !value.trim() || isWaterDrink(value)){
+    wrap.style.display="none";
+    if(type==="drink"&&isWaterDrink(value))cb.checked=true;
+    return;
+  }
+  wrap.style.display="grid";
+  if(explicitValue!==null){cb.checked=!!explicitValue;return;}
+  const remembered=rememberedHydrationForDrink(value);
+  cb.checked=remembered!==null?remembered:defaultHydrationForDrink(value);
+}
+
 function entryHasCategory(e,id){
   const tags=Array.isArray(e.tags)?e.tags:[];
   if(tags.includes(categoryTag(id)))return true;
@@ -4336,10 +4419,10 @@ function renderHomeVisibility(){
 
 function renderSummary(){
   const list=todayEntries();
-  const waters=list.filter(e=>e.tags?.includes("water")||(e.type==="drink"&&String(e.value).toLowerCase()==="wasser"));
+  const waters=list.filter(isHydrationEntry);
   const totalMl=waters.reduce((s,e)=>s+(Number(e.amountMl)||Number(state.settings.waterMl)||0),0),liters=totalMl/1000;
   document.querySelector("#waterCount").textContent=`${liters.toFixed(1).replace(".",",")} / 3,0 L`;
-  document.querySelector("#waterSub").textContent=totalMl?`${waters.length} Wasser-Eintrag${waters.length===1?"":"e"}`:"Noch nichts eingetragen";
+  document.querySelector("#waterSub").textContent=totalMl?`${waters.length} Trink-Eintrag${waters.length===1?"":"e"}`:"Noch nichts eingetragen";
   const bar=document.querySelector("#waterProgressBar");if(bar)bar.style.width=`${Math.min(100,(totalMl/3000)*100)}%`;
   const waterCelebrate=document.querySelector("#waterCelebrate");
   if(waterCelebrate){
@@ -4666,8 +4749,8 @@ function clearEditing(){editingIds=[];editingDate=null;document.querySelector("#
 function openTypeDialog(){document.querySelector("#typeDialog").showModal()}
 function configureEntryForm(type){
   const cfg=TYPE_UI[type]||TYPE_UI.food;document.querySelector("#entryType").value=type;document.querySelector("#entryDialogTitle").textContent=cfg.title;
-  const vw=document.querySelector("#entryValueWrap"),aw=document.querySelector("#entryAmountWrap"),pw=document.querySelector("#periodFlowWrap"),ph=document.querySelector("#entryPhotoWrap"),mk=document.querySelector("#mealKindWrap");
-  vw.style.display=cfg.value?"grid":"none";aw.style.display=cfg.amount?"grid":"none";pw.style.display=cfg.period?"grid":"none";
+  const vw=document.querySelector("#entryValueWrap"),aw=document.querySelector("#entryAmountWrap"),hw=document.querySelector("#entryHydrationWrap"),pw=document.querySelector("#periodFlowWrap"),ph=document.querySelector("#entryPhotoWrap"),mk=document.querySelector("#mealKindWrap");
+  vw.style.display=cfg.value?"grid":"none";aw.style.display=cfg.amount?"grid":"none";if(hw)hw.style.display="none";pw.style.display=cfg.period?"grid":"none";
   if(ph)ph.classList.toggle("show",type==="food");
   if(mk)mk.classList.toggle("show",type==="food");
   document.querySelector("#entryValueText").textContent=cfg.valueLabel||"Was?";document.querySelector("#entryValue").placeholder=cfg.placeholder||"";
@@ -4682,12 +4765,14 @@ function openNewEntry(type){
   document.querySelector("#entryTime").value=now;
   document.querySelector("#entryValue").value="";
   document.querySelector("#entryAmount").value="";
+  const hydrationBox=document.querySelector("#entryHydration");if(hydrationBox)hydrationBox.checked=false;
   document.querySelector("#periodFlow").value="";
   document.querySelector("#entryNote").value="";
   resetPhotoField();renderEntryCategories(type,[]);
   if(type==="food")setMealKind(guessMealKind(now),false);
   document.querySelector("#entryDialog").showModal();
   if(type==="food")renderMealPhotoSuggestions();
+  if(type==="drink")refreshHydrationOption();
 }
 function openEditDialog(id){
   const first=state.entries.find(e=>e.id===id);if(!first)return;
@@ -4700,6 +4785,7 @@ function openEditDialog(id){
   document.querySelector("#entryAmount").value=first.type==="weight"?(first.weightKg??""):first.type==="drink"?(first.amountMl??""):"";
   document.querySelector("#periodFlow").value=first.periodFlow||"";
   document.querySelector("#entryNote").value=first.note||"";
+  if(first.type==="drink")refreshHydrationOption(hydrationChoiceForEntry(first));
   resetPhotoField();
   if(first.type==="food"){
     entryPhotoData=mealPhoto(first.mealId);setPhotoPreview(entryPhotoData);
@@ -4741,8 +4827,14 @@ function saveDialog(ev){
     if(removeEntryPhoto) delete state.mealPhotos[mealId];
     else if(entryPhotoData) state.mealPhotos[mealId]=entryPhotoData;
   }else if(type==="drink"){
-    const baseTags=preservedTags.filter(t=>!String(t).startsWith("cat:"));
-    if(raw.toLowerCase()==="wasser"&&!baseTags.includes("water"))baseTags.push("water");
+    const baseTags=preservedTags.filter(t=>!String(t).startsWith("cat:")&&t!=="hydration"&&t!=="no-hydration"&&t!=="water");
+    if(isWaterDrink(raw)){
+      baseTags.push("water","hydration");
+    }else{
+      const countsHydration=!!document.querySelector("#entryHydration")?.checked;
+      baseTags.push(countsHydration?"hydration":"no-hydration");
+      rememberHydrationForDrink(raw,countsHydration);
+    }
     addEntry("drink",raw,{date,time,note,amountMl:amount,tags:[...new Set([...baseTags,...catTags])]});
     rememberCategories(raw,categoryIds);
   }else if(type==="weight")addEntry("weight",`${weight.toFixed(1).replace(".",",")} kg`,{date,time,note,weightKg:weight});
@@ -4905,9 +4997,106 @@ function renderSettings(){
   renderTodoSettings();renderCustomEntryCategorySettings();renderFreeGoalSettings();
 }
 
-function printFilterOptions(){const opts=[["all","Alles"],["type:food","Essen"],["type:drink","Trinken"],["type:symptom","Beschwerden"],["type:medicine","Mittel"],["type:weight","Gewicht"],["type:period","Periode"],["drink:Bier","Bier"],["drink:Wasser","Wasser"]];allEntryCategories().forEach(c=>opts.push(["category:"+c.id,"Kategorie: "+c.label]));const seen=new Set();knownItems().forEach(v=>opts.push(["value:"+v,v]));return opts.filter(([v])=>!seen.has(v)&&seen.add(v))}
-function renderPrintFilterDialog(){const box=document.querySelector("#printFilterList"),opts=printFilterOptions(),fixed=opts.slice(0,9),individual=opts.slice(9);let out='<div class="print-filter-group-title">Auswahl</div>';fixed.forEach(([v,l])=>out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`);if(individual.length){out+='<div class="print-filter-group-title">Einzelne Einträge</div>';individual.forEach(([v,l])=>out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`)}box.innerHTML=out;const checks=[...box.querySelectorAll('input[type="checkbox"]')];checks.forEach(cb=>cb.onchange=()=>{if(cb.value==="all"&&cb.checked)checks.forEach(x=>{if(x.value!=="all")x.checked=false});else if(cb.checked){const all=checks.find(x=>x.value==="all");if(all)all.checked=false}if(!checks.some(x=>x.checked)){const all=checks.find(x=>x.value==="all");if(all)all.checked=true}})}
-function selectedPrintFilters(){const vals=[...document.querySelectorAll('#printFilterList input[type="checkbox"]:checked')].map(x=>x.value);return vals.length?vals:["all"]}
+function printTrackerCategories(){
+  const map=new Map(allEntryCategories().map(c=>[c.id,c]));
+  const ids=new Set();
+
+  // Aktive freie-Tage-Ziele sind automatisch echte Tracker.
+  freeGoalsSettings().filter(g=>g.enabled!==false).forEach(g=>ids.add(g.categoryId));
+
+  // Zusätzlich nur Kategorien, die im gewählten Monat wirklich explizit benutzt wurden.
+  monthEntries().forEach(e=>{
+    const tags=Array.isArray(e.tags)?e.tags:[];
+    tags.forEach(tag=>{
+      if(tag.startsWith("cat:"))ids.add(tag.slice(4));
+    });
+
+    // Kompatibilität zu alten Bier-Einträgen ohne Kategorie-Tag.
+    if(e.type==="drink"&&normalizedItem(e.value)==="bier")ids.add("beer");
+  });
+
+  return [...ids]
+    .map(id=>map.get(id))
+    .filter(Boolean)
+    .sort((a,b)=>a.label.localeCompare(b.label,"de"));
+}
+
+function printFilterOptions(){
+  const base=[
+    ["all","Alles Relevante"],
+    ["type:symptom","Beschwerden"],
+    ["type:medicine","Medikamente / Mittel"],
+    ["type:period","Periode"],
+    ["type:weight","Gewicht"]
+  ];
+
+  const trackers=printTrackerCategories().map(c=>["category:"+c.id,c.label]);
+  return {base,trackers};
+}
+
+function renderPrintFilterDialog(){
+  const box=document.querySelector("#printFilterList"),
+    {base,trackers}=printFilterOptions();
+
+  let out='<div class="print-filter-group-title">Druckinhalt</div>';
+  base.forEach(([v,l])=>{
+    out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`;
+  });
+
+  if(trackers.length){
+    out+='<div class="print-filter-group-title">Meine Tracker</div>';
+    trackers.forEach(([v,l])=>{
+      out+=`<label class="print-filter-option"><input type="checkbox" value="${escapeHtml(v)}" ${printFilters.includes(v)?"checked":""}><span>${escapeHtml(l)}</span></label>`;
+    });
+  }
+
+  box.innerHTML=out;
+
+  const checks=[...box.querySelectorAll('input[type="checkbox"]')];
+  checks.forEach(cb=>cb.onchange=()=>{
+    if(cb.value==="all"&&cb.checked){
+      checks.forEach(x=>{if(x.value!=="all")x.checked=false});
+    }else if(cb.checked){
+      const all=checks.find(x=>x.value==="all");
+      if(all)all.checked=false;
+    }
+
+    if(!checks.some(x=>x.checked)){
+      const all=checks.find(x=>x.value==="all");
+      if(all)all.checked=true;
+    }
+  });
+}
+
+function selectedPrintFilters(){
+  const vals=[...document.querySelectorAll('#printFilterList input[type="checkbox"]:checked')].map(x=>x.value);
+  return vals.length?vals:["all"];
+}
+
+function effectivePrintFilters(){
+  if(!printFilters.length||printFilters.includes("all")){
+    const {base,trackers}=printFilterOptions();
+    return [
+      ...base.filter(([v])=>v!=="all").map(([v])=>v),
+      ...trackers.map(([v])=>v)
+    ];
+  }
+  return [...printFilters];
+}
+
+function printFilterSelected(value){
+  return effectivePrintFilters().includes(value);
+}
+
+function matchesPrintFilter(e){
+  const filters=effectivePrintFilters();
+  return filters.some(f=>{
+    if(f.startsWith("type:"))return e.type===f.slice(5);
+    if(f.startsWith("category:"))return entryHasCategory(e,f.slice(9));
+    return false;
+  });
+}
+
 function compactPrintEntries(dayEntries){
   const byTime=new Map();dayEntries.forEach(e=>{if(!byTime.has(e.time))byTime.set(e.time,[]);byTime.get(e.time).push(e)});return [...byTime.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([time,items])=>{const parts=[],foodMeals=new Map(),rest=[];items.forEach(e=>{if(e.type==="food"&&e.mealId){if(!foodMeals.has(e.mealId))foodMeals.set(e.mealId,[]);foodMeals.get(e.mealId).push(e.value)}else rest.push(e)});foodMeals.forEach(v=>parts.push(v.join(", ")));const counts=new Map();rest.forEach(e=>{const key=`${e.type}|${e.value}|${e.periodFlow||""}`;const x=counts.get(key)||{entry:e,count:0};x.count++;counts.set(key,x)});counts.forEach(({entry,count})=>{let value=entry.value;if(entry.type==="weight")value=`Gew. ${entry.value}`;if(entry.type==="period")value=`Periode${entry.periodFlow?" "+entry.periodFlow:""}`;if(entry.type==="drink"&&entry.amountMl)value+=` ${entry.amountMl} ml`;parts.push(value+(count>1?` ×${count}`:""))});return {time,text:parts.join("; ")}})
 }
@@ -4960,6 +5149,8 @@ function buildMonthlyReport(){
   const symptomMedicineMap=new Map();
   entries.forEach(e=>{
     if(e.type!=="symptom"&&e.type!=="medicine")return;
+    if(e.type==="symptom"&&!printFilterSelected("type:symptom"))return;
+    if(e.type==="medicine"&&!printFilterSelected("type:medicine"))return;
     const label=(e.value||typeLabel(e.type)).trim();
     const key=normalizedItem(label);
     if(!symptomMedicineMap.has(key))symptomMedicineMap.set(key,{label,items:[]});
@@ -4978,6 +5169,7 @@ function buildMonthlyReport(){
   const activeGoalCategoryIds=new Set(freeGoalsSettings().filter(g=>g.enabled!==false).map(g=>g.categoryId));
   const categoryRows=[];
   allEntryCategories().forEach(cat=>{
+    if(!printFilterSelected("category:"+cat.id))return;
     const catEntries=entries.filter(e=>entryHasCategory(e,cat.id));
     if(!catEntries.length&&!activeGoalCategoryIds.has(cat.id))return;
     const days=distinctDays(catEntries);
@@ -4989,16 +5181,18 @@ function buildMonthlyReport(){
 
   // Freie Tage / Serien
   const freeRows=[];
-  freeGoalsSettings().filter(g=>g.enabled!==false).forEach(goal=>{
-    const s=countFreeDaysInMonth(goal);
-    freeRows.push({
-      label:goal.label,
-      value:s.eligible?`${s.freeDays} freie Tage · längste Serie ${s.longest}`:"noch nicht gestartet"
+  freeGoalsSettings()
+    .filter(g=>g.enabled!==false&&printFilterSelected("category:"+g.categoryId))
+    .forEach(goal=>{
+      const s=countFreeDaysInMonth(goal);
+      freeRows.push({
+        label:goal.label,
+        value:s.eligible?`${s.freeDays} freie Tage · längste Serie ${s.longest}`:"noch nicht gestartet"
+      });
     });
-  });
 
   // Wasser
-  const waterEntries=entries.filter(e=>e.tags?.includes("water")||(e.type==="drink"&&normalizedItem(e.value)==="wasser"));
+  const waterEntries=entries.filter(isHydrationEntry);
   const waterByDay=new Map();
   waterEntries.forEach(e=>{
     const ml=Number(e.amountMl)||Number(state.settings.waterMl)||0;
@@ -5011,8 +5205,8 @@ function buildMonthlyReport(){
     const avg=trackedDays?total/trackedDays:0;
     const goalMl=3000;
     const goalDays=[...waterByDay.values()].filter(v=>v>=goalMl).length;
-    waterRows.push({label:"Wasser insgesamt",value:formatMlTotal(total)});
-    waterRows.push({label:"Tage mit Wassereintrag",value:String(trackedDays)});
+    waterRows.push({label:"Trinkmenge insgesamt",value:formatMlTotal(total)});
+    waterRows.push({label:"Tage mit Trinkeintrag",value:String(trackedDays)});
     waterRows.push({label:"Ø an Tagen mit Eintrag",value:formatMlTotal(avg)});
     waterRows.push({label:"3-Liter-Ziel erreicht",value:`an ${goalDays} Tag${goalDays===1?"":"en"}`});
   }
@@ -5022,14 +5216,16 @@ function buildMonthlyReport(){
   const allWeights=weightEntriesSorted();
   const mwFirst=monthWeights[0], mwLast=monthWeights[monthWeights.length-1], allFirst=allWeights[0];
   const weightRows=[];
-  if(mwFirst){
-    weightRows.push({label:"Erste Messung im Monat",value:fmtWeightPrint(mwFirst)});
-    weightRows.push({label:"Letzte Messung im Monat",value:fmtWeightPrint(mwLast)});
-    weightRows.push({label:"Veränderung im Monat",value:formatWeightDelta(Number(mwLast.weightKg)-Number(mwFirst.weightKg))});
-  }
-  if(allFirst){
-    weightRows.push({label:"Allererste Messung",value:fmtWeightPrint(allFirst)});
-    if(mwLast)weightRows.push({label:"Veränderung seit Beginn",value:formatWeightDelta(Number(mwLast.weightKg)-Number(allFirst.weightKg))});
+  if(printFilterSelected("type:weight")){
+    if(mwFirst){
+      weightRows.push({label:"Erste Messung im Monat",value:fmtWeightPrint(mwFirst)});
+      weightRows.push({label:"Letzte Messung im Monat",value:fmtWeightPrint(mwLast)});
+      weightRows.push({label:"Veränderung im Monat",value:formatWeightDelta(Number(mwLast.weightKg)-Number(mwFirst.weightKg))});
+    }
+    if(allFirst){
+      weightRows.push({label:"Allererste Messung",value:fmtWeightPrint(allFirst)});
+      if(mwLast)weightRows.push({label:"Veränderung seit Beginn",value:formatWeightDelta(Number(mwLast.weightKg)-Number(allFirst.weightKg))});
+    }
   }
 
   // Mahlzeiten
@@ -5058,9 +5254,24 @@ function buildMonthlyReport(){
   document.querySelector("#printReportSymptoms").innerHTML=reportRowsHtml(symptomRows);
   document.querySelector("#printReportCategories").innerHTML=reportRowsHtml(categoryRows);
   document.querySelector("#printReportFreeDays").innerHTML=reportRowsHtml(freeRows);
-  document.querySelector("#printReportWater").innerHTML=reportRowsHtml(waterRows);
+  const waterTarget=document.querySelector("#printReportWater");if(waterTarget)waterTarget.innerHTML=reportRowsHtml(waterRows);
   document.querySelector("#printReportWeight").innerHTML=reportRowsHtml(weightRows);
-  document.querySelector("#printReportMeals").innerHTML=reportRowsHtml(mealRows);
+  const showSymptoms=printFilterSelected("type:symptom")||printFilterSelected("type:medicine"),
+    selectedTrackerIds=effectivePrintFilters().filter(f=>f.startsWith("category:")),
+    showTrackers=selectedTrackerIds.length>0,
+    showWeight=printFilterSelected("type:weight");
+
+  const symptomCard=document.querySelector("#printCardSymptoms"),
+    categoryCard=document.querySelector("#printCardCategories"),
+    freeCard=document.querySelector("#printCardFreeDays"),
+    weightCard=document.querySelector("#printCardWeight");
+
+  if(symptomCard)symptomCard.hidden=!showSymptoms;
+  if(categoryCard)categoryCard.hidden=!showTrackers;
+  if(freeCard)freeCard.hidden=!showTrackers;
+  if(weightCard)weightCard.hidden=!showWeight;
+
+  const mealTarget=document.querySelector("#printReportMeals");if(mealTarget)mealTarget.innerHTML=reportRowsHtml(mealRows);
 }
 
 
@@ -5157,9 +5368,7 @@ function renderPrintPage(){
     const ds=localDate(d),outside=d.getMonth()!==m;
     let dayEntries=entries.filter(e=>e.date===ds);
 
-    if(!printFilters.includes("all")){
-      dayEntries=dayEntries.filter(e=>printFilters.some(f=>matchesFilter(e,f)));
-    }
+    dayEntries=dayEntries.filter(matchesPrintFilter);
 
     const compact=compactPrintEntries(dayEntries),
       period=!outside&&periodOn(ds),
@@ -5176,7 +5385,7 @@ function renderPrintPage(){
   document.querySelector("#printCalendar").innerHTML=out;
 
   buildMonthlyReport();
-  requestAnimationFrame(drawPrintWeightOverview);
+  if(printFilterSelected("type:weight"))requestAnimationFrame(drawPrintWeightOverview);
 }
 function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();document.body.classList.add("printing");setTimeout(()=>window.print(),180)}
 
@@ -5208,11 +5417,11 @@ if(entryTimeInput)entryTimeInput.addEventListener("change",()=>{
 });
 
 document.querySelector("#entryForm").addEventListener("submit",saveDialog);
-document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntryCategoriesFromValue();renderMealPhotoSuggestions()});
-document.querySelector("#entryValue").addEventListener("input",()=>{if(document.querySelector("#entryType").value==="food")renderMealPhotoSuggestions()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
+document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntryCategoriesFromValue();renderMealPhotoSuggestions();if(document.querySelector("#entryType").value==="drink")refreshHydrationOption()});
+document.querySelector("#entryValue").addEventListener("input",()=>{const t=document.querySelector("#entryType").value;if(t==="food")renderMealPhotoSuggestions();if(t==="drink")refreshHydrationOption()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
 window.addEventListener("beforeprint",()=>{
-  drawPrintWeightOverview();
+  if(printFilterSelected("type:weight"))drawPrintWeightOverview();
 });
 window.addEventListener("afterprint",()=>document.body.classList.remove("printing"));
 document.querySelector("#printMonth").onclick=()=>{renderPrintFilterDialog();document.querySelector("#printDialog").showModal()};document.querySelector("#closePrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#cancelPrintDialog").onclick=()=>document.querySelector("#printDialog").close();document.querySelector("#startPrint").onclick=startPrint;
@@ -5233,7 +5442,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=53",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=55",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
