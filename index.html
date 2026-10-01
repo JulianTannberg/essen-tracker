@@ -3434,9 +3434,47 @@
   .entry-hydration-line input{width:20px;height:20px;margin:0;accent-color:var(--accent)}
   .entry-hydration-wrap small{color:var(--muted);font-size:11px;line-height:1.3}
 
+
+  /* ===== v56: sonstige Tages-Einträge wieder direkt bearbeitbar ===== */
+  .extra-entry-card{gap:5px!important}
+  .extra-entry-edit-list{
+    display:grid;
+    gap:5px;
+    margin-top:4px;
+  }
+  .extra-entry-edit-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border:1px solid rgba(139,128,111,.18);
+    border-radius:10px;
+    padding:7px 9px;
+    background:#f8f5ee;
+    color:#5b554c;
+    font:inherit;
+    text-align:left;
+    cursor:pointer;
+  }
+  .extra-entry-edit-btn .extra-edit-main{
+    min-width:0;
+    font-size:11.5px;
+    line-height:1.2;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .extra-entry-edit-btn .extra-edit-action{
+    flex:0 0 auto;
+    font-size:10.5px;
+    color:#8a927d;
+    font-weight:750;
+  }
+
 </style>
 </head>
-<body data-app-build="55">
+<body data-app-build="56">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3444,7 +3482,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v55</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v56</div>
   </header>
 
   <main>
@@ -4538,9 +4576,18 @@ function renderTimeline(){
   if(extraEntries.length){
     const extras=summarizeExtraEntries(extraEntries);
     extrasHtml=`<details class="timeline-extra-details">
-      <summary>Getränke, Beschwerden & weitere Einträge (${extraEntries.length})</summary>
+      <summary>Getränke, Beschwerden & weitere Einträge (${extraEntries.length}) · bearbeiten</summary>
       <div class="timeline-extra-list">
-        ${extras.map(x=>`<div class="extra-entry-card"><b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.meta||"")}</span></div>`).join("")}
+        ${extras.map(x=>`<div class="extra-entry-card">
+          <b>${escapeHtml(x.title)}</b>
+          <span>${escapeHtml(x.meta||"")}</span>
+          <div class="extra-entry-edit-list">
+            ${(x.items||[]).map(e=>`<button type="button" class="extra-entry-edit-btn" data-edit-id="${escapeHtml(e.id)}">
+              <span class="extra-edit-main">${escapeHtml(extraEntryEditLabel(e))}</span>
+              <span class="extra-edit-action">ändern</span>
+            </button>`).join("")}
+          </div>
+        </div>`).join("")}
       </div>
     </details>`;
   }
@@ -4592,6 +4639,21 @@ function formatWeightValue(n){
   const x=Number(n);
   return Number.isFinite(x)?x.toFixed(1).replace(".",","):"–";
 }
+
+function extraEntryEditLabel(e){
+  const time=e.time?`${e.time} Uhr`:"Eintrag";
+  if(e.type==="drink"){
+    const amount=Number(e.amountMl);
+    return `${time}${Number.isFinite(amount)&&amount>0?` · ${formatMlTotal(amount)}`:""}`;
+  }
+  if(e.type==="weight"){
+    return `${time} · ${formatWeightValue(e.weightKg)} kg`;
+  }
+  if(e.type==="period"){
+    return `${time}${e.periodFlow?` · ${e.periodFlow}`:""}`;
+  }
+  return `${time}${e.note?` · ${e.note}`:""}`;
+}
 function summarizeExtraEntries(entries){
   const out=[];
   const drinks=new Map(), symptoms=new Map(), meds=new Map();
@@ -4600,37 +4662,45 @@ function summarizeExtraEntries(entries){
   for(const e of entries){
     if(e.type==="drink"){
       const key=(e.value||"Getränk").trim();
-      if(!drinks.has(key))drinks.set(key,{count:0,total:0});
+      if(!drinks.has(key))drinks.set(key,{count:0,total:0,items:[]});
       const item=drinks.get(key);
       item.count+=1;
       item.total+=Number(e.amountMl)||0;
+      item.items.push(e);
     }else if(e.type==="symptom"){
       const key=(e.value||"Beschwerde").trim();
-      if(!symptoms.has(key))symptoms.set(key,{count:0,times:[],notes:[]});
+      if(!symptoms.has(key))symptoms.set(key,{count:0,times:[],notes:[],items:[]});
       const item=symptoms.get(key);
       item.count+=1;
       if(e.time)item.times.push(e.time);
       if(e.note)item.notes.push(e.note);
+      item.items.push(e);
     }else if(e.type==="medicine"){
       const key=(e.value||"Medikament").trim();
-      if(!meds.has(key))meds.set(key,{count:0,times:[],notes:[]});
+      if(!meds.has(key))meds.set(key,{count:0,times:[],notes:[],items:[]});
       const item=meds.get(key);
       item.count+=1;
       if(e.time)item.times.push(e.time);
       if(e.note)item.notes.push(e.note);
+      item.items.push(e);
     }else if(e.type==="period"){
       periodItems.push(e);
     }else if(e.type==="weight"){
       weightItems.push(e);
     }else{
-      out.push({title:e.value||typeLabel(e.type),meta:typeLabel(e.type)});
+      out.push({
+        title:e.value||typeLabel(e.type),
+        meta:typeLabel(e.type),
+        items:[e]
+      });
     }
   }
 
   drinks.forEach((v,k)=>{
     out.push({
       title:k,
-      meta:`Getränk · ${v.count} Eintrag${v.count===1?"":"e"}${v.total?` · ${formatMlTotal(v.total)}`:""}`
+      meta:`Getränk · ${v.count} Eintrag${v.count===1?"":"e"}${v.total?` · ${formatMlTotal(v.total)}`:""}`,
+      items:v.items
     });
   });
 
@@ -4639,7 +4709,8 @@ function summarizeExtraEntries(entries){
     const note=v.notes[0]?` · ${v.notes[0]}`:"";
     out.push({
       title:k,
-      meta:`Beschwerde · ${v.count} Eintrag${v.count===1?"":"e"}${times}${note}`
+      meta:`Beschwerde · ${v.count} Eintrag${v.count===1?"":"e"}${times}${note}`,
+      items:v.items
     });
   });
 
@@ -4648,7 +4719,8 @@ function summarizeExtraEntries(entries){
     const note=v.notes[0]?` · ${v.notes[0]}`:"";
     out.push({
       title:k,
-      meta:`Medikament · ${v.count} Eintrag${v.count===1?"":"e"}${times}${note}`
+      meta:`Medikament · ${v.count} Eintrag${v.count===1?"":"e"}${times}${note}`,
+      items:v.items
     });
   });
 
@@ -4656,7 +4728,8 @@ function summarizeExtraEntries(entries){
     const latest=weightItems[weightItems.length-1];
     out.push({
       title:`Gewicht ${formatWeightValue(latest.weightKg)} kg`,
-      meta:`Messung · ${latest.time} Uhr`
+      meta:`${weightItems.length} Messung${weightItems.length===1?"":"en"}${latest.time?` · zuletzt ${latest.time} Uhr`:""}`,
+      items:weightItems
     });
   }
 
@@ -4664,7 +4737,8 @@ function summarizeExtraEntries(entries){
     const latest=periodItems[periodItems.length-1];
     out.push({
       title:`Periode${latest.periodFlow?` · ${latest.periodFlow}`:""}`,
-      meta:`${periodItems.length} Eintrag${periodItems.length===1?"":"e"}`
+      meta:`${periodItems.length} Eintrag${periodItems.length===1?"":"e"}`,
+      items:periodItems
     });
   }
   return out;
@@ -5442,7 +5516,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=55",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=56",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 renderAll();initServiceWorker();requestPersistentStorage();
