@@ -2,7 +2,7 @@
   'use strict';
 
   const FALLBACK_KEY='essenTracker.sleep.v1';
-  const VERSION='57';
+  const VERSION='58';
 
   function appState(){
     try{return (typeof state!=='undefined'&&state&&typeof state==='object')?state:null}catch(_){return null}
@@ -70,6 +70,7 @@
     };
     getSessions().push(session);
     closeTypeDialog();persist();toast('Schlaf gestartet');
+    requestAnimationFrame(()=>focusCard());
   }
   function markWake(){
     const session=activeSession();if(!session)return;
