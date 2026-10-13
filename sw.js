@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v60";
-const VERSION="60";
+const CACHE="essen-tracker-pages-v61";
+const VERSION="61";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[`./manifest.webmanifest?v=${VERSION}`,`./icon.svg?v=${VERSION}`,`./top-branch.png?v=${VERSION}`,`./sleep-mode.js?v=${VERSION}`];
 
