@@ -3472,9 +3472,26 @@
     font-weight:750;
   }
 
+/* v59 · Tagesseiten wie im Planer blättern */
+#todayView{
+  touch-action:pan-y;
+  will-change:transform,opacity;
+}
+#todayView.day-swipe-dragging{
+  transition:none!important;
+}
+#todayView.day-page-out-left{animation:dayPageOutLeft .15s ease-in forwards}
+#todayView.day-page-out-right{animation:dayPageOutRight .15s ease-in forwards}
+#todayView.day-page-in-left{animation:dayPageInLeft .18s ease-out both}
+#todayView.day-page-in-right{animation:dayPageInRight .18s ease-out both}
+@keyframes dayPageOutLeft{to{transform:translateX(-32px);opacity:.22}}
+@keyframes dayPageOutRight{to{transform:translateX(32px);opacity:.22}}
+@keyframes dayPageInLeft{from{transform:translateX(28px);opacity:.25}to{transform:translateX(0);opacity:1}}
+@keyframes dayPageInRight{from{transform:translateX(-28px);opacity:.25}to{transform:translateX(0);opacity:1}}
+
 </style>
 </head>
-<body data-app-build="56">
+<body data-app-build="59">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3482,7 +3499,7 @@
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v56</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v59</div>
   </header>
 
   <main>
@@ -5463,6 +5480,65 @@ function renderPrintPage(){
 }
 function startPrint(){printFilters=selectedPrintFilters();document.querySelector("#printDialog").close();renderPrintPage();document.body.classList.add("printing");setTimeout(()=>window.print(),180)}
 
+
+// v59 · Auf der Heute-Seite horizontal durch die Tage blättern.
+// Vertikales Scrollen bleibt normal; Dialoge/Formfelder und die Wochenleiste werden nicht als Wischfläche benutzt.
+function initDayPageSwipe(){
+  const view=document.querySelector("#todayView");
+  if(!view||view.dataset.swipeReady==="1")return;
+  view.dataset.swipeReady="1";
+
+  let startX=0,startY=0,lastX=0,tracking=false,horizontal=false;
+  const ignoreTarget=target=>!!target.closest("button,input,select,textarea,label,a,dialog,.week-strip,[contenteditable='true']");
+  const resetDrag=()=>{
+    tracking=false;horizontal=false;
+    view.classList.remove("day-swipe-dragging");
+    view.style.transform="";view.style.opacity="";
+  };
+  const changeDay=dir=>{
+    const outClass=dir>0?"day-page-out-left":"day-page-out-right";
+    const inClass=dir>0?"day-page-in-left":"day-page-in-right";
+    view.classList.remove("day-page-out-left","day-page-out-right","day-page-in-left","day-page-in-right");
+    view.classList.add(outClass);
+    window.setTimeout(()=>{
+      selectedDate=addDays(selectedDate,dir);
+      renderAll();
+      view.classList.remove(outClass);
+      view.classList.add(inClass);
+      window.setTimeout(()=>view.classList.remove(inClass),190);
+    },145);
+  };
+
+  view.addEventListener("touchstart",e=>{
+    if(e.touches.length!==1||ignoreTarget(e.target))return;
+    const t=e.touches[0];startX=lastX=t.clientX;startY=t.clientY;tracking=true;horizontal=false;
+  },{passive:true});
+
+  view.addEventListener("touchmove",e=>{
+    if(!tracking||e.touches.length!==1)return;
+    const t=e.touches[0],dx=t.clientX-startX,dy=t.clientY-startY;lastX=t.clientX;
+    if(!horizontal){
+      if(Math.abs(dx)<10&&Math.abs(dy)<10)return;
+      if(Math.abs(dy)>=Math.abs(dx)*.8){resetDrag();return;}
+      horizontal=true;view.classList.add("day-swipe-dragging");
+    }
+    if(horizontal){
+      e.preventDefault();
+      const pull=Math.max(-54,Math.min(54,dx*.42));
+      view.style.transform=`translateX(${pull}px)`;
+      view.style.opacity=String(Math.max(.82,1-Math.abs(pull)/320));
+    }
+  },{passive:false});
+
+  view.addEventListener("touchend",()=>{
+    if(!tracking)return;
+    const dx=lastX-startX,wasHorizontal=horizontal;
+    resetDrag();
+    if(wasHorizontal&&Math.abs(dx)>=52)changeDay(dx<0?1:-1);
+  },{passive:true});
+  view.addEventListener("touchcancel",resetDrag,{passive:true});
+}
+
 function renderAll(){renderSummary();renderWeightToday();renderQuick();renderTimeline();renderKnown();renderSettings();renderHomeVisibility();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
 
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
@@ -5516,10 +5592,10 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=56",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=59",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
-renderAll();initServiceWorker();requestPersistentStorage();
+initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 
