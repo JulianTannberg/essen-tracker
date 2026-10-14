@@ -107,7 +107,10 @@
     .calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin:9px 2px 0;font-size:11px;color:var(--muted)}.calendar-legend span{display:flex;align-items:center;gap:5px}
     .month-list{margin-top:14px}.month-day{margin:12px 0}.month-day h3{font-size:13px;color:var(--muted);margin:0 0 6px}
     .weight-month-card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px;box-shadow:var(--shadow)}
-    .weight-month-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.weight-month-head h3{margin:0;font-size:17px}.weight-month-head small{color:var(--muted)}
+    .weight-month-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.weight-month-head h3{margin:0;font-size:17px}.weight-month-head small{color:var(--muted)}
+    .weight-range-toggle{display:inline-grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.72)}
+    .weight-range-btn{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;white-space:nowrap}
+    .weight-range-btn.active{background:var(--accent-soft);color:var(--accent)}
     #weightChart{width:100%;display:block;max-width:100%;margin-top:7px}
     .pattern-card{padding:14px;margin:10px 0}.pattern-card strong{font-size:17px}.pattern-card small{color:var(--muted)}
     .settings-card{margin:12px 0;padding:14px;display:grid;gap:12px}.settings-card h3{margin:0}.settings-card p{margin:0;color:var(--muted);font-size:13px}
@@ -3533,7 +3536,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v61</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v62</div>
   </header>
 
   <main>
@@ -3600,7 +3603,13 @@ body{padding-bottom:78px!important}
         <span><i style="width:10px;height:10px;border-radius:3px;background:#e9f4ec;border:1px solid #bfd9c6"></i> <span id="calendarFreeLegend">bierfreier Tag</span></span>
       </div>
       <div class="weight-month-card">
-        <div class="weight-month-head"><div><h3>Gewichtsverlauf</h3><small id="weightMonthSummary">Nur Morgenmessungen vor 12:00 Uhr.</small></div></div>
+        <div class="weight-month-head">
+          <div><h3>Gewichtsverlauf</h3><small id="weightMonthSummary">Nur Morgenmessungen vor 12:00 Uhr.</small></div>
+          <div class="weight-range-toggle" role="group" aria-label="Zeitraum Gewichtsverlauf">
+            <button type="button" class="weight-range-btn active" data-weight-range="month">Monat</button>
+            <button type="button" class="weight-range-btn" data-weight-range="all">Seit Beginn</button>
+          </div>
+        </div>
         <canvas id="weightChart" height="175"></canvas>
       </div>
       <div id="monthList" class="month-list"></div>
@@ -3866,6 +3875,7 @@ const DEFAULT={
 let state=load();
 let shownMonth=startMonth(new Date());
 let selectedDate=localDate();
+let weightChartRange="month";
 let editingIds=[];
 let editingDate=null;
 let printFilters=["all"];
@@ -4990,9 +5000,16 @@ function buildFilter(){
   const seen=new Set();knownItems().forEach(v=>opts.push(["value:"+v,v]));s.innerHTML=opts.filter(([v])=>!seen.has(v)&&seen.add(v)).map(([v,l])=>`<option value="${escapeHtml(v)}">${escapeHtml(l)}</option>`).join("");if([...s.options].some(o=>o.value===prev))s.value=prev;
 }
 function matchesFilter(e,f){if(f==="all")return true;if(f.startsWith("value:"))return e.value===f.slice(6);if(f.startsWith("type:"))return e.type===f.slice(5);if(f.startsWith("category:"))return entryHasCategory(e,f.slice(9));const i=f.indexOf(":");return e.type===f.slice(0,i)&&e.value===f.slice(i+1)}
-function monthWeightEntries(){
-  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();const morning=weightEntriesSorted().filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m&&e.time<"12:00"});const firstPerDay=new Map();morning.forEach(e=>{if(!firstPerDay.has(e.date))firstPerDay.set(e.date,e)});return [...firstPerDay.values()];
+function chartWeightEntries(entries){
+  const morning=entries.filter(e=>e.time<"12:00"),firstPerDay=new Map();
+  morning.forEach(e=>{if(!firstPerDay.has(e.date))firstPerDay.set(e.date,e)});
+  return [...firstPerDay.values()];
 }
+function monthWeightEntries(){
+  const y=shownMonth.getFullYear(),m=shownMonth.getMonth();
+  return chartWeightEntries(weightEntriesSorted().filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m}));
+}
+function allWeightEntriesForChart(){return chartWeightEntries(weightEntriesSorted())}
 function drawWeightChart(canvas,pts,height=175){
   if(!canvas)return;
 
@@ -5030,7 +5047,13 @@ function drawWeightChart(canvas,pts,height=175){
     cw=w-left-right,
     ch=h-top-bottom,
     y=v=>top+(hi-v)/(hi-lo||1)*ch,
-    x=i=>pts.length===1?left+cw/2:left+i*cw/(pts.length-1);
+    firstTs=parseDate(pts[0].date).getTime(),
+    lastTs=parseDate(pts[pts.length-1].date).getTime(),
+    x=i=>{
+      if(pts.length===1||lastTs===firstTs)return left+cw/2;
+      const ts=parseDate(pts[i].date).getTime();
+      return left+((ts-firstTs)/(lastTs-firstTs))*cw;
+    };
 
   ctx.strokeStyle="#e4ddd2";
   ctx.lineWidth=1;
@@ -5056,9 +5079,10 @@ function drawWeightChart(canvas,pts,height=175){
   ctx.stroke();
 
   ctx.fillStyle="#2f6555";
+  const pointRadius=pts.length>90?1.7:pts.length>45?2.2:3.2;
   pts.forEach((p,i)=>{
     ctx.beginPath();
-    ctx.arc(x(i),y(Number(p.weightKg)),3.2,0,Math.PI*2);
+    ctx.arc(x(i),y(Number(p.weightKg)),pointRadius,0,Math.PI*2);
     ctx.fill();
   });
 
@@ -5072,7 +5096,15 @@ function drawWeightChart(canvas,pts,height=175){
   ctx.fillText(ld,w-right-tw,h-6);
 }
 function renderWeightChart(){
-  const pts=monthWeightEntries(),summary=document.querySelector("#weightMonthSummary");if(!pts.length)summary.textContent="Noch keine Morgenmessungen (vor 12:00 Uhr) in diesem Monat.";else{const vals=pts.map(p=>Number(p.weightKg)),delta=vals[vals.length-1]-vals[0];summary.textContent=`${pts.length} Morgenmessung${pts.length===1?"":"en"} · erste → letzte: ${formatWeightDelta(delta)}`};drawWeightChart(document.querySelector("#weightChart"),pts,175)
+  const isAll=weightChartRange==="all",pts=isAll?allWeightEntriesForChart():monthWeightEntries(),summary=document.querySelector("#weightMonthSummary");
+  document.querySelectorAll("[data-weight-range]").forEach(b=>b.classList.toggle("active",b.dataset.weightRange===weightChartRange));
+  if(!pts.length){
+    summary.textContent=isAll?"Noch keine Morgenmessungen (vor 12:00 Uhr) aufgezeichnet.":"Noch keine Morgenmessungen (vor 12:00 Uhr) in diesem Monat.";
+  }else{
+    const vals=pts.map(p=>Number(p.weightKg)),delta=vals[vals.length-1]-vals[0],firstDate=parseDate(pts[0].date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"}),lastDate=parseDate(pts[pts.length-1].date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+    summary.textContent=isAll?`${firstDate} – ${lastDate} · ${pts.length} Morgenmessung${pts.length===1?"":"en"} · Veränderung: ${formatWeightDelta(delta)}`:`${pts.length} Morgenmessung${pts.length===1?"":"en"} · erste → letzte: ${formatWeightDelta(delta)}`;
+  }
+  drawWeightChart(document.querySelector("#weightChart"),pts,175)
 }
 function renderMonth(){
   buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
@@ -5595,6 +5627,7 @@ document.querySelector("#entryForm").addEventListener("submit",saveDialog);
 document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntryCategoriesFromValue();renderMealPhotoSuggestions();if(document.querySelector("#entryType").value==="drink")refreshHydrationOption()});
 document.querySelector("#entryValue").addEventListener("input",()=>{const t=document.querySelector("#entryType").value;if(t==="food")renderMealPhotoSuggestions();if(t==="drink")refreshHydrationOption()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
+document.querySelectorAll("[data-weight-range]").forEach(b=>b.onclick=()=>{weightChartRange=b.dataset.weightRange||"month";renderWeightChart()});
 window.addEventListener("beforeprint",()=>{
   if(printFilterSelected("type:weight"))drawPrintWeightOverview();
 });
@@ -5617,7 +5650,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=61",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=62",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
