@@ -1,17 +1,34 @@
-const CACHE="essen-tracker-pages-v62";
-const VERSION="62";
+const CACHE="essen-tracker-pages-v63";
+const VERSION="63";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
-const ASSETS=[`./manifest.webmanifest?v=${VERSION}`,`./icon.svg?v=${VERSION}`,`./top-branch.png?v=${VERSION}`,`./sleep-mode.js?v=${VERSION}`];
+const ASSETS=[
+  `./manifest.webmanifest?v=${VERSION}`,
+  `./icon.svg?v=${VERSION}`,
+  `./top-branch.png?v=${VERSION}`,
+  `./sleep-mode.js?v=${VERSION}`,
+  `./v63-weight-start.js?v=${VERSION}`
+];
 
-async function withSleepMode(response){
+async function withRuntimePatches(response){
   if(!response)return response;
   const type=response.headers.get("content-type")||"";
   if(!type.includes("text/html"))return response;
+
   let html=await response.text();
+  const tags=[];
+
   if(!html.includes("sleep-mode.js")){
-    const tag=`<script src="./sleep-mode.js?v=${VERSION}"></script>`;
-    html=html.includes("</body>")?html.replace("</body>",`${tag}\n</body>`):html+tag;
+    tags.push(`<script src="./sleep-mode.js?v=${VERSION}"></script>`);
   }
+  if(!html.includes("v63-weight-start.js")){
+    tags.push(`<script src="./v63-weight-start.js?v=${VERSION}"></script>`);
+  }
+
+  if(tags.length){
+    const injected=tags.join("\n");
+    html=html.includes("</body>")?html.replace("</body>",`${injected}\n</body>`):html+injected;
+  }
+
   const headers=new Headers(response.headers);
   headers.delete("content-length");
   return new Response(html,{status:response.status,statusText:response.statusText,headers});
@@ -23,7 +40,7 @@ self.addEventListener("install",event=>{
     await cache.addAll(ASSETS).catch(()=>{});
     try{
       const raw=await fetch(INDEX_KEY,{cache:"no-store"});
-      const injected=await withSleepMode(raw);
+      const injected=await withRuntimePatches(raw);
       if(injected)await cache.put(INDEX_KEY,injected);
     }catch(_){ }
   })());
@@ -51,7 +68,7 @@ self.addEventListener("fetch",event=>{
     event.respondWith((async()=>{
       try{
         const raw=await fetch(event.request,{cache:"no-store"});
-        const injected=await withSleepMode(raw);
+        const injected=await withRuntimePatches(raw);
         const copy=injected.clone();
         caches.open(CACHE).then(cache=>cache.put(INDEX_KEY,copy)).catch(()=>{});
         return injected;
