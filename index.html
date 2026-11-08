@@ -3568,9 +3568,30 @@ body{padding-bottom:78px!important}
 .thought-herb-link[hidden]{display:none!important}
 @media(max-width:360px){.herb-search-row{grid-template-columns:1fr}.bottom-nav .nav{font-size:10px!important}}
 @media print{#thoughtHerbLink{display:none!important}}
+
+/* v65: Aufklappbare Tagesgedanken; bestehende Tracker-Karten bleiben unverändert. */
+#dailySticky[role="button"]{cursor:pointer;touch-action:manipulation;padding-bottom:29px!important}
+#dailySticky[role="button"]:focus-visible{outline:3px solid #708665;outline-offset:4px}
+#dailySticky .thought-tap-hint{
+  position:absolute;bottom:7px;right:13px;
+  font:600 10.5px/1.1 Inter,system-ui,sans-serif;
+  color:#50664e;opacity:.9;letter-spacing:.015em
+}
+#thoughtDetails[hidden],#thoughtDetailsSpecial[hidden]{display:none!important}
+#thoughtDetails{
+  margin:2px 5px 16px;padding:15px 17px;
+  border:1px solid #d3d8c5;border-radius:12px;
+  background:#f4f1e8;color:#434a40;
+  box-shadow:0 4px 12px rgba(60,70,50,.06);
+  font-family:Inter,system-ui,sans-serif;
+}
+#thoughtDetailsCategory{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#64765b;margin-bottom:8px}
+#thoughtDetailsText{margin:0;font-size:15px;line-height:1.6;white-space:pre-line}
+#thoughtDetailsSpecial{border-top:1px solid #d9ddcf;margin:11px 0 0;padding-top:9px;font-size:12.5px;line-height:1.5;color:#64715e}
+
 </style>
 </head>
-<body data-app-build="64">
+<body data-app-build="65">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3578,7 +3599,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v64</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v65</div>
   </header>
 
   <main>
@@ -3590,12 +3611,18 @@ body{padding-bottom:78px!important}
           <h3>Heute für mich ♡</h3>
           <div id="wellbeingList" class="wellbeing-list"></div>
         </div>
-        <div id="dailySticky" class="sticky-note daily-sticky">
+        <div id="dailySticky" class="sticky-note daily-sticky" role="button" tabindex="0" aria-expanded="false" aria-controls="thoughtDetails" aria-label="Tagesgedanke: Erklärung öffnen">
           <b id="stickyTitle">Kleiner Gedanke ♡</b>
           <span id="dailyQuote" class="sticky-text"></span>
+          <span id="thoughtTapHint" class="thought-tap-hint" aria-hidden="true">Antippen für mehr</span>
         </div>
       </div>
 
+      <section id="thoughtDetails" aria-label="Erklärung zum Tagesgedanken" hidden>
+        <div id="thoughtDetailsCategory"></div>
+        <p id="thoughtDetailsText"></p>
+        <p id="thoughtDetailsSpecial" hidden></p>
+      </section>
       <button type="button" id="thoughtHerbLink" class="thought-herb-link" hidden>🌿 Im Kräuterwissen weiterlesen →</button>
 
       <div id="todaySummary" class="summary-card">
@@ -3910,6 +3937,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
+<script src="./daily-thoughts-v65.js?v=65"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4223,7 +4251,7 @@ function knownItems(){const m=new Map();state.entries.filter(e=>!["weight","peri
 
 
 
-const DAILY_QUOTES=["Schnittlauch treibt nach einem Schnitt in der Regel wieder nach.","Viele Zugvögel orientieren sich auch am Magnetfeld der Erde.","Epiktet unterschied zwischen dem, was in unserer Macht liegt, und dem Rest.","Ein neues Wort kann ein Fenster in eine andere Sprache sein.","Ein Hochbeet erwärmt sich im Frühjahr oft schneller als der Boden.","Petersilie mag gleichmäßige Feuchtigkeit, aber keine Staunässe.","Eichen und Buchen färben ihr Laub auf unterschiedliche Weise.","Die Stoa betrachtet einen guten Charakter als wichtiger als äußeren Erfolg.","Geräusche lösen manchmal sehr lebendige Erinnerungen aus.","Möhren keimen bei kühlem Boden oft besonders langsam.","Dill erkennt man an feinen Blättern und gelben Blütendolden.","Ein Regenbogen entsteht durch Brechung und Reflexion von Sonnenlicht in Tropfen.","Marcus Aurelius schrieb viele Gedanken als persönliche Übungen auf.","Ein Foto erzählt auch durch seinen gewählten Ausschnitt.","Kartoffeln brauchen lockere Erde zur Bildung ihrer Knollen.","Basilikum braucht Wärme und reagiert empfindlich auf Frost.","Tau bildet sich, wenn feuchte Luft an kühlen Oberflächen Wasser abgibt.","Seneca betrachtete unsere Lebenszeit als kostbares Gut.","Farben verändern ihre Wirkung durch benachbarte Töne.","Buschbohnen brauchen meist weniger Rankhilfe als Stangenbohnen.","Rosmarin stammt aus dem Mittelmeerraum und liebt durchlässige Erde.","Bei Frost kann gefrierendes Wasser den Boden verändern.","Stoische Gelassenheit bedeutet nicht, keine Gefühle zu haben.","Eine gute Frage ist manchmal spannender als eine schnelle Antwort.","Erdbeeren bilden Ausläufer mit kleinen Tochterpflanzen.","Thymian kommt mit sonnigen, eher trockenen Standorten gut zurecht.","Moose haben keine echten Wurzeln wie Blütenpflanzen.","Die Stoiker wollten vorschnelle Urteile genauer prüfen.","Alte Handschriften erzählen viel über eine Zeit.","Rosmarin im Topf mag einen Wasserabzug gegen Staunässe.","Küchensalbei hat oft samtige, leicht behaarte Blätter.","Flechten sind Lebensgemeinschaften aus verschiedenen Organismen.","Die Stoiker verstanden sich als Teil einer größeren Gemeinschaft.","Manche Rezepte bewahren Familiengeschichten.","In einem Gewächshaus kann sich die Luft sehr stark erwärmen.","Oregano ist während der Blüte eine beliebte Insektenpflanze.","Regenwürmer verändern durch ihre Gänge die Bodenstruktur.","Gute Entscheidungen beginnen damit, Möglichkeiten bewusst zu prüfen.","Rhythmus entsteht aus der Folge von Klängen und Pausen.","Gurken mögen Wärme und recht gleichmäßige Bodenfeuchte.","Majoran und Oregano sind verwandt, aber nicht dieselbe Pflanze.","Hummeln können schon bei recht niedrigen Temperaturen fliegen.","Stoizismus ist eine Lebenspraxis, keine Sammlung hübscher Sprüche.","Ein gutes Detail macht eine Geschichte anschaulich.","Kompost entsteht durch viele verschiedene Bodenlebewesen.","Zitronenmelisse verbreitet sich im Garten mitunter sehr kräftig.","Wildbienen unterscheiden sich stark in ihren Nistplätzen.","Ein unangenehmes Ereignis muss keine persönliche Niederlage sein.","Ein Umweg kann die Sicht auf etwas Vertrautes verändern.","Mulch verringert unter anderem die Verdunstung von Bodenwasser.","Pfefferminze kann sich durch unterirdische Ausläufer ausbreiten.","Schneeglöckchen können blühen, obwohl es noch sehr kalt ist.","Mäßigung meint einen klugen Umgang mit Wünschen.","Eine Zeichnung kann mit nur einer Linie beginnen.","Staunässe entsteht, wenn Wasser aus dem Boden schlecht abfließt.","Echte Kamille hat fein geteilte Blätter und einen typischen Duft.","Weidenkätzchen können im Frühjahr wichtige Pollen liefern.","Gerechtigkeit gehört zu den zentralen Tugenden der Stoa.","Kleine Sammlungen trainieren den Blick für Unterschiede.","Große Pflanzkübel trocknen oft langsamer aus als winzige Töpfe.","Lavendel liebt Sonne und gut durchlässigen Boden.","Birken besitzen männliche Kätzchen und weibliche Blütenstände.","Mut bedeutet manchmal, einen eigenen Fehler zuzugeben.","Handschrift kann selbst eine Form der Gestaltung sein.","Ein beschriftetes Pflanzenschild verhindert spätere Verwechslungen.","Echter Lorbeer ist nicht mit dem giftigen Kirschlorbeer zu verwechseln.","Die Länge eines Schattens verrät etwas über den Sonnenstand.","Weisheit heißt auch, Grenzen des eigenen Wissens anzuerkennen.","Einfache Werkzeuge haben oft eine überraschende Entstehungsgeschichte.","Bei Mischkultur geht es auch um Wasser- und Platzbedarf.","Bohnenkraut ist ein aromatisches Kraut für sonnige Beete.","Wolken bestehen aus winzigen Wassertröpfchen oder Eiskristallen.","Die Stoiker richteten ihren Blick auf das eigene gegenwärtige Handeln.","Ein fairer Vergleich untersucht möglichst gleiche Bedingungen.","Fruchtfolge kann Probleme mit Krankheiten und Nährstoffen verringern.","Estragon hat schmale Blätter und einen charakteristischen Duft.","Der Mond zeigt uns aufgrund seiner Rotation fast immer dieselbe Seite.","Die Stoa entstand in Athen und verbreitete sich später nach Rom.","Wer etwas verständlich erklärt, lernt oft selbst dazu.","Samen unterscheiden sich in den Temperaturen, die sie zum Keimen brauchen.","Liebstöckel kann im Garten erstaunlich groß werden.","Eine Sternschnuppe ist die Leuchtspur eines Teilchens in der Atmosphäre.","Tägliche Selbstprüfung ist bei den Stoikern keine Perfektionsprüfung.","Wiederverwenden kann aus etwas Altem etwas Neues machen.","Manche Kräuter verlieren getrocknet schneller ihr Aroma als andere.","Kerbel mag meist kühlere Bedingungen als große Sommerhitze.","Die Gezeiten entstehen vor allem durch die Anziehung von Mond und Sonne.","Eine neue Fertigkeit beginnt manchmal mit einer Minute Übung.","Kräuter trocknen meist schonend im Schatten bei guter Luftbewegung.","Korianderblätter und Koriandersamen duften sehr unterschiedlich.","Die Beaufortskala beschreibt Windstärken anhand ihrer Wirkungen.","Regionale Wörter erzählen von Geschichte und Alltag.","Samen bleiben trocken und kühl gelagert häufig länger keimfähig.","Kapuzinerkresse bildet leuchtende Blüten und runde Blätter.","Spinnen haben je nach Art sehr unterschiedliche Jagdmethoden.","Auch dein Heimatort hat unzählige Geschichten.","Viele Gartenpflanzen lassen sich über Stecklinge vermehren.","Ringelblumen locken mit ihren Blüten zahlreiche Insekten an.","Libellen leben als Larven im Wasser.","Genaue Beobachtung ist eine Fähigkeit, die man üben kann.","Blühende Kräuter können Insekten über den Sommer Nahrung bieten.","Borretsch bekommt oft blaue Blüten in Sternform.","Frösche und Kröten gehören beide zu den Amphibien.","In Musik können Pausen genauso wichtig sein wie Noten.","Regenwasser ist eine mögliche Ressource für das Gartengießen.","Ysop gehört zu den traditionellen Garten- und Duftkräutern.","Viele Pilze leben mit Baumwurzeln in enger Gemeinschaft.","Die Reihenfolge verändert die Wirkung einer Erzählung.","Nicht jede Hortensie wird auf die gleiche Weise geschnitten.","Beifuß ist eine heimische Pflanze mit langer Brauchtumsgeschichte.","Holunder bildet erst helle Blütendolden, später dunkle Früchte.","Neugier braucht weder Vorkenntnisse noch ein bestimmtes Alter.","Viele Vögel nutzen Hecken zum Nisten und als Deckung.","Schafgarbe trägt dichte Gruppen aus vielen kleinen Blüten.","Sanddorn besitzt oft silbriges Laub und auffällig orange Früchte.","Ein naturnaher Garten muss nicht ungepflegt aussehen.","Wermut gehört wie Beifuß zur Gattung Artemisia.","Totholz ist Lebensraum für zahlreiche Käfer, Pilze und andere Organismen.","Wacholder trägt fleischige Zapfen, die wie Beeren aussehen.","Fichtennadeln sitzen anders am Zweig als Tannennadeln.","Brennnesseln sind wichtige Futterpflanzen für Schmetterlingsraupen.","Spitzwegerich wächst oft an Wegrändern und in Wiesen.","Frischer Schnittlauch gibt Pellkartoffeln ein mildes Zwiebelaroma.","Achte draußen darauf, ob Vögel in Gruppen oder einzeln ziehen.","Ärger im Alltag? Frage: Welche Reaktion kann ich selbst wählen?","Lerne heute ein einzelnes Wort auf Chinesisch oder Plattdeutsch.","Was würdest du als Nächstes in ein Hochbeet pflanzen?","Vergleiche einmal den Duft von glatter und krauser Petersilie.","Vergleiche die Blattfarben von zwei verschiedenen Bäumen.","Welche Entscheidung wäre heute fair, auch ohne Lob dafür?","Höre kurz auf drei unterschiedliche Geräusche draußen.","Vergleiche zwei Möhrensorten nach Form oder Erntezeit.","Frischer Dill passt wunderbar zu Gurken und Kartoffeln.","Achte bei Regen und Sonne darauf, wo ein Regenbogen erscheinen könnte.","Notiere eine Erkenntnis nur für dich, ohne sie zu veröffentlichen.","Fotografiere etwas Bekanntes aus einer neuen Perspektive.","Was bewirkt das Anhäufeln von Kartoffelpflanzen?","Beim Basilikum kann ein Schnitt über einem Blattpaar neue Triebe fördern.","Vergleiche morgens Gras und Pflastersteine: Wo ist mehr Tau?","Überlege, welcher kleine Zeitfresser sich wirklich lohnt.","Suche draußen drei verschiedene Grüntöne.","Welche Bohnensorte würde zu deinem Beet passen?","Ein wenig Rosmarin verleiht Ofenkartoffeln einen würzigen Duft.","Wie sieht dein Garten nach einer Frostnacht aus?","Beobachte ein Gefühl, ohne es sofort in eine Handlung zu verwandeln.","Stelle heute zu einer Kleinigkeit eine echte Warum-Frage.","Kannst du an einer Erdbeere schon einen Ausläufer entdecken?","Thymian kann auch Gemüse aus dem Ofen wunderbar würzen.","Entdecke zwei unterschiedlich aussehende Moose, ohne sie auszureißen.","Trenne heute einmal Beobachtung und Interpretation.","Sieh dir einen Buchstaben in Sütterlin an.","Prüfe, welche deiner Kübel ausreichend Abzugslöcher haben.","Salbei kann sparsam in Butter und Gemüsegerichten verwendet werden.","Suche Flechten an einer Baumrinde oder auf einem Stein.","Wie kannst du heute jemandem fair begegnen, der anders denkt?","Notiere ein Gewürz, das dich an ein bestimmtes Essen erinnert.","Wann beschlagen die Scheiben deines Gewächshauses?","Riecht Oregano ähnlich wie Majoran? Vergleiche einmal die Blätter.","Achte nach einem Regen auf Spuren von Regenwürmern.","Nenne zwei mögliche Wege, bevor du dich festlegst.","Klopfe einen kurzen Rhythmus und verändere nur eine Pause.","Wie unterscheiden sich Gurken an Rankhilfen von kriechenden Pflanzen?","Majoran passt hervorragend zu Kartoffeln und herzhaften Speisen.","Welche Frühblüher besuchen Hummeln in deiner Umgebung?","Probiere lieber eine kleine Übung, als nur ein Zitat zu lesen.","Beschreibe einen Gegenstand mit drei überraschenden Adjektiven.","Welche Gartenreste eignen sich für einen Kompost?","Ein paar saubere Melissenblätter aromatisieren kaltes Wasser.","Entdecke kleine Insekten-Nistöffnungen in Boden oder Holz.","Was lässt sich aus einem kleinen Missgeschick lernen?","Betrachte eine gewohnte Aufgabe von einer anderen Seite.","Vergleiche im Sommer offenen Boden und ein gemulchtes Beet.","Minze gibt Wasser oder Obstsalat einen frischen Geschmack.","Merke dir den Tag, an dem du das erste Schneeglöckchen siehst.","Überlege, ob du etwas gerade brauchst oder nur möchtest.","Zeichne ein Blatt, ohne auf Perfektion zu achten.","Wo bleibt nach Regen auf deinem Grundstück lange Wasser stehen?","Worin unterscheiden sich Echte Kamille und geruchlose Kamille?","Beobachte Weidenblüten aus der Nähe, ohne Zweige abzubrechen.","Wem könntest du heute ohne Gegenleistung helfen?","Sammle heute fünf schöne Wörter statt Dinge.","Prüfe die Erde einige Zentimeter unter der Oberfläche.","Getrockneter Lavendel eignet sich als Duftkissen für einen Schrank.","Vergleiche junge Birkenblätter mit anderen Baumblättern.","Wofür wäre heute ein wenig Zivilcourage nötig?","Schreibe ein Lieblingswort in einer neuen Schrift.","Notiere bei einer Pflanze Sorte und Pflanzdatum.","Ein Lorbeerblatt gibt Eintöpfen Aroma; vor dem Essen entfernen.","Schau dir den Schatten eines Baums zu zwei Tageszeiten an.","Bei einer offenen Frage darf die Antwort sein: Das weiß ich noch nicht.","Überlege, welches Küchenwerkzeug du besonders praktisch findest.","Suche zwei Pflanzen, die ähnlich viel Wasser benötigen.","Bohnenkraut passt, wie der Name verrät, besonders zu Bohnen.","Versuche, zwei unterschiedliche Wolkenformen zu erkennen.","Statt dich über ein Ergebnis zu sorgen: Was ist jetzt sinnvoll?","Vergleiche zwei Dinge nach drei selbst gewählten Merkmalen.","Was stand im Vorjahr auf deinem Gemüsebeet?","Probier Estragon einmal in einer kleinen Kräutervinaigrette.","Sieh dir die dunklen Flächen auf dem Mond einmal genauer an.","Suche Athen und Rom auf einer Karte: Wie weit liegen sie auseinander?","Erkläre ein schwieriges Wort in einem einzigen einfachen Satz.","Prüfe auf einer Samentüte die empfohlene Keimtemperatur.","Ein wenig Liebstöckel würzt eine Gemüsebrühe sehr kräftig.","Warum leuchten Sternschnuppen nur für kurze Zeit?","Was würdest du morgen nach einer heutigen Erfahrung ändern?","Finde für ein leeres Glas eine zweite sinnvolle Verwendung.","Vergleiche frisches und getrocknetes Basilikum am Duft.","Gib frischen Kerbel erst kurz vor dem Servieren zu warmem Essen.","Suche die Hochwasserzeit an einem ostfriesischen Küstenort.","Probiere eine kleine Falt- oder Zeichentechnik aus.","Überlege, wo ein dekoratives Trockenbündel Platz hätte.","Riecht Koriandergrün für dich frisch oder eher seifig?","Wie stark bewegt der Wind heute die Baumkronen?","Lerne heute ein ostfriesisches Wort kennen.","Schau nach dem Haltbarkeitsdatum einer Samentüte.","Blüten aus sicherem Eigenanbau können einen Salat schmücken.","Suche morgens nach Tautropfen in einem verlassenen Netz.","Suche ein historisches Bild aus deiner Region.","Welche deiner Pflanzen könnte sich durch Stecklinge vermehren lassen?","Getrocknete Ringelblumenblüten sind hübsche Bastelmaterialien.","Beobachte eine Libelle am Teich, ohne sie zu stören.","Schau dir einen gewöhnlichen Gegenstand ganz genau an.","Plane drei blühende Kräuter mit unterschiedlichen Blütezeiten.","Borretsch liefert vielen Insekten Nahrung; als Essen ist er wegen problematischer Stoffe nicht für den regelmäßigen Verzehr geeignet.","Welche Amphibien sind bei feuchtem Wetter unterwegs?","Achte in einem Lied einmal bewusst auf die Pausen.","Welche Kübel sind nach Regen besonders gut durchfeuchtet?","Ysop trägt oft intensiv blaue bis violette Blüten.","Betrachte wilde Pilze, ohne sie zu kosten.","Erzähle ein kleines Erlebnis rückwärts in drei Sätzen.","Ist eine deiner Hortensien eine Rispenhortensie?","Beifuß wurde traditionell zum Räuchern genutzt; Rauch kann Atemwege reizen.","Vergleiche Holunderblüten mit anderen Blütenständen.","Suche ein Thema aus, über das du noch fast nichts weißt.","Beobachte, welche Tiere sich in deiner Hecke aufhalten.","Schafgarbe gehört zu den historisch genutzten Duft- und Räucherkräutern.","Welche Vögel fressen im Herbst Sanddornbeeren?","Wähle eine kleine Ecke, die du für Wildtiere stehen lässt.","Die Blätter des Wermuts sind oft graugrün und stark duftend.","Suche im Garten ein Stück morsches Holz, ohne es zu zerlegen.","Nicht jede Wacholderart eignet sich als Gewürz – genau bestimmen ist wichtig.","Zweige von Nadelbäumen wurden früher auch wegen ihres Duftes gesammelt.","Lass im Garten vielleicht eine kleine Brennnesselecke für Tiere stehen.","Schau dir die auffälligen Blattnerven des Spitzwegerichs an.","Warum hat Schnittlauch hohle Blätter? Schau dir einen Halm genauer an.","Welche Zugvögel sind im Herbst in Ostfriesland besonders häufig?","Lies nach, weshalb Epiktet eigene Urteile wichtiger fand als fremde Meinungen.","Woher kommt ein deutsches Alltagswort, das du oft benutzt?","Warum setzt sich die Füllung eines Hochbeets mit der Zeit?","Petersilie ist zweijährig: Finde heraus, was im zweiten Jahr passiert.","Warum verschwindet grünes Chlorophyll im Herbst?","Entdecke die vier stoischen Tugenden: Weisheit, Mut, Gerechtigkeit, Mäßigung.","Wie erzeugen Sounddesigner mit Geräuschen eine Filmszene?","Warum ist frischer Mist für Möhren ungünstig?","Welche Schmetterlingsraupen finden an Dill Nahrung? Lies nach.","Warum ist der zweite Regenbogen oft blasser?","Warum waren die Selbstbetrachtungen ursprünglich kein Lehrbuch?","Was bedeutet die Drittelregel beim Fotografieren?","Woran erkennst du den richtigen Erntezeitpunkt von Kartoffeln?","Vergleiche den Duft von Thai-, Zitronen- und Genoveser-Basilikum.","Was bezeichnet der Begriff Taupunkt?","Was meinte Seneca mit der Kürze des Lebens? Lies dazu nach.","Was unterscheidet warme und kühle Farben?","Warum müssen Gartenbohnen vor dem Essen ausreichend gegart werden?","Lies nach, wie man Rosmarin mit Stecklingen vermehren kann.","Warum können Frost und Tauwetter Wege beschädigen?","Untersuche den Unterschied zwischen Gelassenheit und Gleichgültigkeit.","Weshalb sind genaue Fragen in der Forschung so wichtig?","Warum schützt Stroh die Erdbeerfrüchte vor direktem Bodenkontakt?","Beobachte einmal, wie viele Insekten kleine Thymianblüten besuchen.","Wie nehmen Moose ihr Wasser auf?","Was ist in der Stoa ein Eindruck, und wann stimmt man ihm zu?","Warum sieht ein handschriftliches S oft anders als ein gedrucktes aus?","Wie kann Rosmarin im Winter im Kübel geschützt werden?","Warum wurde Salbei traditionell auch für Duft- und Räucherbräuche genutzt?","Weshalb reagieren bestimmte Flechten empfindlich auf Luftverschmutzung?","Was bedeutet der philosophische Begriff Kosmopolitismus?","Welche Gewürze kamen über historische Handelswege zu uns?","Warum ist regelmäßiges Lüften bei Tomaten wichtig?","Finde heraus, warum Oregano sonnige, eher magere Standorte mag.","Wieso ziehen Regenwürmer Laub in den Boden?","Erkunde den Unterschied zwischen Impuls und überlegter Zustimmung.","Wie fühlt sich ein 6/8-Takt im Vergleich zu einem 3/4-Takt an?","Welche Faktoren können Gurken bitter werden lassen?","Ist Majoran winterhart? Schau nach, bevor du ihn ins Beet setzt.","Wie erzeugen Hummeln Wärme vor dem Flug?","Wie übten antike Philosophen ihre Haltung im Alltag?","Warum beginnen manche Romane mitten in einer Handlung?","Warum brauchen Komposthaufen sowohl Luft als auch Feuchtigkeit?","Zerreibe ein Blatt Melisse: Woher kommt ihr zitroniger Duft?","Warum helfen Insektenhotels nicht allen Wildbienenarten?","Wie dachten Stoiker über Veränderungen, die niemand verhindern kann?","Welche wichtige Erfindung entstand zufällig?","Worin unterscheiden sich Stroh-, Laub- und Holzhäckselmulch?","Finde heraus, wie sich Apfelminze und Pfefferminze unterscheiden.","Warum speichern Frühblüher Vorräte unter der Erde?","Warum ist stoische Mäßigung nicht dasselbe wie ständiger Verzicht?","Warum waren botanische Zeichnungen für die Wissenschaft so wichtig?","Wie beeinflusst Bodenverdichtung die Versickerung?","Bei der Echten Kamille ist der Blütenboden innen hohl – lies nach.","Wieso sind Weiden für frühe Insekten so bedeutend?","Welche Rolle spielt soziale Verantwortung bei Marcus Aurelius?","Wie beschreiben Museen ihre Sammlungsstücke?","Warum ist die Topfgröße beim Gießen wichtig?","Lerne, wie sich Lavendel zu einem dekorativen Trockenbündel binden lässt.","Wie verbreiten sich Birkenpollen?","Weshalb bedeutet Mut in der Stoa mehr als körperliche Tapferkeit?","Was unterscheidet Kalligrafie und normale Handschrift?","Welche Materialien überstehen Regen auf Pflanzenschildern?","Wie überwintert echter Lorbeer im Kübel? Finde es heraus.","Weshalb sind Schatten im Winter oft länger?","Wie unterscheiden sich Neugier und Rechthaberei?","Wer hat den modernen Dosenöffner erfunden?","Welche Aussagen über Mischkultur sind gut untersucht?","Was unterscheidet Sommer- und Winterbohnenkraut im Anbau?","Warum bestehen besonders hohe Wolken häufig aus Eis?","Warum ist die Haltung beim Handeln oft wichtiger als der Beifall?","Wie plant man einen einfachen, fairen Versuch?","Was bedeutet Stark-, Mittel- und Schwachzehrer?","Warum wird französischer Estragon oft über Stecklinge vermehrt?","Was bedeutet gebundene Rotation?","Woher stammt der Name Stoa poikile?","Warum helfen Beispiele häufig besser als reine Definitionen?","Was unterscheidet Lichtkeimer und Dunkelkeimer?","Finde heraus, warum Liebstöckel häufig Maggikraut heißt.","Worin unterscheiden sich Meteoroid, Meteor und Meteorit?","Wie nutzte Seneca die abendliche Rückschau?","Was ist der Unterschied zwischen Upcycling und Recycling?","Welche Kräuter werden besser eingefroren als getrocknet?","Manche Doldenblütler sind giftig: Wilden Kerbel niemals auf Verdacht kosten.","Warum verschieben sich die Gezeiten täglich?","Woher stammt die japanische Papierfaltkunst Origami?","Woran erkennt man vollständig getrocknete Kräuter?","Warum nehmen manche Menschen Korianderblätter als seifig wahr?","Wie entstand die Beaufortskala?","Wie heißt derselbe Gegenstand in zwei deutschen Dialekten?","Wie funktioniert ein einfacher Keimtest mit Küchenpapier?","Lies nach, wie Kapuzinerkresse im Garten als Begleitpflanze wirkt.","Warum bauen manche Spinnen gar keine Fangnetze?","Was hat sich in deinem Ort in hundert Jahren verändert?","Warum ist ein Steckling genetisch fast identisch zur Mutterpflanze?","Was unterscheidet Ringelblume und Tagetes? Entdecke die Merkmale.","Was unterscheidet Groß- und Kleinlibellen?","Wie führen Naturforscher ein Feldtagebuch?","Wie gestaltest du ein Kräuterbeet für Insekten?","Erkunde, warum Borretsch auch Gurkenkraut genannt wird.","Woran kann man Froschlaich und Krötenlaich unterscheiden?","Wie werden Pausen in Notenschrift dargestellt?","Warum sollte aufgefangenes Wasser sauber und sicher gelagert werden?","Welche Rolle spielte Ysop in historischen Kräutergärten?","Was versteht man unter Mykorrhiza?","Warum erzählen manche Filme nicht chronologisch?","Warum blühen manche Hortensien am alten Holz?","Suche heute nach typischen Erkennungsmerkmalen von Beifuß.","Warum sollte man unbekannte Holunderteile niemals roh probieren?","Welche neue Frage ergibt sich aus dem, was du heute lernst?","Welche Regeln gelten für den Gehölzschnitt in deiner Region?","Wie unterscheidet sich Schafgarbe von ähnlich blühenden Pflanzen?","Warum braucht man bei Sanddorn häufig männliche und weibliche Pflanzen?","Welche heimischen Pflanzen helfen besonders vielen Insekten?","Warum muss man bei konzentrierten Wermutzubereitungen vorsichtig sein?","Weshalb ist Totholz für die Artenvielfalt so wertvoll?","Welche Rolle spielte Wacholder in traditionellen Duft- und Räucherbräuchen?","Lerne heute den Unterschied zwischen Fichte, Tanne und Eibe kennen.","Wusstest du, dass man früher Fasern aus Brennnesseln gewonnen hat?","Wodurch unterscheidet sich Spitzwegerich vom Breitwegerich?"];
+const DAILY_QUOTES=Object.values(window.DAILY_THOUGHTS_V65||{}).map(item=>item.text);
 const SCHOOL_HOLIDAYS_NI=[
   {name:"Sommerferien",start:"2026-07-02",end:"2026-08-12"},{name:"Herbstferien",start:"2026-10-12",end:"2026-10-24"},{name:"Weihnachtsferien",start:"2026-12-23",end:"2027-01-09"},
   {name:"Halbjahresferien",start:"2027-02-01",end:"2027-02-02"},{name:"Osterferien",start:"2027-03-22",end:"2027-04-03"},{name:"Tag nach Himmelfahrt",start:"2027-05-07",end:"2027-05-07"},{name:"Pfingstferien",start:"2027-05-18",end:"2027-05-18"},{name:"Sommerferien",start:"2027-07-08",end:"2027-08-18"},{name:"Herbstferien",start:"2027-10-16",end:"2027-10-30"},{name:"Weihnachtsferien",start:"2027-12-23",end:"2028-01-08"},
@@ -4401,7 +4429,20 @@ function skyQuoteEventFor(ds){
 }
 
 function quoteForDate(ds){
-  const cfg=state.settings.calendar||DEFAULT.settings.calendar,custom=Array.isArray(cfg.customQuotes)?cfg.customQuotes.filter(Boolean):[],choice=state.quoteChoices?.[ds];
+  const cfg=state.settings.calendar||DEFAULT.settings.calendar,
+    custom=Array.isArray(cfg.customQuotes)?cfg.customQuotes.filter(Boolean):[],
+    choice=state.quoteChoices?.[ds],
+    daily=window.DAILY_THOUGHTS_V65,
+    fresh=daily?.[ds.slice(5)];
+  if(cfg.dailyQuotes!==false && fresh){
+    let chosen=fresh;
+    if(Number.isInteger(choice)){
+      const list=Object.values(daily),pick=mod(choice,list.length+custom.length);
+      chosen=pick<list.length?list[pick]:{text:custom[pick-list.length],mehr:"Ein eigener Gedanke aus deinen Einstellungen.",kategorie:"Eigener Spruch"};
+    }
+    const event=specialEventsFor(ds)[0]||skyQuoteEventFor(ds);
+    return {text:chosen.text,mehr:chosen.mehr,kategorie:chosen.kategorie,context:"Tagesgedanke",special:event||null};
+  }
   if(Number.isInteger(choice)){const pool=[...DAILY_QUOTES,...custom];return {text:pool[mod(choice,pool.length)]||DAILY_QUOTES[0],context:"Für diesen Tag von dir gewechselt"}}
   const events=specialEventsFor(ds);
   if(events.length){const e=events[0];if(e.kind==="Ferien" && ds!==schoolHolidayFor(ds)?.start && ds!==schoolHolidayFor(ds)?.end){const sky=skyQuoteEventFor(ds);if(sky)return {text:sky.text,context:`${sky.kind} · ${sky.title}`};const pool=[...DAILY_QUOTES,...custom],idx=(dayOfYear(ds)-1)%pool.length;return {text:pool[idx],context:`${e.kind} · ${e.title}`}}return {text:e.text,context:`${e.kind} · ${e.title}`}}
@@ -4434,17 +4475,38 @@ function renderMoon(){
   }
 }
 function renderCalendarSpecial(){return}
+let expandedThoughtDate=null;
+function toggleDailyThought(){
+  const q=quoteForDate(selectedDate);
+  if(!q.mehr)return;
+  expandedThoughtDate=expandedThoughtDate===selectedDate?null:selectedDate;
+  renderDailyQuote();
+}
 function renderDailyQuote(){
   const q=quoteForDate(selectedDate),
     el=document.querySelector("#dailyQuote"),
     ctx=document.querySelector("#stickyContext"),
     note=document.querySelector("#dailySticky"),
-    text=q.text||"Heute darf der Zettel einfach leer bleiben. ♡";
+    detail=document.querySelector("#thoughtDetails"),
+    detailText=document.querySelector("#thoughtDetailsText"),
+    detailCategory=document.querySelector("#thoughtDetailsCategory"),
+    detailSpecial=document.querySelector("#thoughtDetailsSpecial"),
+    hint=document.querySelector("#thoughtTapHint"),
+    text=q.text||"Heute darf der Zettel einfach leer bleiben. ♡",
+    expanded=expandedThoughtDate===selectedDate&&Boolean(q.mehr);
 
   if(el)el.textContent=text;
   if(ctx)ctx.textContent="";
-
+  if(detail){detail.hidden=!expanded;}
+  if(detailText)detailText.textContent=q.mehr||"";
+  if(detailCategory)detailCategory.textContent=q.kategorie||"Kleiner Gedanke";
+  if(detailSpecial){
+    detailSpecial.textContent=q.special?`Im Kalender: ${q.special.kind} · ${q.special.title}. ${q.special.text||""}`:"";
+    detailSpecial.hidden=!q.special;
+  }
   if(note){
+    note.setAttribute("aria-expanded",String(expanded));
+    note.setAttribute("aria-label",expanded?"Erklärung zum Tagesgedanken schließen":"Tagesgedanke: Erklärung öffnen");
     const len=text.length;
     let normal="15.2px", small="14.2px";
     if(len<=45){normal="17.8px";small="16.4px";}
@@ -4455,6 +4517,7 @@ function renderDailyQuote(){
     note.style.setProperty("--sticky-font",normal);
     note.style.setProperty("--sticky-font-small",small);
   }
+  if(hint)hint.textContent=expanded?"Schließen":"Antippen für mehr";
   requestAnimationFrame(fitStickyQuoteText);
   if(typeof window.updateHerbThoughtLink==="function")window.updateHerbThoughtLink(text);
 }
@@ -5718,14 +5781,18 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=64",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=65",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
+document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
+document.querySelector("#dailySticky")?.addEventListener("keydown",event=>{
+  if(event.key==="Enter"||event.key===" "){event.preventDefault();toggleDailyThought();}
+});
 initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=64"></script>
+<script src="./herb-knowledge-v64.js?v=65"></script>
 </body>
 </html>
