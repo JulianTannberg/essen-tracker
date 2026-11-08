@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v64";
-const VERSION="64";
+const CACHE="essen-tracker-pages-v65";
+const VERSION="65";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   `./manifest.webmanifest?v=${VERSION}`,
@@ -7,7 +7,8 @@ const ASSETS=[
   `./top-branch.png?v=${VERSION}`,
   `./sleep-mode.js?v=${VERSION}`,
   `./v63-weight-start.js?v=${VERSION}`,
-  `./herb-knowledge-v64.js?v=${VERSION}`
+  `./herb-knowledge-v64.js?v=${VERSION}`,
+  `./daily-thoughts-v65.js?v=${VERSION}`
 ];
 
 async function withRuntimePatches(response){
