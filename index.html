@@ -3589,9 +3589,24 @@ body{padding-bottom:78px!important}
 #thoughtDetailsText{margin:0;font-size:15px;line-height:1.6;white-space:pre-line}
 #thoughtDetailsSpecial{border-top:1px solid #d9ddcf;margin:11px 0 0;padding-top:9px;font-size:12.5px;line-height:1.5;color:#64715e}
 
+
+/* v66: Stuhlgang abhaken und unverbindliche Perioden-Vorschau */
+.bowel-card{display:grid;gap:9px;margin:13px 0;padding:13px 15px;background:var(--paper);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
+.bowel-card-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.bowel-card strong{font-size:15px;color:var(--ink)}
+.bowel-toggle{border:1px solid var(--accent);background:#fff;color:var(--accent);font-size:13px;font-weight:800;padding:10px 14px;border-radius:12px;cursor:pointer}
+.bowel-toggle[aria-pressed="true"]{background:var(--accent);color:white}
+.bowel-toggle:disabled{opacity:.45;cursor:default}
+.bowel-detail{color:var(--muted);font-size:11px;line-height:1.45}
+.bowel-indicator{font-style:normal;font-size:11px;line-height:1;font-weight:900}
+.bowel-indicator.recorded{color:var(--accent)}
+.bowel-indicator.missing{color:var(--muted);opacity:.8}
+.dot.period-forecast{background:transparent;border:1.5px dashed var(--period);width:9px;height:9px;opacity:.65}
+.period-forecast-note{font-size:12px;color:var(--muted);padding:9px 12px;background:var(--paper);border:1px dashed var(--line);border-radius:12px;margin:8px 0 3px}
+
 </style>
 </head>
-<body data-app-build="65">
+<body data-app-build="66">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3599,7 +3614,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v65</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v66</div>
   </header>
 
   <main>
@@ -3650,6 +3665,13 @@ body{padding-bottom:78px!important}
 
       <div id="quickSectionTitle" class="section-title"><h2>Schnell eintragen</h2><small>Ich bin stolz auf dich ♡</small></div>
       <div id="quickGrid" class="quick-grid"></div>
+      <section id="bowelCard" class="bowel-card" aria-label="Verdauungstagebuch">
+        <div class="bowel-card-top">
+          <strong>Verdauung · Stuhlgang</strong>
+          <button id="bowelToggle" class="bowel-toggle" type="button" aria-pressed="false">✓ Stuhlgang gehabt</button>
+        </div>
+        <div id="bowelDetail" class="bowel-detail">Ein Haken bedeutet: an diesem Tag Stuhlgang gehabt.</div>
+      </section>
 
 <div id="timelineSection" class="timeline-section">
         <div class="section-title"><h2>Heute gegessen &amp; eingetragen</h2><small id="timelineDayLabel"></small></div>
@@ -3669,8 +3691,12 @@ body{padding-bottom:78px!important}
       </div>
       <div class="calendar-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
       <div id="calendar" class="calendar"></div>
+      <div id="periodForecastNotice" class="period-forecast-note" hidden></div>
       <div class="calendar-legend">
-        <span><i class="dot period"></i> Periode</span>
+        <span><i class="dot period"></i> Periode eingetragen</span>
+        <span><i class="dot period-forecast"></i> Periode voraussichtlich</span>
+        <span><i class="bowel-indicator recorded">✓</i> Stuhlgang</span>
+        <span><i class="bowel-indicator missing">–</i> kein Eintrag seit Beginn</span>
         <span><i style="width:10px;height:10px;border-radius:3px;background:#e9f4ec;border:1px solid #bfd9c6"></i> <span id="calendarFreeLegend">bierfreier Tag</span></span>
       </div>
       <div class="weight-month-card">
@@ -3950,7 +3976,7 @@ const DEFAULT={
     homeVisibility:{moon:true,weight:true,water:true,freeDays:true,calendarSpecial:true,quick:true,wellbeing:true,sticky:true},
     customEntryCategories:[],
     calendar:{dailyQuotes:true,moon:true,seasons:true,holidays:true,wheel:true,rauhnacht:true,farmers:true,schoolHolidays:true,customQuotes:[]},todoItems:[{id:"walk",label:"Spaziergang",enabled:true},{id:"move",label:"Bewegung",enabled:true},{id:"rest",label:"Ruhepause",enabled:true},{id:"evening",label:"Abendroutine",enabled:true}]},
-  wellbeingDone:{},quoteChoices:{},itemTagMemory:{},drinkHydrationMemory:{},mealPhotos:{},
+  wellbeingDone:{},quoteChoices:{},itemTagMemory:{},drinkHydrationMemory:{},mealPhotos:{},bowelDays:{},bowelTrackingStart:null,
   quick:[
     {label:"Wasser",sub:"700 ml",type:"drink",value:"Wasser",tag:"water",amountMl:700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
@@ -3982,6 +4008,8 @@ function load(){
       itemTagMemory:(x.itemTagMemory&&typeof x.itemTagMemory==="object")?x.itemTagMemory:{},
       drinkHydrationMemory:(x.drinkHydrationMemory&&typeof x.drinkHydrationMemory==="object")?x.drinkHydrationMemory:{},
       mealPhotos:(x.mealPhotos&&typeof x.mealPhotos==="object")?x.mealPhotos:{},
+      bowelDays:(x.bowelDays&&!Array.isArray(x.bowelDays)&&typeof x.bowelDays==="object")?x.bowelDays:{},
+      bowelTrackingStart:(typeof x.bowelTrackingStart==="string")?x.bowelTrackingStart:null,
       settings:{
         ...base.settings,...xs,
         freeDays:{...base.settings.freeDays,...(xs.freeDays||{}),start:(xs.freeDays?.start||xs.beerStart||base.settings.freeDays.start)},
@@ -4243,6 +4271,54 @@ function isFreeDay(ds){
 function isBeerFreeDay(ds){return isFreeDay(ds)}
 function beerStreakInfo(){return freeStreakInfo(selectedDate)} // Kompatibilität
 function periodOn(ds){return state.entries.some(e=>e.date===ds&&e.type==="period")}
+// Prognose ausschließlich aus dokumentierten Periodenstarts, nicht aus alten Prognosen.
+function confirmedPeriodStarts(){
+  const dates=[...new Set(state.entries.filter(e=>e.type==="period"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(e.date)).map(e=>e.date))].sort();
+  const starts=[];let previous=null;
+  dates.forEach(ds=>{if(!previous||daysBetween(previous,ds)>10)starts.push(ds);previous=ds});
+  return starts;
+}
+function periodForecast(){
+  const starts=confirmedPeriodStarts();
+  if(starts.length<2)return null;
+  const distances=starts.slice(1).map((date,i)=>daysBetween(starts[i],date));
+  // Sehr unregelmäßige oder offensichtlich falsch dokumentierte Zyklen nicht prognostizieren.
+  const recent=distances.slice(-3);
+  if(recent.some(n=>n<18||n>60))return null;
+  const ordered=[...recent].sort((a,b)=>a-b),cycle=Math.round(ordered[Math.floor(ordered.length/2)]);
+  const predicted=addDays(starts[starts.length-1],cycle);
+  // Eine unverifizierte Prognose verschwindet am Folgetag und wird nicht weitergezählt.
+  if(predicted<localDate())return null;
+  return {date:predicted,cycle,uncertain:starts.length<3||(recent.length>1&&Math.max(...recent)-Math.min(...recent)>7)};
+}
+function toggleBowelDay(){
+  if(selectedDate>localDate())return;
+  state.bowelDays=state.bowelDays||{};
+  if(state.bowelDays[selectedDate])delete state.bowelDays[selectedDate];
+  else {state.bowelDays[selectedDate]=true;if(!state.bowelTrackingStart||selectedDate<state.bowelTrackingStart)state.bowelTrackingStart=selectedDate;}
+  save();
+}
+function renderBowel(){
+  const btn=document.querySelector("#bowelToggle"),label=document.querySelector("#bowelDetail");
+  if(!btn||!label)return;
+  const checked=!!state.bowelDays?.[selectedDate],future=selectedDate>localDate();
+  btn.setAttribute("aria-pressed",String(checked));
+  btn.disabled=future;
+  btn.textContent=checked?"✓ Eingetragen · rückgängig":"✓ Stuhlgang gehabt";
+  const day=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+  const start=state.bowelTrackingStart;
+  let recorded=0,unmarked=0;
+  if(start){
+    for(let i=1;i<=7;i++){
+      const ds=addDays(localDate(),-i);
+      if(ds<start)continue;
+      if(state.bowelDays?.[ds])recorded++;else unmarked++;
+    }
+  }
+  label.textContent=future?"Zukünftige Tage kannst du noch nicht abhaken.":checked
+    ? `Für ${day} erfasst. ${recorded+unmarked?`Letzte 7 abgeschlossene Tage: ${recorded} mit Haken, ${unmarked} ohne Eintrag.`:""}`
+    : `Für ${day} noch kein Haken. ${recorded+unmarked?`Letzte 7 abgeschlossene Tage: ${recorded} mit Haken, ${unmarked} ohne Eintrag.`:""} Kein Haken bedeutet nicht automatisch keinen Stuhlgang.`;
+}
 function weightEntriesSorted(){
   return state.entries.filter(e=>e.type==="weight"&&Number.isFinite(Number(e.weightKg))).slice().sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
 }
@@ -5239,7 +5315,22 @@ function renderWeightChart(){
 }
 function renderMonth(){
   buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
-  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const ds=localDate(d),all=entries.filter(e=>e.date===ds),filtered=all.filter(e=>matchesFilter(e,filter)),outside=d.getMonth()!==m,period=all.some(e=>e.type==="period"),other=all.some(e=>!["period","weight"].includes(e.type));const cell=document.createElement("div");cell.className="day"+(outside?" out":"")+(ds===localDate()?" today":"")+(!outside&&isFreeDay(ds)?" no-beer":"")+(filtered.length&&filter!=="all"?" filtered":"");cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div><div class="day-dot-row">${period?'<i class="dot period"></i>':""}${other?'<i class="dot entry"></i>':""}</div>`;if(!outside){cell.tabIndex=0;cell.setAttribute("role","button");const open=()=>{selectedDate=ds;setView("todayView")};cell.onclick=open;cell.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}}cal.appendChild(cell)}
+  const forecast=periodForecast(),notice=document.querySelector("#periodForecastNotice");
+  if(notice){notice.hidden=!forecast;if(forecast)notice.textContent=`Voraussichtlicher Periodenbeginn: ${parseDate(forecast.date).toLocaleDateString("de-DE",{day:"2-digit",month:"long"})} (ca. ${forecast.cycle} Tage). Nur eine Schätzung – ohne Eintrag verschwindet die Markierung nach diesem Tag.`;}
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const ds=localDate(d),outside=d.getMonth()!==m;
+    const all=entries.filter(e=>e.date===ds),filtered=all.filter(e=>matchesFilter(e,filter));
+    const period=all.some(e=>e.type==="period"),other=all.some(e=>!["period","weight"].includes(e.type));
+    const predicted=!period&&!!forecast&&forecast.date===ds;
+    const bowel=!!state.bowelDays?.[ds];
+    const unmarked=!!state.bowelTrackingStart&&ds>=state.bowelTrackingStart&&ds<localDate()&&!bowel;
+    const cell=document.createElement("div");
+    cell.className="day"+(outside?" out":"")+(ds===localDate()?" today":"")+(!outside&&isFreeDay(ds)?" no-beer":"")+(filtered.length&&filter!=="all"?" filtered":"");
+    cell.innerHTML=`<div class="day-num">${d.getDate()}</div><div class="day-count">${filtered.length?filtered.length+" Eintr.":""}</div><div class="day-dot-row">${period?'<i class="dot period" title="Periode eingetragen"></i>':""}${predicted?'<i class="dot period-forecast" title="Periodenbeginn voraussichtlich"></i>':""}${other?'<i class="dot entry"></i>':""}${bowel?'<i class="bowel-indicator recorded" title="Stuhlgang eingetragen">✓</i>':""}${unmarked?'<i class="bowel-indicator missing" title="Stuhlgang nicht dokumentiert">–</i>':""}</div>`;
+    if(!outside){cell.tabIndex=0;cell.setAttribute("role","button");const open=()=>{selectedDate=ds;setView("todayView")};cell.onclick=open;cell.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}}}
+    cal.appendChild(cell);
+  }
   const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)),by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));renderWeightChart();document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>`<div class="month-day"><h3>${parseDate(date).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</h3>${by[date].map(e=>`<div class="entry-card ${e.type==="period"?"period-entry":e.type==="weight"?"weight-entry":""}"><b>${e.time}</b> · ${escapeHtml(e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Für diesen Filter keine Einträge.</div>';
 }
 function renderPatterns(){
@@ -5727,9 +5818,10 @@ function initDayPageSwipe(){
   },{passive:true});
   view.addEventListener("touchcancel",()=>{tracking=false},{passive:true});
 }
-function renderAll(){renderSummary();renderWeightToday();renderQuick();renderTimeline();renderKnown();renderSettings();renderHomeVisibility();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
+function renderAll(){renderSummary();renderWeightToday();renderQuick();renderBowel();renderTimeline();renderKnown();renderSettings();renderHomeVisibility();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
 
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
+document.querySelector("#bowelToggle").onclick=toggleBowelDay;
 document.querySelector("#fab").onclick=openTypeDialog;document.querySelector("#closeTypeDialog").onclick=()=>document.querySelector("#typeDialog").close();document.querySelectorAll("[data-type-choice]").forEach(b=>b.onclick=()=>openNewEntry(b.dataset.typeChoice));
 
 const entryPhotoInput=document.querySelector("#entryPhotoInput");
@@ -5781,7 +5873,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=65",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=66",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
