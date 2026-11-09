@@ -3955,7 +3955,7 @@ const DEFAULT={
     {label:"Wasser",sub:"700 ml",type:"drink",value:"Wasser",tag:"water",amountMl:700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
     {label:"Durchfall",sub:"jetzt",type:"symptom",value:"Durchfall"},
-    {label:"Sodbrennenmittel",sub:"genommen",type:"medicine",value:"Sodbrennenmittel"}
+    {label:"Sodbrennen",sub:"jetzt",type:"symptom",value:"Sodbrennen"}
   ]
 };
 let state=load();
@@ -4714,7 +4714,7 @@ function renderQuick(){
     {label:state.settings.waterLabel||"Wasser",sub:`${state.settings.waterMl||700} ml`,type:"drink",value:"Wasser",tag:"water",amountMl:Number(state.settings.waterMl)||700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
     {label:"Durchfall",sub:"jetzt",type:"symptom",value:"Durchfall"},
-    {label:"Sodbrennenmittel",sub:"genommen",type:"medicine",value:"Sodbrennenmittel"}
+    {label:"Sodbrennen",sub:"jetzt",type:"symptom",value:"Sodbrennen"}
   ];
   qs.forEach(q=>{const b=document.createElement("button");b.className="quick-btn";b.innerHTML=`${escapeHtml(q.label)}<small>${escapeHtml(q.sub)}</small>`;b.onclick=()=>{addEntry(q.type,q.value,{tags:q.tag?[q.tag]:[],amountMl:q.amountMl||null});save();showToast(`${q.label} gespeichert`)};g.appendChild(b)});
   const micro=document.querySelector("#quickSectionTitle small");
@@ -5243,7 +5243,7 @@ function renderMonth(){
   const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)),by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));renderWeightChart();document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>`<div class="month-day"><h3>${parseDate(date).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</h3>${by[date].map(e=>`<div class="entry-card ${e.type==="period"?"period-entry":e.type==="weight"?"weight-entry":""}"><b>${e.time}</b> · ${escapeHtml(e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Für diesen Filter keine Einträge.</div>';
 }
 function renderPatterns(){
-  const signals=[{type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},{type:"symptom",value:"Durchfall",label:"Durchfall"},{type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}],foods=state.entries.filter(e=>e.type==="food"),rows=[];signals.forEach(signal=>{const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value),counts=new Map();events.forEach(s=>{const st=new Date(`${s.date}T${s.time}`);foods.forEach(f=>{const ft=new Date(`${f.date}T${f.time}`),h=(st-ft)/36e5;if(h>=0&&h<=8)counts.set(f.value,(counts.get(f.value)||0)+1)})});[...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`))});document.querySelector("#patternList").innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
+  const signals=[{type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},{type:"symptom",value:"Durchfall",label:"Durchfall"},{type:"symptom",value:"Sodbrennen",label:"Sodbrennen"},{type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}],foods=state.entries.filter(e=>e.type==="food"),rows=[];signals.forEach(signal=>{const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value),counts=new Map();events.forEach(s=>{const st=new Date(`${s.date}T${s.time}`);foods.forEach(f=>{const ft=new Date(`${f.date}T${f.time}`),h=(st-ft)/36e5;if(h>=0&&h<=8)counts.set(f.value,(counts.get(f.value)||0)+1)})});[...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`))});document.querySelector("#patternList").innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
 }
 function freeGoalCategoryOptions(selected){
   const cats=allEntryCategories();
