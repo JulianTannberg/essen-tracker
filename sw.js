@@ -2,9 +2,9 @@ const CACHE="essen-tracker-pages-v66";
 const VERSION="66";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
-  `./manifest.webmanifest?v=${VERSION}`,
-  `./icon.svg?v=${VERSION}`,
-  `./top-branch.png?v=${VERSION}`,
+  "./manifest.webmanifest",
+  "./icon.svg",
+  "./top-branch.png",
   `./sleep-mode.js?v=${VERSION}`,
   `./v63-weight-start.js?v=${VERSION}`,
   `./herb-knowledge-v64.js?v=${VERSION}`,
