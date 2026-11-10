@@ -536,6 +536,11 @@ function menuForPlan(p){
   if(!p)return null;
   const fromId=db.menus.find(m=>m.id===p.menuId);
   if(fromId)return fromId;
+  if(Array.isArray(p.recipeIds)&&p.recipeIds.length){
+   const wanted=menuSignature(p.recipeIds);
+   const m=db.menus.find(m=>menuSignature(m.recipeIds||[])===wanted);
+   if(m)return m;
+  }
   const sig=menuSignature(p.parts||[]);
   return db.menus.find(m=>menuSignature(m.parts||[])===sig&&nkey(m.name)===nkey(p.name))
     ||db.menus.find(m=>menuSignature(m.parts||[])===sig&&sig!=="[]")
@@ -547,6 +552,10 @@ function setCookedState(key,cooked){
  if(cooked){
   p.cooked=true;
   if(m&&!p.countedMenuId){m.count=Number(m.count||0)+1;m.lastCooked=key;p.countedMenuId=m.id;}
+  if(Array.isArray(p.recipeIds)&&!p.countedRecipeIds){
+   p.countedRecipeIds=[...p.recipeIds];
+   p.countedRecipeIds.forEach(id=>{const r=db.recipes.find(r=>r.id===id);if(r){r.count=Number(r.count||0)+1;r.lastCooked=key;}});
+  }
  }else{
   p.cooked=false;
   const prior=db.menus.find(x=>x.id===p.countedMenuId);
@@ -555,6 +564,12 @@ function setCookedState(key,cooked){
    if(prior.lastCooked===key)prior.lastCooked=Object.entries(db.plans).filter(([date,plan])=>date!==key&&plan.cooked&&plan.countedMenuId===prior.id).map(([date])=>date).sort().pop()||"";
   }
   delete p.countedMenuId;
+  for(const rid of p.countedRecipeIds||[]){
+   const r=db.recipes.find(x=>x.id===rid);if(!r)continue;
+   r.count=Math.max(0,Number(r.count||0)-1);
+   if(r.lastCooked===key)r.lastCooked=Object.entries(db.plans).filter(([d,q])=>d!==key&&q.cooked&&(q.countedRecipeIds||[]).includes(rid)).map(([d])=>d).sort().pop()||"";
+  }
+  delete p.countedRecipeIds;
  }
  save();render();
 }
@@ -565,15 +580,19 @@ function renderWeek(){
  $("#weekRange").textContent=focus.toLocaleDateString("de-DE",{day:"numeric",month:"long"})+" – "+plus(focus,6).toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
  const wrap=$("#weekDays");wrap.innerHTML="";
  for(let i=0;i<7;i++){
-  const date=plus(focus,i),key=iso(date),p=db.plans[key],menu=menuForPlan(p),el=document.createElement("div");
+  const date=plus(focus,i),key=iso(date),p=db.plans[key],menu=menuForPlan(p),hasCard=!!menu||!!p?.recipeIds?.length,el=document.createElement("div");
   el.className="card dayline"+(p?.cooked?" is-cooked":"");
   const details=p?(p.parts||[]).map(x=>block(x)?.name).filter(Boolean).join(" · "):"";
   const peopleText=p?people.map(([k,v])=>v+": "+({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"])).join(" · "):"";
   el.innerHTML='<div class="daydate"><small>'+names[date.getDay()]+'</small><strong>'+date.getDate()+'</strong><small>'+(date.getMonth()+1)+'.</small></div>'+
-   '<div class="daymain"><button type="button" class="day-open" aria-label="'+esc(menu?"Rezept öffnen: "+p.name:"Tag bearbeiten")+'"><strong>'+esc(p?.name||"Noch offen")+'</strong><div class="daysub">'+esc(details||"Bausteine auswählen")+'</div>'+(p?'<div class="daysub">'+esc(peopleText)+'</div>':'')+(menu?'<span class="openhint">Rezept ansehen ›</span>':'')+'</button>'+
+   '<div class="daymain"><button type="button" class="day-open" aria-label="'+esc(hasCard?"Rezept öffnen: "+p.name:"Tag bearbeiten")+'"><strong>'+esc(p?.name||"Noch offen")+'</strong><div class="daysub">'+esc(details||"Bausteine auswählen")+'</div>'+(p?'<div class="daysub">'+esc(peopleText)+'</div>':'')+(hasCard?'<span class="openhint">Rezept ansehen ›</span>':'')+'</button>'+
    (p?'<label class="cooked-check"><input type="checkbox" '+(p.cooked?"checked":"")+' aria-label="'+esc(p.name+" gekocht")+'><span>✓ Gekocht</span></label>':'')+'</div>'+
    '<button class="btn alt tiny day-edit" type="button" aria-label="Tag bearbeiten">✎</button>';
-  el.querySelector(".day-open").onclick=()=>{if(menu){location.href="./rezeptkarte.html?menu="+encodeURIComponent(menu.id);}else editPlan(key);};
+  el.querySelector(".day-open").onclick=()=>{
+   if(p?.recipeIds?.length){location.href="./rezeptkarte.html?plan="+encodeURIComponent(key);}
+   else if(menu){location.href="./rezeptkarte.html?menu="+encodeURIComponent(menu.id);}
+   else editPlan(key);
+  };
   el.querySelector(".day-edit").onclick=()=>editPlan(key);
   const cb=el.querySelector(".cooked-check input");if(cb)cb.onchange=()=>setCookedState(key,cb.checked);
   wrap.appendChild(el);
@@ -585,11 +604,80 @@ $("#shopDay").onchange=e=>{db.shoppingDay=Number(e.target.value);focus=weekStart
 $("#weekJump").onchange=e=>{if(e.target.value){focus=weekStart(day(e.target.value));render()}};
 function partSearch(input,matches,target,renderParts){const term=input.value.trim().toLocaleLowerCase("de");if(!term){matches.hidden=true;return}const list=db.blocks.filter(b=>nkey(b.name).includes(term)&&!target.includes(b.id)).slice(0,12);matches.hidden=false;matches.innerHTML=list.map(b=>'<button type="button" data-id="'+esc(b.id)+'">'+emoji(b.name)+' '+esc(b.name)+'</button>').join("")||'<p class="empty">Nichts gefunden. Unter Bausteine neu anlegen.</p>';matches.querySelectorAll("button").forEach(b=>b.onclick=()=>{target.push(b.dataset.id);input.value="";matches.hidden=true;renderParts()});}
 function chips(target,el){el.innerHTML=target.map((x,i)=>{const b=block(x);return '<span class="chip">'+emoji(b?.name||"")+" "+label(b)+' <button type="button" data-i="'+i+'" aria-label="Entfernen">×</button></span>'}).join("")||'<span class="muted">Noch keine Bausteine ausgewählt.</span>';el.querySelectorAll("button").forEach(b=>b.onclick=()=>{target.splice(Number(b.dataset.i),1);chips(target,el)})}
-function editPlan(key){planEditing=key;const p=db.plans[key]||{name:"",parts:[],people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:""};planParts=[...(p.parts||[])];$("#planTitle").textContent=day(key).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});$("#planName").value=p.name||"";$("#planNote").value=p.note||"";$("#planMenu").innerHTML='<option value="">Eigenes Gericht zusammenstellen</option>'+db.menus.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>').join("");$("#planMenu").value=p.menuId||"";people.forEach(([id])=>$("#person"+(id==="self"?"Self":id==="husband"?"Husband":"Daughter")).value=p.people?.[id]||(id==="daughter"?"selbst":"ganz"));$("#planSearch").value="";$("#planMatches").hidden=true;chips(planParts,$("#planParts"));openDialog("#planDialog");}
-$("#planSearch").addEventListener("input",()=>partSearch($("#planSearch"),$("#planMatches"),planParts,()=>chips(planParts,$("#planParts"))));
-$("#planMenu").onchange=e=>{const m=db.menus.find(m=>m.id===e.target.value);if(!m)return;$("#planName").value=m.name;planParts=[...m.parts];chips(planParts,$("#planParts"))};
-$("#savePlan").onclick=()=>{const name=$("#planName").value.trim(),parts=[...new Set(planParts)];if(!name&&!parts.length)return toast("Bitte ein Gericht oder Bausteine wählen.");const p={name:name||parts.map(i=>block(i)?.name).filter(Boolean).join(" mit "),parts,people:{self:$("#personSelf").value,husband:$("#personHusband").value,daughter:$("#personDaughter").value},note:$("#planNote").value.trim(),menuId:"",cooked:!!db.plans[planEditing]?.cooked,countedMenuId:db.plans[planEditing]?.countedMenuId||""};const chosen=db.menus.find(m=>m.id===$("#planMenu").value);if(chosen&&chosen.name===p.name&&JSON.stringify([...chosen.parts].sort())===JSON.stringify([...parts].sort()))p.menuId=chosen.id;db.plans[planEditing]=p;parts.forEach(i=>{const b=block(i);if(b)used(b)});save();closeDialog("#planDialog");render();toast("Wochenplan gespeichert")};
-$("#deletePlan").onclick=()=>{if(db.plans[planEditing]?.cooked)setCookedState(planEditing,false);delete db.plans[planEditing];save();closeDialog("#planDialog");render()};
+
+function fillPlanRecipeChoices(){
+ const el=$("#planRecipeChoices");
+ el.innerHTML=db.recipes.map(r=>'<label class="recipe-choice"><input type="checkbox" data-recipe="'+esc(r.id)+'" '+(planRecipeIds.includes(r.id)?"checked":"")+'><span><strong>'+esc(r.shortName||r.name)+'</strong><small>'+esc(r.method||"Zubereitung")+' · '+esc(r.card?.time||"")+'</small></span></label>').join("");
+ el.querySelectorAll("[data-recipe]").forEach(x=>x.onchange=()=>{
+  if(x.checked)planRecipeIds=[...new Set([...planRecipeIds,x.dataset.recipe])];
+  else planRecipeIds=planRecipeIds.filter(r=>r!==x.dataset.recipe);
+  $("#planMenu").value="";
+  recomputePlanParts();
+  if(planRecipeIds.length&&!$("#planName").value.trim())
+   $("#planName").value=planRecipeIds.map(id=>db.recipes.find(r=>r.id===id)?.shortName).filter(Boolean).join(" mit ");
+ });
+}
+function recomputePlanParts(){
+ planParts=[...new Set([...planManualParts,...planRecipeIds.flatMap(id=>db.recipes.find(r=>r.id===id)?.parts||[])])];
+ chips(planManualParts,$("#planParts"));
+}
+function editPlan(key){
+ planEditing=key;
+ const p=db.plans[key]||{name:"",parts:[],people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:""};
+ planRecipeIds=[...(p.recipeIds||[])];
+ planManualParts=[...(p.manualParts||(!planRecipeIds.length?p.parts||[]:[]))];
+ recomputePlanParts();
+ $("#planTitle").textContent=day(key).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+ $("#planName").value=p.name||"";$("#planNote").value=p.note||"";
+ $("#planMenu").innerHTML='<option value="">Eigene Kombination zusammenstellen</option>'+db.menus.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>').join("");
+ $("#planMenu").value=p.menuId||"";
+ $("#saveCompositeMenu").checked=false;
+ people.forEach(([id])=>$("#person"+(id==="self"?"Self":id==="husband"?"Husband":"Daughter")).value=p.people?.[id]||(id==="daughter"?"selbst":"ganz"));
+ $("#planSearch").value="";$("#planMatches").hidden=true;
+ fillPlanRecipeChoices();
+ openDialog("#planDialog");
+}
+$("#planSearch").addEventListener("input",()=>partSearch($("#planSearch"),$("#planMatches"),planManualParts,()=>recomputePlanParts()));
+$("#planMenu").onchange=e=>{
+ const m=db.menus.find(m=>m.id===e.target.value);if(!m)return;
+ $("#planName").value=m.name;
+ planRecipeIds=[...(m.recipeIds||[])];
+ planManualParts=planRecipeIds.length?[]:[...(m.parts||[])];
+ recomputePlanParts();
+ fillPlanRecipeChoices();
+};
+$("#savePlan").onclick=()=>{
+ const name=$("#planName").value.trim();
+ recomputePlanParts();
+ const parts=[...planParts];
+ if(!name&&!parts.length)return toast("Bitte ein Gericht oder Rezept wählen.");
+ const old=db.plans[planEditing]||{};
+ const p={...old,name:name||planRecipeIds.map(id=>db.recipes.find(r=>r.id===id)?.shortName).filter(Boolean).join(" mit ")||parts.map(i=>block(i)?.name).filter(Boolean).join(" mit "),
+  parts,manualParts:[...planManualParts],recipeIds:[...planRecipeIds],
+  people:{self:$("#personSelf").value,husband:$("#personHusband").value,daughter:$("#personDaughter").value},
+  note:$("#planNote").value.trim(),menuId:""};
+ const selected=db.menus.find(m=>m.id===$("#planMenu").value);
+ if(selected&&selected.name===p.name)p.menuId=selected.id;
+ if(!p.menuId&&p.recipeIds.length){
+  const matched=db.menus.find(m=>nkey(m.name)===nkey(p.name)&&menuSignature(m.recipeIds||[])===menuSignature(p.recipeIds));
+  if(matched)p.menuId=matched.id;
+ }
+ if($("#saveCompositeMenu").checked&&p.recipeIds.length&&!p.menuId){
+  const m={id:id(),name:p.name,recipeIds:[...p.recipeIds],parts:[...parts],status:"confirmed",ratings:{},count:0};
+  db.menus.push(m);p.menuId=m.id;
+ }
+ // Wechsel bereits abgehakter Tage darf keine alten Kochhäufigkeiten am falschen Rezept belassen.
+ if(old.cooked&&(menuSignature(old.recipeIds||[])!==menuSignature(p.recipeIds)||old.menuId!==p.menuId)){
+  setCookedState(planEditing,false);delete p.countedMenuId;delete p.countedRecipeIds;p.cooked=false;
+ }
+ db.plans[planEditing]=p;
+ parts.forEach(i=>{const b=block(i);if(b)used(b)});
+ save();closeDialog("#planDialog");render();toast("Wochenplan gespeichert");
+};
+$("#deletePlan").onclick=()=>{
+ if(db.plans[planEditing]?.cooked)setCookedState(planEditing,false);
+ delete db.plans[planEditing];save();closeDialog("#planDialog");render();
+};
 function renderBlocks(){
 const filter=$("#blockSearch").value.trim(),cat=$("#blockCatFilter").value,sort=$("#blockSort").value;
 $("#blockCatFilter").innerHTML='<option value="">Alle Kategorien</option>'+cats.map(c=>'<option value="'+esc(c)+'"'+(cat===c?' selected':'')+'>'+esc(c)+'</option>').join("");
@@ -616,7 +704,27 @@ function renderIdeas(){
     '<div class="card"><h3>'+esc(r.name)+'</h3><p class="muted">'+esc(r.site)+(r.rating?' · '+esc(r.rating)+' / 5 ★ ('+r.reviews+' Bewertungen)':' · Bewertung nicht verifiziert')+'</p><p class="small"><strong>Bausteine:</strong> '+esc(r.parts.join(", "))+'</p><p class="muted">'+esc(r.extras)+'</p><a class="btn alt tiny" target="_blank" rel="noopener noreferrer" href="'+esc(r.url)+'" style="text-decoration:none;color:#334e3c">Originalrezept lesen</a></div>'
   ).join("");
 }
-function renderMenus(){const sort=$("#menuSort").value;const ms=[...db.menus].sort((a,b)=>sort==="count"?(b.count||0)-(a.count||0):sort==="rated"?stars(b.ratings)-stars(a.ratings):sort==="recent"?(b.lastCooked||"").localeCompare(a.lastCooked||""):a.name.localeCompare(b.name,"de"));$("#menuList").innerHTML=ms.map(m=>'<div class="card entry">'+pict({name:m.name,id:"menu:"+m.id,noPhoto:!!m.photoSig&&m.photoSig!==menuSignature(m.parts)})+'<div class="entrymain"><b>'+esc(m.name)+'</b><small>'+esc(m.parts.map(x=>block(x)?.name).filter(Boolean).join(" · "))+'</small><small>'+(m.count||0)+'× gekocht · '+(stars(m.ratings)?stars(m.ratings).toFixed(1).replace(".",",")+" ★":"Noch keine Bewertungen")+'</small></div><button class="btn alt tiny" data-menu="'+esc(m.id)+'">Rezept lesen</button></div>').join("")||'<div class="card empty">Noch keine gespeicherten Menüs. Du kannst sie direkt im Wochenplan übernehmen.</div>';$("#menuList").querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>editMenu(b.dataset.menu))}
+function renderMenus(){
+ const sort=$("#menuSort").value;
+ const cmp=(a,b)=>sort==="count"?(b.count||0)-(a.count||0):
+   sort==="rated"?stars(b.ratings)-stars(a.ratings):
+   sort==="recent"?(b.lastCooked||"").localeCompare(a.lastCooked||""):
+   a.name.localeCompare(b.name,"de");
+ const rs=[...db.recipes].sort(cmp);
+ $("#recipeList").innerHTML='<div class="card">'+rs.map(r=>'<div class="recipe-entry">'+
+  '<span class="foodicon">'+emoji(r.name)+'</span>'+
+  '<div class="entrymain"><b>'+esc(r.name)+'</b><small>'+esc(r.method||"")+' · '+esc(r.card?.time||"")+' · '+(r.count||0)+'× gekocht</small></div>'+
+  '<button class="btn alt tiny" data-recipecard="'+esc(r.id)+'">Ansehen</button></div>').join("")+'</div>';
+ $("#recipeList").querySelectorAll("[data-recipecard]").forEach(b=>b.onclick=()=>{location.href="./rezeptkarte.html?recipe="+encodeURIComponent(b.dataset.recipecard);});
+ const ms=[...db.menus].sort(cmp);
+ $("#menuList").innerHTML=ms.map(m=>'<div class="card entry">'+
+  pict({name:m.name,id:"menu:"+m.id,noPhoto:!!m.photoSig&&m.photoSig!==menuSignature(m.parts)})+
+  '<div class="entrymain"><b>'+esc(m.name)+'</b><small>'+esc((m.recipeIds||[]).length?m.recipeIds.map(id=>db.recipes.find(r=>r.id===id)?.shortName).filter(Boolean).join(" · "):m.parts.map(x=>block(x)?.name).filter(Boolean).join(" · "))+'</small>'+
+  '<small>'+(m.count||0)+'× gekocht · '+(stars(m.ratings)?stars(m.ratings).toFixed(1).replace(".",",")+" ★":"Noch keine Bewertungen")+'</small></div>'+
+  '<button class="btn alt tiny" data-menu="'+esc(m.id)+'">Ansehen</button></div>').join("")||
+  '<div class="card empty">Noch keine gespeicherten Menüs.</div>';
+ $("#menuList").querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>{location.href="./rezeptkarte.html?menu="+encodeURIComponent(b.dataset.menu);});
+}
 $("#menuSort").onchange=renderMenus;
 function editMenu(key){
   const m=db.menus.find(x=>x.id===key);
