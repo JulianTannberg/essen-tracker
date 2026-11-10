@@ -5104,7 +5104,9 @@ function rememberCategories(value,ids){
 }
 function autoCategoryIds(type,value){
   if(!(type==="food"||type==="drink"))return [];
-  const ids=[...rememberedCategoriesFor(value)];
+  // Zubereitung und Fleischart können sich von Mahlzeit zu Mahlzeit ändern.
+  // Solche Kategorien dürfen nicht stillschweigend als Eigenschaft des Namens übernommen werden.
+  const ids=[...rememberedCategoriesFor(value)].filter(id=>!["fatty","seasoned","pork"].includes(id));
   if(normalizedItem(value)==="bier"){
     if(!ids.includes("beer"))ids.push("beer");
     if(!ids.includes("alcohol"))ids.push("alcohol");
