@@ -1,11 +1,12 @@
-const CACHE="essen-tracker-pages-v75";
-const VERSION="75";
+const CACHE="essen-tracker-pages-v76";
+const VERSION="76";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
   "./icon.svg",
   "./top-branch.png",
   "./kueche.html",
+  "./assets/kitchen-food-sprite.webp",
   `./sleep-mode.js?v=${VERSION}`,
   `./v63-weight-start.js?v=${VERSION}`,
   `./herb-knowledge-v64.js?v=${VERSION}`,
