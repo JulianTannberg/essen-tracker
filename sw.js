@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v80";
-const VERSION="80";
+const CACHE="essen-tracker-pages-v81";
+const VERSION="81";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
@@ -10,6 +10,7 @@ const ASSETS=[
   "./assets/kitchen-food-sprite-2.webp",
   "./assets/kitchen-food-sprite-3.webp",
   "./assets/kitchen-food-sprite-4.webp",
+  "./assets/kitchen-food-sprite-5.webp",
   `./sleep-mode.js?v=${VERSION}`,
   `./v63-weight-start.js?v=${VERSION}`,
   `./herb-knowledge-v64.js?v=${VERSION}`,
