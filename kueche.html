@@ -793,7 +793,7 @@ function showPlanPicture(img,date,p,menu){
 }
 
 function renderWeek(){
- const prep=$("#mealPrepSteps");if(prep)prep.hidden=iso(weekStart(new Date()))!=="2026-11-10" && iso(focus)!=="2026-11-10";
+ const prep=$("#mealPrepSteps");if(prep)prep.hidden=iso(focus)!=="2026-11-10";
  focus=weekStart(focus);
  $("#shopDay").value=String(db.shoppingDay);
  $("#weekJump").value=iso(focus);
