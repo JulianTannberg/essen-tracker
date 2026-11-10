@@ -34,6 +34,11 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 .week-settings-content{padding:0 15px 16px;}
 @media(max-width:360px){.app-bottom-nav a{font-size:10px}.app-bottom-nav a span{font-size:19px}}
 
+.day-feature{display:flex;align-items:center;gap:11px;min-width:0}
+.day-feature-info{flex:1;min-width:0}
+.day-meal-photo{width:68px;height:68px;object-fit:cover;border-radius:12px;flex-shrink:0;border:1px solid var(--line)}
+.day-feature .day-open{width:100%}
+@media(max-width:480px){.day-meal-photo{width:60px;height:60px}}
 </style>
 </head>
 <body>
@@ -614,43 +619,105 @@ function setCookedState(key,cooked){
  }
  save();render();
 }
+let kitchenDiaryMeals;
+function readDiaryMeals(){
+ if(kitchenDiaryMeals)return kitchenDiaryMeals;
+ kitchenDiaryMeals=[];
+ try{
+  const diary=JSON.parse(localStorage.getItem("essenTracker.v01")||"{}");
+  const photos=diary.mealPhotos||{},groups=new Map();
+  for(const e of (Array.isArray(diary.entries)?diary.entries:[])){
+   if(e?.type!=="food"||!e.mealId||!e.date)continue;
+   const photo=photos[e.mealId];
+   if(typeof photo!=="string"||!/^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(photo))continue;
+   const id=e.date+":"+e.mealId;
+   if(!groups.has(id))groups.set(id,{date:e.date,photo,parts:[],time:e.time||""});
+   groups.get(id).parts.push(String(e.value||"").toLocaleLowerCase("de").trim());
+  }
+  kitchenDiaryMeals=[...groups.values()].sort((a,b)=>(b.date+"T"+b.time).localeCompare(a.date+"T"+a.time));
+ }catch(e){}
+ return kitchenDiaryMeals;
+}
+function findDiaryMenuPhoto(date,name){
+ const wanted=String(name||"").toLocaleLowerCase("de").replace(/\b(?:und|mit)\b/g,",")
+   .split(/[,;+]/g).map(s=>s.trim()).filter(s=>s.length>=4);
+ if(!wanted.length)return "";
+ for(const meal of readDiaryMeals()){
+  if(date&&meal.date!==date)continue;
+  if(wanted.every(w=>meal.parts.some(x=>x===w||x.includes(w)||w.includes(x))))return meal.photo;
+ }
+ return "";
+}
+function showPlanPicture(img,date,p,menu){
+ img.style.display="none";img.removeAttribute("src");
+ if(!p?.name)return;
+ const diary=findDiaryMenuPhoto(date,p.name);
+ if(diary){img.src=diary;img.style.display="block";return;}
+ if(!menu)return;
+ getImage("menu:"+menu.id).then(url=>{
+  if(img.isConnected&&url){img.src=url;img.style.display="block";}
+ });
+}
+
 function renderWeek(){
  focus=weekStart(focus);
  $("#shopDay").value=String(db.shoppingDay);
  $("#weekJump").value=iso(focus);
  $("#weekRange").textContent=focus.toLocaleDateString("de-DE",{day:"numeric",month:"long"})+" – "+plus(focus,6).toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
- const wrap=$("#weekDays");wrap.innerHTML="";
+ const wrap=$("#weekDays");wrap.textContent="";
  for(let i=0;i<7;i++){
+  const date=plus(focus,i),key=iso(date),p=db.plans[key];
   try{
-  const date=plus(focus,i),key=iso(date),p=db.plans[key],menu=menuForPlan(p),hasCard=!!menu||!!p?.recipeIds?.length,el=document.createElement("div");
-  el.className="card dayline"+(p?.cooked?" is-cooked":"");
-  const details=p?(Array.isArray(p.parts)?p.parts:[]).map(x=>block(x)?.name).filter(Boolean).join(" · "):"";
-  const peopleText=p?people.map(([k,v])=>v+": "+({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"])).join(" · "):"";
-  el.innerHTML='<div class="daydate"><small>'+names[date.getDay()]+'</small><strong>'+date.getDate()+'</strong><small>'+(date.getMonth()+1)+'.</small></div>'+
-   '<div class="daymain"><button type="button" class="day-open" aria-label="'+esc(hasCard?"Rezept öffnen: "+p.name:"Tag bearbeiten")+'"><strong>'+esc(p?.name||"Noch offen")+'</strong><div class="daysub">'+esc(details||"Bausteine auswählen")+'</div>'+(p?'<div class="daysub">'+esc(peopleText)+'</div>':'')+(hasCard?'<span class="openhint">Rezept ansehen ›</span>':'')+'</button>'+
-   (p?'<label class="cooked-check"><input type="checkbox" '+(p.cooked?"checked":"")+' aria-label="'+esc(p.name+" gekocht")+'><span>✓ Gekocht</span></label>':'')+'</div>'+
-   '<button class="btn alt tiny day-edit" type="button" aria-label="Tag bearbeiten">✎</button>';
-  el.querySelector(".day-open").onclick=()=>{
-   if(p?.recipeIds?.length){location.href="./rezeptkarte.html?plan="+encodeURIComponent(key);}
-   else if(menu){location.href="./rezeptkarte.html?menu="+encodeURIComponent(menu.id);}
-   else editPlan(key);
-  };
-  el.querySelector(".day-edit").onclick=()=>editPlan(key);
-  const cb=el.querySelector(".cooked-check input");if(cb)cb.onchange=()=>setCookedState(key,cb.checked);
-  wrap.appendChild(el);
+   const menu=menuForPlan(p),hasCard=!!menu||!!p?.recipeIds?.length;
+   const el=document.createElement("div");el.className="card dayline"+(p?.cooked?" is-cooked":"");
+   const badge=document.createElement("div");badge.className="daydate";
+   const weekday=document.createElement("small");weekday.textContent=names[date.getDay()];
+   const num=document.createElement("strong");num.textContent=String(date.getDate());
+   const month=document.createElement("small");month.textContent=(date.getMonth()+1)+".";
+   badge.append(weekday,num,month);
+   const main=document.createElement("div");main.className="daymain";
+   const feature=document.createElement("div");feature.className="day-feature";
+   const pic=document.createElement("img");pic.className="day-meal-photo";pic.alt="Foto vom Tagesgericht";pic.style.display="none";
+   if(p)showPlanPicture(pic,key,p,menu);
+   const info=document.createElement("div");info.className="day-feature-info";
+   const open=document.createElement("button");open.className="day-open";open.type="button";
+   const title=document.createElement("strong");title.textContent=p?.name||"Noch offen";open.appendChild(title);
+   const details=document.createElement("div");details.className="daysub";
+   details.textContent=p?(Array.isArray(p.parts)?p.parts:[]).map(x=>block(x)?.name).filter(Boolean).join(" · ")||"Bausteine auswählen":"Bausteine auswählen";
+   open.appendChild(details);
+   if(p){
+    const peopleInfo=document.createElement("div");peopleInfo.className="daysub";
+    peopleInfo.textContent=people.map(([k,v])=>v+": "+({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"])).join(" · ");
+    open.appendChild(peopleInfo);
+    if(hasCard){const hint=document.createElement("span");hint.className="openhint";hint.textContent="Rezept ansehen ›";open.appendChild(hint);}
+   }
+   open.onclick=()=>{
+    if(p?.recipeIds?.length)location.href="./rezeptkarte.html?plan="+encodeURIComponent(key);
+    else if(menu)location.href="./rezeptkarte.html?menu="+encodeURIComponent(menu.id);
+    else editPlan(key);
+   };
+   info.appendChild(open);feature.append(pic,info);main.appendChild(feature);
+   if(p){
+    const label=document.createElement("label");label.className="cooked-check";
+    const check=document.createElement("input");check.type="checkbox";check.checked=!!p.cooked;
+    check.setAttribute("aria-label",(p.name||"Gericht")+" gekocht");
+    check.onchange=()=>setCookedState(key,check.checked);
+    const desc=document.createElement("span");desc.textContent="✓ Gekocht";
+    label.append(check,desc);main.appendChild(label);
+   }
+   const edit=document.createElement("button");edit.className="btn alt tiny day-edit";edit.type="button";
+   edit.textContent="✎";edit.setAttribute("aria-label","Tag bearbeiten");edit.onclick=()=>editPlan(key);
+   el.append(badge,main,edit);wrap.appendChild(el);
   }catch(err){
-    if(window.__kitchenReportError)window.__kitchenReportError({message:"Tag "+(i+1)+": "+String(err?.message||err)});
-    const d=plus(focus,i),row=document.createElement("div");
-    row.className="card dayline";
-    const b=document.createElement("button");
-    b.className="day-open";
-    b.type="button";
-    b.textContent=d.toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"})+" – Planung öffnen";
-    b.onclick=()=>editPlan(iso(d));
-    row.appendChild(b);wrap.appendChild(row);
+   if(window.__kitchenReportError)window.__kitchenReportError({message:"Tag "+(i+1)+": "+String(err?.message||err)});
+   const row=document.createElement("div");row.className="card";
+   const button=document.createElement("button");button.className="btn alt";
+   button.textContent=date.toLocaleDateString("de-DE",{day:"numeric",month:"long"})+" – Planung öffnen";
+   button.onclick=()=>editPlan(key);row.appendChild(button);wrap.appendChild(row);
   }
  }
 }
+
 $("#weekPrev").onclick=()=>{focus=plus(focus,-7);render()};
 $("#weekNext").onclick=()=>{focus=plus(focus,7);render()};
 $("#shopDay").onchange=e=>{db.shoppingDay=Number(e.target.value);focus=weekStart(focus);save();render()};
