@@ -4290,7 +4290,7 @@ function beerStreakInfo(){return freeStreakInfo(selectedDate)} // Kompatibilitä
 function periodOn(ds){return state.entries.some(e=>e.date===ds&&e.type==="period")}
 // Prognose ausschließlich aus dokumentierten Periodenstarts, nicht aus alten Prognosen.
 function confirmedPeriodStarts(){
-  const dates=[...new Set(state.entries.filter(e=>e.type==="period"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(e.date)).map(e=>e.date))].sort();
+  const dates=[...new Set(state.entries.filter(e=>e.type==="period"&&/^\d{4}-\d{2}-\d{2}$/.test(e.date)).map(e=>e.date))].sort();
   const starts=[];let previous=null;
   dates.forEach(ds=>{if(!previous||daysBetween(previous,ds)>10)starts.push(ds);previous=ds});
   return starts;
