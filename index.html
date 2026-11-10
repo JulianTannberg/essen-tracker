@@ -3613,7 +3613,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="68">
+<body data-app-build="69">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3621,7 +3621,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v68</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v69</div>
   </header>
 
   <main>
@@ -3698,17 +3698,6 @@ body{padding-bottom:78px!important}
       </div>
       <div class="calendar-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
       <div id="calendar" class="calendar"></div>
-      <div id="periodForecastNotice" class="period-forecast-note" aria-live="polite"></div>
-      <div class="period-forecast-tools"><button type="button" id="jumpPeriodForecast" hidden>Zum geschätzten Termin</button></div>
-      <details class="period-manual">
-        <summary>Periodenprognose: Datum selbst festlegen</summary>
-        <label>Voraussichtlicher Beginn<input type="date" id="manualPeriodForecastDate"></label>
-        <div class="manual-actions">
-          <button id="saveManualPeriodForecast" type="button">Datum übernehmen</button>
-          <button id="clearManualPeriodForecast" type="button">Automatisch berechnen</button>
-        </div>
-        <p>Nur eine Erinnerung, kein bestätigter Periodeneintrag. Wenn neue tatsächliche Beginne eingetragen werden, passt sich die automatische Berechnung an.</p>
-      </details>
       <div class="calendar-legend">
         <span><i class="dot period"></i> Periode eingetragen</span>
         <span><i class="dot period-forecast"></i> Periode voraussichtlich</span>
@@ -3771,6 +3760,21 @@ body{padding-bottom:78px!important}
         <label>Name für Schnellbutton<input id="waterLabel" value="Wasser"></label>
         <label>Standardmenge<div class="input-unit"><input id="waterMl" type="number" min="50" step="50" value="700"><span>ml</span></div></label>
         <button id="saveSettings" class="primary-btn">Speichern</button>
+      </div>
+      <div class="settings-card">
+        <h3>Periode &amp; Prognose</h3>
+        <p>Die Vorhersage basiert auf deinen tatsächlich erfassten Periodenbeginnen. Sie ist nur eine ungefähre Orientierung.</p>
+  <div id="periodForecastNotice" class="period-forecast-note" aria-live="polite"></div>
+  <div class="period-forecast-tools"><button type="button" id="jumpPeriodForecast" hidden>Zum geschätzten Termin</button></div>
+  <details class="period-manual">
+    <summary>Periodenprognose: Datum selbst festlegen</summary>
+    <label>Voraussichtlicher Beginn<input type="date" id="manualPeriodForecastDate"></label>
+    <div class="manual-actions">
+      <button id="saveManualPeriodForecast" type="button">Datum übernehmen</button>
+      <button id="clearManualPeriodForecast" type="button">Automatisch berechnen</button>
+    </div>
+    <p>Nur eine Erinnerung, kein bestätigter Periodeneintrag. Wenn neue tatsächliche Beginne eingetragen werden, passt sich die automatische Berechnung an.</p>
+  </details>
       </div>
       <div class="settings-card">
         <h3>Freie Tage</h3>
@@ -3980,7 +3984,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=68"></script>
+<script src="./daily-thoughts-v65.js?v=69"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -5352,12 +5356,11 @@ function renderWeightChart(){
   }
   drawWeightChart(document.querySelector("#weightChart"),pts,175)
 }
-function renderMonth(){
-  buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
+function renderPeriodForecastSettings(){
   const forecast=periodForecast(),notice=document.querySelector("#periodForecastNotice");
   const jump=document.querySelector("#jumpPeriodForecast"),manualInput=document.querySelector("#manualPeriodForecastDate");
   if(manualInput&&document.activeElement!==manualInput)manualInput.value=state.settings.periodManualForecastDate||"";
-  if(jump){jump.hidden=!forecast;jump.onclick=()=>{if(forecast){shownMonth=startMonth(parseDate(forecast.date));renderMonth();}};}
+  if(jump){jump.hidden=!forecast;jump.onclick=()=>{if(forecast){shownMonth=startMonth(parseDate(forecast.date));setView("monthView");}};}
   if(notice){
     const starts=confirmedPeriodStarts();
     if(forecast){
@@ -5370,6 +5373,10 @@ function renderMonth(){
       notice.textContent="Derzeit keine verlässliche automatische Vorhersage aus den vorhandenen Einträgen. Bitte gegebenenfalls einen tatsächlichen Periodenbeginn nachtragen oder unten eine eigene Schätzung setzen.";
     }
   }
+}
+function renderMonth(){
+  buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
+  const forecast=periodForecast();
   for(let i=0;i<42;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);
     const ds=localDate(d),outside=d.getMonth()!==m;
@@ -5426,7 +5433,7 @@ function renderSettings(){
   [["setDailyQuotes","dailyQuotes"],["setMoon","moon"],["setSeasons","seasons"],["setHolidays","holidays"],["setWheel","wheel"],["setRauhnacht","rauhnacht"],["setFarmers","farmers"],["setSchoolHolidays","schoolHolidays"]]
     .forEach(([id,key])=>{const el=document.querySelector("#"+id);if(el)el.checked=c[key]!==false});
   const cq=document.querySelector("#customQuotes");if(cq)cq.value=(c.customQuotes||[]).join("\n");
-  renderTodoSettings();renderCustomEntryCategorySettings();renderFreeGoalSettings();
+  renderTodoSettings();renderCustomEntryCategorySettings();renderFreeGoalSettings();renderPeriodForecastSettings();
 }
 
 function printTrackerCategories(){
@@ -5928,7 +5935,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=68",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=69",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -5940,6 +5947,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=68"></script>
+<script src="./herb-knowledge-v64.js?v=69"></script>
 </body>
 </html>
