@@ -128,6 +128,23 @@
 .pattern-detail{border-top:1px solid var(--line);padding:8px 12px 12px}
 .pattern-detail p{margin:6px 0;color:var(--muted);font-size:11px;line-height:1.5}
 .pattern-detail ul{font-size:12px;line-height:1.7;margin:8px 0;padding-left:18px}
+/* v73: Ein-Klick-Rückblick seit dem ersten gespeicherten Eintrag. */
+.review-open-btn{width:100%;margin:13px 0 12px;min-height:46px;text-align:center}
+.review-panel{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px;margin:0 0 14px}
+.review-panel[hidden]{display:none!important}
+.review-panel h3{font-size:18px;margin:0 0 5px}
+.review-panel h4{font-size:14px;margin:15px 0 8px}
+.review-panel p{font-size:12px;line-height:1.55;color:var(--muted);margin:8px 0}
+.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.review-metric{border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:10px}
+.review-metric b{font-size:22px;color:var(--accent);display:block}
+.review-metric span{font-size:11px;color:var(--muted);line-height:1.35;display:block}
+.review-table{width:100%;border-collapse:collapse;font-size:12px}
+.review-table th,.review-table td{border-bottom:1px solid var(--line);padding:8px 4px;text-align:left;vertical-align:top}
+.review-table th:nth-child(n+2),.review-table td:nth-child(n+2){text-align:center}
+.review-table th{font-size:11px;color:var(--muted);font-weight:750}
+.review-list{margin:4px 0 0;padding-left:19px;font-size:12px;line-height:1.8}
+.review-copy{margin-top:12px;width:100%}
 .ingredient-cat-row{border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.85);margin:8px 0;overflow:hidden}
 .ingredient-cat-row summary{display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none;cursor:pointer;padding:10px 12px;color:var(--ink)}
 .ingredient-cat-row summary::-webkit-details-marker{display:none}
@@ -3638,7 +3655,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="72">
+<body data-app-build="73">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3646,7 +3663,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v72</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v73</div>
   </header>
 
   <main>
@@ -3753,6 +3770,8 @@ body{padding-bottom:78px!important}
       <div class="section-title"><h2>Muster</h2><small>Übersicht</small></div>
       <div class="planner-card" style="padding:14px;color:var(--muted);font-size:13px">Verglichen werden unterschiedliche Tage, an denen du etwas gegessen hast: mit und ohne entsprechenden Beschwerde-Eintrag innerhalb von 8 Stunden. Fehlende Einträge beweisen keine Beschwerdefreiheit und zeitliche Treffer keinen Auslöser.</div>
       <div id="patternList"></div>
+      <button type="button" id="sinceStartReviewButton" class="primary-btn review-open-btn" aria-expanded="false" aria-controls="sinceStartReview">Rückblick seit Beginn</button>
+      <section id="sinceStartReview" class="review-panel" hidden aria-live="polite"></section>
     </section>
 
     <section id="settingsView" class="view">
@@ -4007,7 +4026,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=72"></script>
+<script src="./daily-thoughts-v65.js?v=73"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -5332,7 +5351,7 @@ function setView(id){
     const chip=document.querySelector("#moonChip");if(chip)chip.style.display="none";
   }
   if(id==="monthView")renderMonth();
-  if(id==="analysisView")renderPatterns();
+  if(id==="analysisView"){renderPatterns();renderSinceStartReview();}
   if(id==="settingsView")renderSettings();
 }
 function monthEntries(){const y=shownMonth.getFullYear(),m=shownMonth.getMonth();return state.entries.filter(e=>{const d=parseDate(e.date);return d.getFullYear()===y&&d.getMonth()===m})}
@@ -5552,6 +5571,109 @@ function renderPatterns(){
   if(usually.length)html+=`<details class="patterns-fold"><summary>Häufig ohne Beschwerde-Eintrag (${usually.length})</summary><p>Auch oft ohne nachfolgend eingetragene Beschwerden gegessen. Das spricht gegen einen einfachen Zusammenhang, schließt aber Unverträglichkeiten nicht aus.</p>${usually.map(card).join("")}</details>`;
   if(single.length)html+=`<details class="patterns-fold"><summary>Einmalige Beobachtungen (${single.length})</summary><p>Ein einzelner Treffer ist kein Nachweis für einen Auslöser.</p>${single.map(card).join("")}</details>`;
   box.innerHTML=html||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
+}
+
+function sinceStartReviewData(today=localDate()){
+  const valid=/^\d{4}-\d{2}-\d{2}$/;
+  const entries=(state.entries||[]).filter(e=>typeof e.date==="string"&&valid.test(e.date)&&e.date<=today);
+  if(!entries.length)return null;
+  const start=entries.map(e=>e.date).sort()[0],span=daysBetween(start,today)+1;
+  const firstTo=addDays(start,13),lastFrom=addDays(today,-13);
+  const first=entries.filter(e=>e.date>=start&&e.date<=firstTo);
+  const last=entries.filter(e=>e.date>=lastFrom&&e.date<=today);
+  const days=es=>new Set(es.map(e=>e.date)).size;
+  const countSymptoms=es=>{
+    const out=new Map();
+    es.filter(e=>e.type==="symptom").forEach(e=>{
+      const key=normalizedItem(e.value);
+      if(key)out.set(key,(out.get(key)||0)+1);
+    });
+    return out;
+  };
+  const allSymptoms=new Map();
+  entries.filter(e=>e.type==="symptom").forEach(e=>{
+    const key=normalizedItem(e.value);if(!key)return;
+    if(!allSymptoms.has(key))allSymptoms.set(key,{key,label:String(e.value).trim(),count:0,dates:new Set()});
+    const x=allSymptoms.get(key);x.count++;x.dates.add(e.date);
+  });
+  const foodMap=new Map();
+  entries.filter(e=>e.type==="food").forEach(e=>{
+    const key=normalizedItem(e.value);if(!key)return;
+    if(!foodMap.has(key))foodMap.set(key,{label:String(e.value).trim(),dates:new Set()});
+    foodMap.get(key).dates.add(e.date);
+  });
+  const topFoods=[...foodMap.values()].map(x=>({label:x.label,days:x.dates.size}))
+    .sort((a,b)=>b.days-a.days||a.label.localeCompare(b.label,"de")).slice(0,6);
+  const hydration=new Map();
+  entries.filter(isHydrationEntry).forEach(e=>hydration.set(e.date,(hydration.get(e.date)||0)+(Number(e.amountMl)||Number(state.settings.waterMl)||0)));
+  const bowelDates=Object.entries(state.bowelDays||{}).filter(([d,v])=>v&&d>=start&&d<=today).length;
+  return {start,today,span,entries:entries.length,loggedDays:days(entries),
+    mealDays:days(entries.filter(e=>e.type==="food")),foodParts:entries.filter(e=>e.type==="food").length,
+    symptomEntries:entries.filter(e=>e.type==="symptom").length,
+    allSymptoms:[...allSymptoms.values()].map(x=>({key:x.key,label:x.label,count:x.count,days:x.dates.size}))
+      .sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,"de")),
+    firstCount:first.filter(e=>e.type==="symptom").length,lastCount:last.filter(e=>e.type==="symptom").length,
+    firstLoggedDays:days(first),lastLoggedDays:days(last),firstSymptoms:countSymptoms(first),lastSymptoms:countSymptoms(last),
+    firstTo,lastFrom,canCompare:span>=28,
+    waterLoggedDays:hydration.size,waterGoalDays:[...hydration.values()].filter(ml=>ml>=3000).length,
+    bowelDates,topFoods};
+}
+function sinceStartReviewText(d){
+  if(!d)return "Noch keine Einträge vorhanden.";
+  const lines=[
+    "ESSEN-TRACKER: RÜCKBLICK SEIT BEGINN",
+    "Zeitraum: "+d.start+" bis "+d.today+" ("+d.span+" Kalendertage)",
+    "Tage mit Einträgen: "+d.loggedDays,
+    "Erfasste Lebensmittelbestandteile: "+d.foodParts+" an "+d.mealDays+" Tagen",
+    "Beschwerde-Einträge insgesamt: "+d.symptomEntries,
+    "Beschwerden je Art:"
+  ];
+  for(const x of d.allSymptoms)lines.push("- "+x.label+": "+x.count+" Einträge an "+x.days+" Tagen"+(d.canCompare?" (erste 14 Tage: "+(d.firstSymptoms.get(x.key)||0)+", letzte 14 Tage: "+(d.lastSymptoms.get(x.key)||0)+")":""));
+  if(!d.allSymptoms.length)lines.push("- Keine Beschwerden eingetragen");
+  if(d.canCompare){
+    lines.push("Erste 14 Tage: "+d.firstCount+" Beschwerde-Einträge bei "+d.firstLoggedDays+" Tagen mit Einträgen");
+    lines.push("Letzte 14 Tage: "+d.lastCount+" Beschwerde-Einträge bei "+d.lastLoggedDays+" Tagen mit Einträgen");
+  }
+  lines.push("Tage mit Trink-Einträgen: "+d.waterLoggedDays+", davon mindestens 3 Liter dokumentiert: "+d.waterGoalDays);
+  lines.push("Stuhlgang abgehakt: "+d.bowelDates+" Tage (Funktion wurde später eingeführt)");
+  lines.push("Häufig erfasste Lebensmittel (Tage): "+(d.topFoods.map(x=>x.label+" ("+x.days+")").join(", ")||"Keine"));
+  lines.push("WICHTIG: Fehlende Beschwerden sind nicht gleich Beschwerdefreiheit. Zeitliche Treffer belegen keine Unverträglichkeit. Die Aufzeichnung ist keine medizinische Diagnose.");
+  return lines.join("\n");
+}
+function renderSinceStartReview(){
+  const panel=document.querySelector("#sinceStartReview");
+  if(!panel||panel.hidden)return;
+  const d=sinceStartReviewData();
+  if(!d){panel.innerHTML="<h3>Rückblick seit Beginn</h3><p>Noch keine Einträge vorhanden.</p>";return;}
+  const fmt=ds=>parseDate(ds).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  const metrics=[
+    [d.span,"Kalendertage seit dem ersten Eintrag"],
+    [d.loggedDays,"Tage mit Einträgen"],
+    [d.symptomEntries,"Beschwerden eingetragen"],
+    [d.waterGoalDays,"Tage mit mindestens 3 L dokumentiert"]
+  ];
+  const metricHtml=metrics.map(([value,label])=>`<div class="review-metric"><b>${value}</b><span>${escapeHtml(label)}</span></div>`).join("");
+  const symptomHtml=d.allSymptoms.length
+    ?`<table class="review-table"><thead><tr><th>Beschwerde</th><th>Gesamt</th>${d.canCompare?"<th>Früh</th><th>Zuletzt</th>":""}</tr></thead><tbody>${d.allSymptoms.map(x=>`<tr><td>${escapeHtml(x.label)}</td><td>${x.count}</td>${d.canCompare?`<td>${d.firstSymptoms.get(x.key)||0}</td><td>${d.lastSymptoms.get(x.key)||0}</td>`:""}</tr>`).join("")}</tbody></table>`
+    :'<p>Keine Beschwerden eingetragen.</p>';
+  const comparison=d.canCompare?`<p>Früh: erste 14 Tage (${fmt(d.start)}–${fmt(d.firstTo)}), zuletzt: letzte 14 Tage (${fmt(d.lastFrom)}–${fmt(d.today)}). Die Bereiche enthalten ${d.firstLoggedDays} bzw. ${d.lastLoggedDays} Tage mit Einträgen.</p>`:"<p>Für einen Vergleich zwischen Beginn und zuletzt benötigen wir mindestens 28 Kalendertage.</p>";
+  panel.innerHTML=`<h3>Mein Rückblick</h3><p>${fmt(d.start)} bis ${fmt(d.today)} · automatisch seit dem ersten Eintrag</p><div class="review-grid">${metricHtml}</div>
+    <h4>Beschwerden</h4>${symptomHtml}${comparison}
+    <h4>Häufig eingetragene Lebensmittel</h4><ul class="review-list">${d.topFoods.map(x=>`<li>${escapeHtml(x.label)} · ${x.days} ${x.days===1?"Tag":"Tage"}</li>`).join("")||"<li>Keine</li>"}</ul>
+    <p>Stuhlgang bisher an ${d.bowelDates} Tagen abgehakt. Die Funktion gab es zu Beginn noch nicht.</p>
+    <p><b>Einordnung:</b> Fehlende Beschwerde-Einträge beweisen keine Beschwerdefreiheit. Die Zahlen beschreiben deine Aufzeichnungen, nicht die Ursache deiner Beschwerden.</p>
+    <button type="button" id="copySinceStartReview" class="secondary-btn review-copy">Zusammenfassung kopieren</button>`;
+  document.querySelector("#copySinceStartReview").onclick=async()=>{
+    try{await navigator.clipboard.writeText(sinceStartReviewText(d));showToast("Rückblick kopiert – du kannst ihn im Chat einfügen")}
+    catch(e){showToast("Kopieren nicht möglich; bitte Sicherung verwenden")}
+  };
+}
+function toggleSinceStartReview(){
+  const panel=document.querySelector("#sinceStartReview"),btn=document.querySelector("#sinceStartReviewButton");
+  const open=panel.hidden;
+  panel.hidden=!open;btn.setAttribute("aria-expanded",String(open));
+  btn.textContent=open?"Rückblick ausblenden":"Rückblick seit Beginn";
+  if(open)renderSinceStartReview();
 }
 function freeGoalCategoryOptions(selected){
   const cats=allEntryCategories();
@@ -6069,6 +6191,7 @@ if(entryTimeInput)entryTimeInput.addEventListener("change",()=>{
   }
 });
 
+document.querySelector("#sinceStartReviewButton").onclick=toggleSinceStartReview;
 document.querySelector("#entryForm").addEventListener("submit",saveDialog);
 document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntryCategoriesFromValue();renderMealPhotoSuggestions();if(document.querySelector("#entryType").value==="drink")refreshHydrationOption()});
 document.querySelector("#entryValue").addEventListener("input",()=>{const t=document.querySelector("#entryType").value;if(t==="food"){renderMealPhotoSuggestions();renderIngredientCategories();}if(t==="drink")refreshHydrationOption()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
@@ -6096,7 +6219,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=72",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=73",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6108,6 +6231,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=72"></script>
+<script src="./herb-knowledge-v64.js?v=73"></script>
 </body>
 </html>
