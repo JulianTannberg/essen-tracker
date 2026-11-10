@@ -4131,6 +4131,7 @@ function mealPhoto(mealId){return mealId&&state.mealPhotos?state.mealPhotos[meal
 // Nur bei erkannten Einzelzutaten anzeigen, nicht pauschal für ganze Gerichte.
 function foodPhotoIndex(name,mealKind=""){
   const n=normalizedItem(name).replace(/\s+/g," ").trim().replace(/^tk[- ]/, "");
+  if(/^haferkochcreme\s*\/\s*hafersahne$/.test(n))return 137;
   if(/\b(?:mit|und)\b|[,;&+\/]/.test(n))return -1;
   if(/\bkroketten\b/.test(n))return 0;
   if(n==="schnitzel"||/^schnitzel\b/.test(n))return 1;
