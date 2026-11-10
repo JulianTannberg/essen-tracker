@@ -1,11 +1,14 @@
-const CACHE="essen-tracker-pages-v83";
-const VERSION="83";
+const CACHE="essen-tracker-pages-v84";
+const VERSION="84";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
   "./icon.svg",
   "./top-branch.png",
   "./kueche.html",
+  "./kitchen-block-library-v84.js?v=84",
+  "./assets/mineralwasser-neutral.webp",
+  "./assets/lidl-vegan-symbolbilder.webp",
   "./assets/kitchen-food-sprite.webp",
   "./assets/kitchen-food-sprite-2.webp",
   "./assets/kitchen-food-sprite-3.webp",
