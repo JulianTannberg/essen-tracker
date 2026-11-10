@@ -3655,7 +3655,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="74">
+<body data-app-build="75">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3663,7 +3663,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v74</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v75</div>
   </header>
 
   <main>
@@ -3876,7 +3876,7 @@ body{padding-bottom:78px!important}
     <button data-view="todayView" class="nav active"><span>⌂</span>Heute</button>
     <button data-view="monthView" class="nav"><span>▦</span>Monat</button>
     <button data-view="analysisView" class="nav"><span>⌁</span>Muster</button>
-    <button data-view="herbView" class="nav"><span>♧</span>Kräuter</button>
+    <a href="./kueche.html" class="nav" style="text-decoration:none;display:block;text-align:center"><span>🍲</span>Küche</a>
     <button data-view="settingsView" class="nav"><span>⚙</span>Einstellungen</button>
   </nav>
 
@@ -4028,7 +4028,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=74"></script>
+<script src="./daily-thoughts-v65.js?v=75"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -6161,7 +6161,7 @@ function initDayPageSwipe(){
 }
 function renderAll(){renderSummary();renderWeightToday();renderQuick();renderBowel();renderTimeline();renderKnown();renderSettings();renderHomeVisibility();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
 
-document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
+document.querySelectorAll(".nav[data-view]").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
 document.querySelector("#waterQuickButton").onclick=()=>{
   addEntry("drink","Wasser",{tags:["water"],amountMl:Number(state.settings.waterMl)||700});
   save();
@@ -6221,7 +6221,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=74",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=75",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6233,6 +6233,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=74"></script>
+<script src="./herb-knowledge-v64.js?v=75"></script>
 </body>
 </html>
