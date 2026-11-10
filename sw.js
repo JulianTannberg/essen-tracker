@@ -1,10 +1,11 @@
-const CACHE="essen-tracker-pages-v73";
-const VERSION="73";
+const CACHE="essen-tracker-pages-v74";
+const VERSION="74";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
   "./icon.svg",
   "./top-branch.png",
+  "./kueche.html",
   `./sleep-mode.js?v=${VERSION}`,
   `./v63-weight-start.js?v=${VERSION}`,
   `./herb-knowledge-v64.js?v=${VERSION}`,
@@ -67,15 +68,17 @@ self.addEventListener("fetch",event=>{
   const sameOrigin=url.origin===self.location.origin;
 
   if(event.request.mode==="navigate"){
+    const kitchen=url.pathname.endsWith("/kueche.html");
+    const pageKey=kitchen?"./kueche.html":INDEX_KEY;
     event.respondWith((async()=>{
       try{
         const raw=await fetch(event.request,{cache:"no-store"});
-        const injected=await withRuntimePatches(raw);
-        const copy=injected.clone();
-        caches.open(CACHE).then(cache=>cache.put(INDEX_KEY,copy)).catch(()=>{});
-        return injected;
+        const response=kitchen?raw:await withRuntimePatches(raw);
+        const copy=response.clone();
+        caches.open(CACHE).then(cache=>cache.put(pageKey,copy)).catch(()=>{});
+        return response;
       }catch(_){
-        return (await caches.match(INDEX_KEY))||(await caches.match("./index.html"));
+        return (await caches.match(pageKey))||(await caches.match(kitchen?"./kueche.html":"./index.html"));
       }
     })());
     return;
