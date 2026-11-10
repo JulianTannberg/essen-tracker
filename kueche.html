@@ -662,7 +662,7 @@ function findDiaryMenuPhoto(date,name){
 function showPlanPicture(img,date,p,menu){
  img.style.display="none";img.removeAttribute("src");
  if(!p?.name)return;
- const diary=findDiaryMenuPhoto(date,p.name);
+ const diary=findDiaryMenuPhoto(date,p.name)||(menu?findDiaryMenuPhoto(null,p.name):"");
  if(diary){img.src=diary;img.style.display="block";return;}
  if(!menu)return;
  getImage("menu:"+menu.id).then(url=>{
