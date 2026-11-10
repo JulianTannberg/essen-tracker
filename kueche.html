@@ -54,7 +54,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <section id="blocks" class="tab"><div class="sectionbar"><h2>Lebensmittelbausteine</h2><button class="btn" id="newBlock">+ Neu</button></div>
 <div class="card"><input type="search" id="blockSearch" placeholder="Suchen, z. B. Kartoffeln"><div class="cols"><div><label for="blockCatFilter">Kategorie</label><select id="blockCatFilter"><option value="">Alle Kategorien</option></select></div><div><label for="blockSort">Sortieren</label><select id="blockSort"><option value="pinned">Angeheftet zuerst</option><option value="recent">Zuletzt verwendet</option><option value="alpha">Alphabetisch</option></select></div></div><p class="muted">♡ Anheften: bleibt oben. Mit ↑ und ↓ lässt sich die Reihenfolge ändern.</p></div>
 <div id="blockList"></div><div class="card soft"><h3>Bausteine übernehmen & sichern</h3><p class="small">Hier kannst du unsere bestätigte Liste als JSON-Datei importieren. Bereits vorhandene Bausteine werden nicht einfach gelöscht.</p><div class="wraprow"><label class="btn alt" for="importKitchen" style="margin:0;color:#334e3c">JSON importieren</label><input id="importKitchen" type="file" accept=".json,application/json" hidden><button class="btn alt" id="exportKitchen">Sicherung exportieren</button></div><p class="photo-note">Eigene Fotos liegen lokal im Bildspeicher. Eine umfassende Fotosicherung ergänzen wir gesondert.</p></div></section>
-<section id="menus" class="tab"><div class="sectionbar"><h2>Mein Kochbuch</h2></div><p class="muted">Einzelrezepte einmal speichern und für verschiedene Menüs wiederverwenden. Ganze Gerichte bestehen aus einem oder mehreren Rezepten.</p>
+<section id="menus" class="tab"><div class="sectionbar"><h2>Mein Kochbuch</h2></div><p class="muted">Einzelrezepte einmal speichern und für verschiedene Menüs wiederverwenden. Ganze Gerichte bestehen aus einem oder mehreren Rezepten. Wenn geeignet, bevorzugen wir den Airfryer.</p>
 <div class="sectionbar"><h2>Einzelrezepte</h2></div><div id="recipeList"></div>
 <div class="sectionbar"><h2>Zusammengestellte Menüs</h2></div>
 <div class="card"><label for="menuSort">Sortieren</label><select id="menuSort"><option value="count">Am häufigsten gekocht</option><option value="rated">Beste Bewertung</option><option value="recent">Zuletzt gekocht</option><option value="name">Name</option></select></div><div id="menuList"></div><div class="sectionbar"><h2>Ideen zum Ausprobieren</h2></div><p class="muted">Rezepte von Chefkoch und Rezeptwelt. Noch nicht von euch gekocht oder bewertet. Die Originalseiten enthalten die Anleitungen.</p><div id="recipeIdeas"></div></section>
@@ -117,7 +117,7 @@ function plus(d,n){let v=new Date(d);v.setDate(v.getDate()+n);return v;}
 function weekStart(d){return plus(d,-((d.getDay()-Number(db.shoppingDay)+7)%7));}
 function read(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.blocks))return r;}catch(e){}return {blocks:[],menus:[],plans:{},shoppingDay:2,shopping:{},manual:[],recent:[]};}
 let db=read();
-db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)?db.menus:[];db.recipes=Array.isArray(db.recipes)?db.recipes:[];db.plans=db.plans||{};db.shopWeeks=db.shopWeeks||{};db.recent=db.recent||[];
+db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)?db.menus:[];db.recipes=Array.isArray(db.recipes)?db.recipes:[];db.preferredAppliance=db.preferredAppliance||"Airfryer";db.plans=db.plans||{};db.shopWeeks=db.shopWeeks||{};db.recent=db.recent||[];
 (function migrateKitchenBlocksV85(){
   // Bewahrt vorhandene IDs, Vorrat und Menüverknüpfungen beim Umbenennen.
   if(Number(db.kitchenCatalogMigration||0)>=85)return;
@@ -350,6 +350,16 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
  db.recipeLibraryVersion=89;save();
 })();
 
+
+(function preserveMealPhotoV90(){
+ if(Number(db.mealPhotoMigrationVersion||0)>=90)return;
+ const m=db.menus.find(m=>[nkey("Schnitzel, Kroketten und Gurkensalat"),nkey("Schnitzel mit Kroketten")].includes(nkey(m.name)));
+ if(m&&m.photoSig){
+  const previous=["TK-Schnitzel","Jeden Tag Backofen-Kroketten 750 g","Gurkensalat"].map(name=>db.blocks.find(b=>nkey(b.name)===nkey(name))?.id).filter(Boolean);
+  if(previous.length===3&&m.photoSig===menuSignature(previous))m.photoSig=menuSignature(m.parts||[]);
+ }
+ db.mealPhotoMigrationVersion=90;save();
+})();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
 function menuSignature(parts){return JSON.stringify([...(parts||[])].sort());}
 let view="week",focus=weekStart(new Date()),planEditing="",planParts=[],planManualParts=[],planRecipeIds=[],menuParts=[],editingBlock="",editingMenu="",ratings={},menuPhotoFile=null,blockPhotoFile=null;
