@@ -84,6 +84,9 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <div class="wraprow"><button id="saveBlock" class="btn">Speichern</button><button id="deleteBlock" class="btn warn">Baustein löschen</button><button class="btn alt" data-close="blockDialog">Abbrechen</button></div></dialog>
 <dialog id="menuDialog"><div class="dialogtop"><h2 id="menuViewTitle">Rezept</h2><button class="btn ghost" data-close="menuDialog" aria-label="Schließen">✕</button></div>
 <p class="muted">Festes Rezept · nur zur Ansicht. Rezeptänderungen bitte im Chat mitteilen.</p>
+<div id="menuPhotoPanel" style="margin:12px 0 15px"><img id="menuViewPhoto" alt="Eigenes Foto des vollständigen Menüs" style="display:none;width:100%;max-height:320px;object-fit:contain;border-radius:15px;background:#f0f2eb">
+<label for="menuViewPhotoInput">Eigenes Menüfoto hinzufügen oder ersetzen</label><input id="menuViewPhotoInput" type="file" accept="image/*">
+<p class="photo-note">Das Foto wird nur auf diesem Gerät gespeichert. Es gehört genau zu dieser Zusammenstellung der Bausteine.</p></div>
 <h3>Bestandteile</h3><div id="menuViewParts" class="chips"></div>
 <h3 style="margin-top:20px">Zubereitung</h3><div id="menuViewRecipe" style="white-space:pre-line;line-height:1.65"></div>
 <div id="menuViewSources" class="small" style="margin-top:16px"></div>
@@ -188,8 +191,8 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
   db.schnitzelGurkensalatVersion=1;
   save();
 })();
-(function publishConfirmedSchnitzelMenuV86(){
-  if(Number(db.confirmedSchnitzelMenuVersion||0)>=86)return;
+(function publishConfirmedSchnitzelMenuV87(){
+  if(Number(db.confirmedSchnitzelMenuVersion||0)>=87)return;
   const schnitzel=db.blocks.find(b=>nkey(b.name)===nkey("TK-Schnitzel"));
   const kroketten=db.blocks.find(b=>nkey(b.name)===nkey("Jeden Tag Backofen-Kroketten 750 g"));
   const gurkensalat=db.blocks.find(b=>nkey(b.name)===nkey("Gurkensalat"));
@@ -201,12 +204,12 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
     "ZUTATEN",
     "• 2 fertig panierte TK-Schnitzel (Sorte/Packungsangaben beachten)",
     "• etwa 300–400 g Jeden Tag Backofen-Kroketten (TK, aus der 750-g-Packung)",
-    "• Gurkensalat: 1 Salatgurke, 2 EL Kräuteressig, 1 EL Wasser, 1 TL Zucker, Salz, Pfeffer und etwas Dill",
+    "• Gurkensalat: 1 Salatgurke, 1 kleine Zwiebel, 2–3 EL Wein-Branntweinessig, 3 EL Wasser, 2 TL Zucker, ½ TL Salz, Pfeffer und nach Wunsch Dill",
     "",
     "GURKENSALAT – AM BESTEN ZUERST",
-    "1. Gurke waschen und in feine Scheiben hobeln.",
-    "2. Essig, Wasser, Zucker, Salz, Pfeffer und Dill verrühren und mit der Gurke mischen.",
-    "3. Mindestens 20–30 Minuten im Kühlschrank ziehen lassen. Vor dem Essen abschmecken; bei Bedarf Flüssigkeit abgießen.",
+    "1. Gurke waschen und in feine Scheiben hobeln. Zwiebel in sehr dünne Halbringe oder feine Würfel schneiden.",
+    "2. 2 EL Wein-Branntweinessig, 3 EL Wasser, 2 TL Zucker, ½ TL Salz und Pfeffer verrühren. Mit Gurken und Zwiebeln vermengen. Nach Wunsch Dill hinzufügen.",
+    "3. Mindestens 20–30 Minuten im Kühlschrank ziehen lassen. Danach abschmecken und nach Geschmack aufteilen: Für die kräftig-essigsaure Portion den dritten EL Essig ergänzen; für die süßere Portion bei Bedarf etwa 1 TL Zucker einrühren.",
     "",
     "NINJA DUAL-ZONE-AIRFRYER – RICHTWERTE FÜR TK-PRODUKTE",
     "Zone 1: Schnitzel – AIR FRY · 180 °C · zunächst 15 Minuten einstellen (allgemeiner Richtwert: 10–15 Min.).",
@@ -236,7 +239,7 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
   m.recipe=recipe;
   m.sourceLinks=sourceLinks;
   m.status="confirmed";
-  db.confirmedSchnitzelMenuVersion=86;
+  db.confirmedSchnitzelMenuVersion=87;
   save();
 })();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
@@ -476,6 +479,26 @@ function editMenu(key){
   const m=db.menus.find(x=>x.id===key);
   if(!m)return;
   $("#menuViewTitle").textContent=m.name;
+  const menuPhotoKey="menu:"+m.id;
+  const photoPreview=$("#menuViewPhoto");
+  photoPreview.style.display="none";photoPreview.removeAttribute("src");
+  $("#menuViewPhotoInput").value="";
+  getImage(menuPhotoKey).then(url=>{
+    if(url&&$("#menuDialog").open&&$("#menuViewTitle").textContent===m.name){
+      photoPreview.src=url;photoPreview.style.display="block";
+    }
+  });
+  $("#menuViewPhotoInput").onchange=async e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    try{
+      await storeImage(menuPhotoKey,file);
+      m.photoSig=menuSignature(m.parts);
+      save();
+      const url=await getImage(menuPhotoKey);
+      if(url){photoPreview.src=url;photoPreview.style.display="block";}
+      renderMenus();applyPhotos();toast("Menüfoto auf diesem Gerät gespeichert");
+    }catch(err){toast("Foto konnte nicht gespeichert werden");}
+  };
   $("#menuViewParts").innerHTML=(m.parts||[]).map(i=>block(i)?.name).filter(Boolean)
     .map(n=>'<span class="pill">'+esc(n)+'</span>').join("")||'<span class="muted">Noch keine Bausteine</span>';
   $("#menuViewRecipe").textContent=m.recipe||"Noch keine Zubereitung hinterlegt.";
