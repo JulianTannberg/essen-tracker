@@ -3655,7 +3655,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="75">
+<body data-app-build="76">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3663,7 +3663,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v75</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v76</div>
   </header>
 
   <main>
@@ -4028,7 +4028,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=75"></script>
+<script src="./daily-thoughts-v65.js?v=76"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -6221,7 +6221,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=75",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=76",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6233,6 +6233,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=75"></script>
+<script src="./herb-knowledge-v64.js?v=76"></script>
 </body>
 </html>
