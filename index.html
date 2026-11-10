@@ -3656,6 +3656,7 @@ body{padding-bottom:78px!important}
 /* v77 · Gekochte Lebensmittel aus dem gemeinsamen, kompakten Fotoatlas */
 .food-sprite{display:inline-block;flex:0 0 auto;width:36px;height:36px;border-radius:9px;border:1px solid rgba(95,112,85,.16);background-image:url("./assets/kitchen-food-sprite.webp");background-repeat:no-repeat;background-size:300% 300%;background-color:#f2eee5;vertical-align:middle}
 .food-sprite.new-food-photo{background-image:url("./assets/kitchen-food-sprite-2.webp")}
+.food-sprite.third-food-photo{background-image:url("./assets/kitchen-food-sprite-3.webp");background-size:300% 200%}
 .meal-food-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .meal-food-piece{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 9px 3px 3px;border:1px solid #e1e7da;background:#f7f9f4;border-radius:11px;font-size:11px;font-weight:650;line-height:1.35;color:#596752}
 .meal-food-piece .food-sprite{width:32px;height:32px}
@@ -3676,7 +3677,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="78">
+<body data-app-build="79">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3684,7 +3685,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v78</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v79</div>
   </header>
 
   <main>
@@ -4049,7 +4050,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=78"></script>
+<script src="./daily-thoughts-v65.js?v=79"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4150,14 +4151,20 @@ function foodPhotoIndex(name,mealKind=""){
   if(/^(?:wraps|wrap)(?:\s|$)/.test(n))return 15;
   if(/^(?:jiaozi|gyoza)(?:\s|$)/.test(n))return 16;
   if(/^(?:chicken nuggets|nuggets)(?:\s|$)/.test(n))return 17;
+  if(/^(?:frikadelle|frikadellen)(?:\s|$)/.test(n))return 19;
+  if(/^(?:blattspinat|spinat)(?:\s|$)/.test(n))return 20;
+  if(/^kaisergemüse(?:\s|$)/.test(n))return 21;
+  if(/^gurkensalat(?:\s|$)/.test(n))return 22;
+  if(/^blumenkohl(?:\s|$)/.test(n))return 23;
   return -1;
 }
 function foodPhotoTag(name,extraClass="",mealKind=""){
   const i=foodPhotoIndex(name,mealKind);
   if(i<0)return "";
-  const cell=i>=9?i-9:i;
-  const position=(cell%3)*50+"% "+Math.floor(cell/3)*50+"%";
-  return '<span class="food-sprite'+(i>=9?" new-food-photo":"")+' '+escapeHtml(extraClass)+'" style="background-position:'+position+'" role="img" aria-label="'+escapeHtml(String(name).trim())+'"></span>';
+  const third=i>=18,cell=third?i-18:(i>=9?i-9:i);
+  const position=(cell%3)*50+"% "+Math.floor(cell/3)*(third?100:50)+"%";
+  const cls=third?" third-food-photo":i>=9?" new-food-photo":"";
+  return '<span class="food-sprite'+cls+' '+escapeHtml(extraClass)+'" style="background-position:'+position+'" role="img" aria-label="'+escapeHtml(String(name).trim())+'"></span>';
 }
 
 function currentFoodTerms(raw){
@@ -6289,7 +6296,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=78",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=79",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6301,6 +6308,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=78"></script>
+<script src="./herb-knowledge-v64.js?v=79"></script>
 </body>
 </html>
