@@ -54,7 +54,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <section id="blocks" class="tab"><div class="sectionbar"><h2>Lebensmittelbausteine</h2><button class="btn" id="newBlock">+ Neu</button></div>
 <div class="card"><input type="search" id="blockSearch" placeholder="Suchen, z. B. Kartoffeln"><div class="cols"><div><label for="blockCatFilter">Kategorie</label><select id="blockCatFilter"><option value="">Alle Kategorien</option></select></div><div><label for="blockSort">Sortieren</label><select id="blockSort"><option value="pinned">Angeheftet zuerst</option><option value="recent">Zuletzt verwendet</option><option value="alpha">Alphabetisch</option></select></div></div><p class="muted">♡ Anheften: bleibt oben. Mit ↑ und ↓ lässt sich die Reihenfolge ändern.</p></div>
 <div id="blockList"></div><div class="card soft"><h3>Bausteine übernehmen & sichern</h3><p class="small">Hier kannst du unsere bestätigte Liste als JSON-Datei importieren. Bereits vorhandene Bausteine werden nicht einfach gelöscht.</p><div class="wraprow"><label class="btn alt" for="importKitchen" style="margin:0;color:#334e3c">JSON importieren</label><input id="importKitchen" type="file" accept=".json,application/json" hidden><button class="btn alt" id="exportKitchen">Sicherung exportieren</button></div><p class="photo-note">Eigene Fotos liegen lokal im Bildspeicher. Eine umfassende Fotosicherung ergänzen wir gesondert.</p></div></section>
-<section id="menus" class="tab"><div class="sectionbar"><h2>Mein Kochbuch</h2><button class="btn" id="newMenu">+ Menü</button></div>
+<section id="menus" class="tab"><div class="sectionbar"><h2>Mein Kochbuch</h2></div><p class="muted">Rezepte nur lesen. Änderungen und neue Menüs übernehmen wir gemeinsam im Chat. Wochenplanung und Einkaufen bleiben bedienbar.</p>
 <div class="card"><label for="menuSort">Sortieren</label><select id="menuSort"><option value="count">Am häufigsten gekocht</option><option value="rated">Beste Bewertung</option><option value="recent">Zuletzt gekocht</option><option value="name">Name</option></select></div><div id="menuList"></div><div class="sectionbar"><h2>Ideen zum Ausprobieren</h2></div><p class="muted">Rezepte von Chefkoch und Rezeptwelt. Noch nicht von euch gekocht oder bewertet. Die Originalseiten enthalten die Anleitungen.</p><div id="recipeIdeas"></div></section>
 <section id="shopping" class="tab"><h2>Einkaufsübersicht</h2><div class="card soft"><p class="small">Die Liste entsteht aus deinen geplanten Gerichten. Bei Grundvorräten und Resten kannst du entscheiden, ob du sie kaufen musst. Waren ohne festen Laden bleiben für den Preisvergleich offen.</p><div class="row between"><strong id="shopWeek"></strong><button id="copyShopping" class="btn">Liste kopieren</button></div></div>
 <div class="card"><h3>Artikel schnell ergänzen</h3><input id="shopSearch" type="search" placeholder="Kartoffeln, Äpfel, Milch …"><div id="shopMatches" class="searchlist" hidden></div><div class="sectionbar"><strong class="small">Angeheftet & zuletzt genutzt</strong></div><div id="shopQuick" class="wraprow"></div></div>
@@ -73,7 +73,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <label>Lebensmittelbausteine</label><input id="planSearch" type="search" placeholder="Baustein suchen und hinzufügen"><div id="planMatches" class="searchlist" hidden></div><div id="planParts" class="chips"></div>
 <label>Wer isst mit?</label><div class="select-grid"><div><label for="personSelf">Ich</label><select id="personSelf"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Koche selbst</option><option value="nicht">Nicht da</option></select></div><div><label for="personHusband">Mann</label><select id="personHusband"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Kocht selbst</option><option value="nicht">Nicht da</option></select></div><div><label for="personDaughter">Tochter</label><select id="personDaughter"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Kocht selbst</option><option value="nicht">Nicht da</option></select></div></div>
 <label for="planNote">Notiz / weitere Gerichte oder Varianten</label><textarea id="planNote" placeholder="z. B. Tochter macht eine vegane Bowl, Mann bekommt anderes Schnitzel"></textarea>
-<label class="checkrow"><input type="checkbox" id="planSaveMenu"> Zusammenstellung zusätzlich ins Kochbuch aufnehmen</label>
+
 <div class="line"></div><div class="wraprow"><button class="btn" id="savePlan">Tag speichern</button><button class="btn warn" id="deletePlan">Planung löschen</button><button class="btn alt" data-close="planDialog">Abbrechen</button></div></dialog>
 <dialog id="blockDialog"><div class="dialogtop"><h2>Baustein bearbeiten</h2><button class="btn ghost" data-close="blockDialog">✕</button></div>
 <label for="editBlockName">Lebensmittel</label><input id="editBlockName" type="text">
@@ -82,13 +82,13 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <label for="editBlockNote">Zubereitung / Hinweise</label><textarea id="editBlockNote" placeholder="z. B. Airfryer, auftauen, später aufwärmen …"></textarea>
 <label for="editBlockPhoto">Eigenes Baustein-/Produktfoto (optional)</label><input id="editBlockPhoto" type="file" accept="image/*"><p class="photo-note">Eigene Fotos haben Vorrang vor den Standardbildern. KI-Symbolbilder von Produkten können von der tatsächlichen Verpackung abweichen.</p>
 <div class="wraprow"><button id="saveBlock" class="btn">Speichern</button><button id="deleteBlock" class="btn warn">Baustein löschen</button><button class="btn alt" data-close="blockDialog">Abbrechen</button></div></dialog>
-<dialog id="menuDialog"><div class="dialogtop"><h2>Menü im Kochbuch</h2><button class="btn ghost" data-close="menuDialog">✕</button></div>
-<label for="editMenuName">Menüname</label><input id="editMenuName" type="text">
-<label>Bestandteile – nur exakt diese Kombination gehört zum Menüfoto</label><input id="menuSearch" type="search" placeholder="Lebensmittel suchen"><div id="menuMatches" class="searchlist" hidden></div><div id="menuParts" class="chips"></div>
-<label for="editMenuRecipe">Zubereitung, Mengen, Zeit und Küchengeräte</label><textarea id="editMenuRecipe" placeholder="z. B. Kartoffeln im AMC-Topf, Schnitzel im Airfryer; später ergänzen"></textarea>
-<label for="editMenuPhoto">Eigenes Foto dieses Menüs (optional)</label><input type="file" accept="image/*" id="editMenuPhoto">
-<p class="photo-note">Das Menüfoto passt nur zu der gespeicherten Zusammenstellung. Bei abweichenden Bestandteilen werden die Bausteine angezeigt.</p>
-<div id="menuRatings"></div><div class="wraprow"><button id="saveMenu" class="btn">Menü speichern</button><button id="cookedMenu" class="btn alt">Heute gekocht +1</button><button id="deleteMenu" class="btn warn">Menü löschen</button></div></dialog>
+<dialog id="menuDialog"><div class="dialogtop"><h2 id="menuViewTitle">Rezept</h2><button class="btn ghost" data-close="menuDialog" aria-label="Schließen">✕</button></div>
+<p class="muted">Festes Rezept · nur zur Ansicht. Rezeptänderungen bitte im Chat mitteilen.</p>
+<h3>Bestandteile</h3><div id="menuViewParts" class="chips"></div>
+<h3 style="margin-top:20px">Zubereitung</h3><div id="menuViewRecipe" style="white-space:pre-line;line-height:1.65"></div>
+<div id="menuViewSources" class="small" style="margin-top:16px"></div>
+<div id="menuViewRatings" class="small muted" style="margin-top:16px"></div>
+<div class="wraprow" style="margin-top:18px"><button class="btn alt" data-close="menuDialog">Schließen</button></div></dialog>
 <div class="toast" id="toast" role="status"></div>
 <script src="./kitchen-block-library-v85.js?v=85"></script>
 <script>
@@ -186,6 +186,57 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
     m.recipe="MENÜ: Fertiges TK-Schnitzel, Jeden Tag Backofen-Kroketten (750-g-Packung) und selbst gemachter Gurkensalat.\n\nGURKENSALAT (für ca. 2 Portionen): 1 Salatgurke in sehr dünne Scheiben hobeln. Aus 2 EL Kräuteressig, 1 EL Wasser, 1 TL Zucker, etwas Salz, Pfeffer und Dill ein Dressing rühren. Mit Gurke vermengen, kühl stellen und ziehen lassen. Vor dem Essen abschmecken und bei Bedarf etwas Flüssigkeit abgießen.\n\nSCHNITZEL & KROKETTEN: Fertige TK-Produkte nach Packungsangabe zubereiten. Im Ninja 902 getrennte Zonen nur bei geeigneten Packungsangaben, ggf. wenden/schütteln; Temperatur und Zeit anhand der Verpackung festlegen.\n\nMengen entsprechend den mitessenden Personen wählen.";
   }
   db.schnitzelGurkensalatVersion=1;
+  save();
+})();
+(function publishConfirmedSchnitzelMenuV86(){
+  if(Number(db.confirmedSchnitzelMenuVersion||0)>=86)return;
+  const schnitzel=db.blocks.find(b=>nkey(b.name)===nkey("TK-Schnitzel"));
+  const kroketten=db.blocks.find(b=>nkey(b.name)===nkey("Jeden Tag Backofen-Kroketten 750 g"));
+  const gurkensalat=db.blocks.find(b=>nkey(b.name)===nkey("Gurkensalat"));
+  if(!schnitzel||!kroketten||!gurkensalat)return;
+  const name="Schnitzel, Kroketten und Gurkensalat";
+  const recipe=[
+    "FESTES MENÜ – 2 Portionen als Vorschlag",
+    "",
+    "ZUTATEN",
+    "• 2 fertig panierte TK-Schnitzel (Sorte/Packungsangaben beachten)",
+    "• etwa 300–400 g Jeden Tag Backofen-Kroketten (TK, aus der 750-g-Packung)",
+    "• Gurkensalat: 1 Salatgurke, 2 EL Kräuteressig, 1 EL Wasser, 1 TL Zucker, Salz, Pfeffer und etwas Dill",
+    "",
+    "GURKENSALAT – AM BESTEN ZUERST",
+    "1. Gurke waschen und in feine Scheiben hobeln.",
+    "2. Essig, Wasser, Zucker, Salz, Pfeffer und Dill verrühren und mit der Gurke mischen.",
+    "3. Mindestens 20–30 Minuten im Kühlschrank ziehen lassen. Vor dem Essen abschmecken; bei Bedarf Flüssigkeit abgießen.",
+    "",
+    "NINJA DUAL-ZONE-AIRFRYER – RICHTWERTE FÜR TK-PRODUKTE",
+    "Zone 1: Schnitzel – AIR FRY · 180 °C · zunächst 15 Minuten einstellen (allgemeiner Richtwert: 10–15 Min.).",
+    "Zone 2: Kroketten – AIR FRY · 200 °C · zunächst 13 Minuten einstellen (allgemeiner Richtwert: 12–14 Min.).",
+    "1. Knusperplatten einsetzen, beide Produkte tiefgefroren ohne Stapeln in getrennten Zonen verteilen.",
+    "2. Beide Zonen wie oben einstellen, SYNC wählen und starten: Das Gerät stimmt das Garende ab.",
+    "3. Schnitzel etwa nach der Hälfte wenden; Kroketten nach etwa 6–7 Minuten vorsichtig schütteln.",
+    "4. Gegen Ende Bräunung prüfen. Falls nötig weitergaren. Besonders wichtig: Schnitzel müssen auch innen vollständig durchgegart sein.",
+    "5. Mit dem vorher gekühlten Gurkensalat servieren.",
+    "",
+    "WICHTIG: Die Werte sind keine herstellerspezifisch bestätigten Zeiten für diese beiden Verpackungen. Die Combi-Produktseite der Jeden Tag Kroketten nennt für den BACKOFEN 180 °C Umluft und etwa 20 Min., aber keinen Airfryer-Wert. Die genaue TK-Schnitzel-Sorte ist noch nicht bekannt. Hinweise auf den Verpackungen haben Vorrang. Zeit und Temperatur können je nach Portion, Dicke und tatsächlichem Ninja-Modell abweichen.",
+    "Der Gurkensalat ist die feste Beilage. Dieses Menü wird im Kochbuch nur angezeigt, nicht bearbeitet."
+  ].join("\n");
+  const sourceLinks=[
+    {label:"Ninja: Dual-Zone und SYNC",url:"https://support.sharkninja.de/de/article/AF400EU-Serien-Ninja-Foodi-Dual-Zone-HeiC39Fluftfritteuse-FAQ-de"},
+    {label:"TK-Schnitzel: Airfryer-Richtwert",url:"https://www.maggi.de/kochratgeber/schnitzel-im-airfryer-zubereiten"},
+    {label:"Kroketten: Airfryer-Richtwert",url:"https://www.grillfuerst.de/magazin/grillrezepte/kroketten-im-airfryer/"},
+    {label:"Jeden Tag Kroketten: Produktangaben",url:"https://www.combi.de/jeden_tag_backofen-kroketten_4503090686.html"}
+  ];
+  let m=db.menus.find(m=>[nkey("Schnitzel mit Kroketten"),nkey(name)].includes(nkey(m.name)));
+  if(!m){
+    m={id:id(),ratings:{},count:0};
+    db.menus.push(m);
+  }
+  m.name=name;
+  m.parts=[schnitzel.id,kroketten.id,gurkensalat.id];
+  m.recipe=recipe;
+  m.sourceLinks=sourceLinks;
+  m.status="confirmed";
+  db.confirmedSchnitzelMenuVersion=86;
   save();
 })();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
@@ -388,10 +439,10 @@ $("#shopDay").onchange=e=>{db.shoppingDay=Number(e.target.value);focus=weekStart
 $("#weekJump").onchange=e=>{if(e.target.value){focus=weekStart(day(e.target.value));render()}};
 function partSearch(input,matches,target,renderParts){const term=input.value.trim().toLocaleLowerCase("de");if(!term){matches.hidden=true;return}const list=db.blocks.filter(b=>nkey(b.name).includes(term)&&!target.includes(b.id)).slice(0,12);matches.hidden=false;matches.innerHTML=list.map(b=>'<button type="button" data-id="'+esc(b.id)+'">'+emoji(b.name)+' '+esc(b.name)+'</button>').join("")||'<p class="empty">Nichts gefunden. Unter Bausteine neu anlegen.</p>';matches.querySelectorAll("button").forEach(b=>b.onclick=()=>{target.push(b.dataset.id);input.value="";matches.hidden=true;renderParts()});}
 function chips(target,el){el.innerHTML=target.map((x,i)=>{const b=block(x);return '<span class="chip">'+emoji(b?.name||"")+" "+label(b)+' <button type="button" data-i="'+i+'" aria-label="Entfernen">×</button></span>'}).join("")||'<span class="muted">Noch keine Bausteine ausgewählt.</span>';el.querySelectorAll("button").forEach(b=>b.onclick=()=>{target.splice(Number(b.dataset.i),1);chips(target,el)})}
-function editPlan(key){planEditing=key;const p=db.plans[key]||{name:"",parts:[],people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:""};planParts=[...(p.parts||[])];$("#planTitle").textContent=day(key).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});$("#planName").value=p.name||"";$("#planNote").value=p.note||"";$("#planSaveMenu").checked=false;$("#planMenu").innerHTML='<option value="">Eigenes Gericht zusammenstellen</option>'+db.menus.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>').join("");$("#planMenu").value=p.menuId||"";people.forEach(([id])=>$("#person"+(id==="self"?"Self":id==="husband"?"Husband":"Daughter")).value=p.people?.[id]||(id==="daughter"?"selbst":"ganz"));$("#planSearch").value="";$("#planMatches").hidden=true;chips(planParts,$("#planParts"));openDialog("#planDialog");}
+function editPlan(key){planEditing=key;const p=db.plans[key]||{name:"",parts:[],people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:""};planParts=[...(p.parts||[])];$("#planTitle").textContent=day(key).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});$("#planName").value=p.name||"";$("#planNote").value=p.note||"";$("#planMenu").innerHTML='<option value="">Eigenes Gericht zusammenstellen</option>'+db.menus.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>').join("");$("#planMenu").value=p.menuId||"";people.forEach(([id])=>$("#person"+(id==="self"?"Self":id==="husband"?"Husband":"Daughter")).value=p.people?.[id]||(id==="daughter"?"selbst":"ganz"));$("#planSearch").value="";$("#planMatches").hidden=true;chips(planParts,$("#planParts"));openDialog("#planDialog");}
 $("#planSearch").addEventListener("input",()=>partSearch($("#planSearch"),$("#planMatches"),planParts,()=>chips(planParts,$("#planParts"))));
 $("#planMenu").onchange=e=>{const m=db.menus.find(m=>m.id===e.target.value);if(!m)return;$("#planName").value=m.name;planParts=[...m.parts];chips(planParts,$("#planParts"))};
-$("#savePlan").onclick=()=>{const name=$("#planName").value.trim(),parts=[...new Set(planParts)];if(!name&&!parts.length)return toast("Bitte ein Gericht oder Bausteine wählen.");const p={name:name||parts.map(i=>block(i)?.name).filter(Boolean).join(" mit "),parts,people:{self:$("#personSelf").value,husband:$("#personHusband").value,daughter:$("#personDaughter").value},note:$("#planNote").value.trim(),menuId:""};const chosen=db.menus.find(m=>m.id===$("#planMenu").value);if(chosen&&chosen.name===p.name&&JSON.stringify([...chosen.parts].sort())===JSON.stringify([...parts].sort()))p.menuId=chosen.id;if($("#planSaveMenu").checked&&!db.menus.some(m=>m.name===p.name&&JSON.stringify([...m.parts].sort())===JSON.stringify([...parts].sort()))){const m={id:id(),name:p.name,parts:[...parts],recipe:p.note,ratings:{},count:0,lastCooked:null};db.menus.push(m);p.menuId=m.id;}db.plans[planEditing]=p;parts.forEach(i=>{const b=block(i);if(b)used(b)});save();closeDialog("#planDialog");render();toast("Wochenplan gespeichert")};
+$("#savePlan").onclick=()=>{const name=$("#planName").value.trim(),parts=[...new Set(planParts)];if(!name&&!parts.length)return toast("Bitte ein Gericht oder Bausteine wählen.");const p={name:name||parts.map(i=>block(i)?.name).filter(Boolean).join(" mit "),parts,people:{self:$("#personSelf").value,husband:$("#personHusband").value,daughter:$("#personDaughter").value},note:$("#planNote").value.trim(),menuId:""};const chosen=db.menus.find(m=>m.id===$("#planMenu").value);if(chosen&&chosen.name===p.name&&JSON.stringify([...chosen.parts].sort())===JSON.stringify([...parts].sort()))p.menuId=chosen.id;db.plans[planEditing]=p;parts.forEach(i=>{const b=block(i);if(b)used(b)});save();closeDialog("#planDialog");render();toast("Wochenplan gespeichert")};
 $("#deletePlan").onclick=()=>{delete db.plans[planEditing];save();closeDialog("#planDialog");render()};
 function renderBlocks(){
 const filter=$("#blockSearch").value.trim(),cat=$("#blockCatFilter").value,sort=$("#blockSort").value;
@@ -413,29 +464,30 @@ const stars=arr=>{const x=Object.values(arr||{}).filter(v=>v>=1&&v<=5);return x.
 
 const recipeIdeas=[{"id":"reis-huhn","name":"Gebratener Reis mit Hühnerbrust, Ei und Gemüse","site":"Chefkoch","rating":"4,7","reviews":136,"parts":["Reis","Hähnchen","Eier","Möhren frisch","Champignons","Sojasoße","Erbsen"],"extras":"Paprika, Knoblauch und Würzung; für die Tochter vegane Variante ohne Ei und Fleisch","url":"https://www.chefkoch.de/rezepte/3716051562425483/Gebratener-Reis-mit-Huehnerbrust-Ei-und-Gemuese.html"},{"id":"vegan-curry","name":"Blitzschnelle vegane Curry-Reispfanne","site":"Chefkoch","rating":"4,8","reviews":24,"parts":["Reis","Champignons","Möhren frisch","Zwiebeln","Gemüsebrühe","Sojasoße","Erbsen"],"extras":"Currypaste, Currygewürze, ggf. Mais und Sojajoghurt","url":"https://www.chefkoch.de/rezepte/4076881637276599/Blitzschnelle-vegane-Curry-Reispfanne.html"},{"id":"huhn-pilz","name":"Hähnchen-Champignon-Pfanne","site":"Chefkoch","rating":"4,4","reviews":16,"parts":["Hähnchen","Champignons","Reis"],"extras":"Lauch und Original-Soßenzutaten; Hafersahne wäre unsere eigene Variante","url":"https://www.chefkoch.de/rezepte/1185031224502996/Haehnchen-Champignon-Pfanne.html"},{"id":"lachs-spinat","name":"Lachs, Spinat und Kartoffeln im Thermomix","site":"Rezeptwelt","rating":null,"reviews":null,"parts":["Lachs","Spinat","Kartoffeln"],"extras":"Kräuterfrischkäse, Senf, Zitrone, Stärke; ursprünglich für TM31, Gerät und Garzeiten vor Verwendung prüfen","url":"https://www.rezeptwelt.de/hauptgerichte-mit-fisch-meeresfruechten-rezepte/lachs-spinat-kartoffeln/mpwevt44-81360-160257-cfcd2-3lbwfa7w"}];
 function renderIdeas(){
-  const box=document.querySelector("#recipeIdeas");
+  const box=$("#recipeIdeas");
   if(!box)return;
-  box.innerHTML=recipeIdeas.map(r=>{
-    const saved=db.menus.some(m=>m.source===r.url);
-    return '<div class="card"><h3>'+esc(r.name)+'</h3><p class="muted">'+esc(r.site)+(r.rating?' · '+esc(r.rating)+' / 5 ★ ('+r.reviews+' Bewertungen)':' · Noch keine verifizierte Gesamtnote')+'</p><p class="small"><strong>Aus unseren Bausteinen:</strong> '+esc(r.parts.join(", "))+'</p><p class="muted"><strong>Zusätzlich/Anpassungen:</strong> '+esc(r.extras)+'</p><div class="wraprow"><a href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer" class="btn alt tiny" style="text-decoration:none;color:#334e3c">Originalrezept ↗</a><button class="btn tiny" type="button" data-idea="'+esc(r.id)+'" '+(saved?"disabled":"")+'>'+(saved?"Im Kochbuch":"Im Kochbuch vormerken")+'</button></div></div>';
-  }).join("");
-  box.querySelectorAll("[data-idea]").forEach(btn=>btn.onclick=()=>{
-    const idea=recipeIdeas.find(x=>x.id===btn.dataset.idea);if(!idea)return;
-    const parts=idea.parts.map(name=>db.blocks.find(b=>nkey(b.name)===nkey(name))?.id).filter(Boolean);
-    db.menus.push({id:id(),name:idea.name,parts,recipe:"Quelle: "+idea.url+"\nZusätzliche Zutaten/Anpassungen: "+idea.extras+"\nZubereitung bitte am Originalrezept nachlesen und anschließend eigene Erfahrungen festhalten.",source:idea.url,sourceRating:idea.rating,sourceReviews:idea.reviews,ratings:{},count:0,status:"idea"});
-    save();render();toast("Als Menüidee vorgemerkt");
-  });
+  box.innerHTML=recipeIdeas.map(r=>
+    '<div class="card"><h3>'+esc(r.name)+'</h3><p class="muted">'+esc(r.site)+(r.rating?' · '+esc(r.rating)+' / 5 ★ ('+r.reviews+' Bewertungen)':' · Bewertung nicht verifiziert')+'</p><p class="small"><strong>Bausteine:</strong> '+esc(r.parts.join(", "))+'</p><p class="muted">'+esc(r.extras)+'</p><a class="btn alt tiny" target="_blank" rel="noopener noreferrer" href="'+esc(r.url)+'" style="text-decoration:none;color:#334e3c">Originalrezept lesen</a></div>'
+  ).join("");
 }
-function renderMenus(){const sort=$("#menuSort").value;const ms=[...db.menus].sort((a,b)=>sort==="count"?(b.count||0)-(a.count||0):sort==="rated"?stars(b.ratings)-stars(a.ratings):sort==="recent"?(b.lastCooked||"").localeCompare(a.lastCooked||""):a.name.localeCompare(b.name,"de"));$("#menuList").innerHTML=ms.map(m=>'<div class="card entry">'+pict({name:m.name,id:"menu:"+m.id,noPhoto:!!m.photoSig&&m.photoSig!==menuSignature(m.parts)})+'<div class="entrymain"><b>'+esc(m.name)+'</b><small>'+esc(m.parts.map(x=>block(x)?.name).filter(Boolean).join(" · "))+'</small><small>'+(m.count||0)+'× gekocht · '+(stars(m.ratings)?stars(m.ratings).toFixed(1).replace(".",",")+" ★":"Noch keine Bewertungen")+'</small></div><button class="btn alt tiny" data-menu="'+esc(m.id)+'">Öffnen</button></div>').join("")||'<div class="card empty">Noch keine gespeicherten Menüs. Du kannst sie direkt im Wochenplan übernehmen.</div>';$("#menuList").querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>editMenu(b.dataset.menu))}
+function renderMenus(){const sort=$("#menuSort").value;const ms=[...db.menus].sort((a,b)=>sort==="count"?(b.count||0)-(a.count||0):sort==="rated"?stars(b.ratings)-stars(a.ratings):sort==="recent"?(b.lastCooked||"").localeCompare(a.lastCooked||""):a.name.localeCompare(b.name,"de"));$("#menuList").innerHTML=ms.map(m=>'<div class="card entry">'+pict({name:m.name,id:"menu:"+m.id,noPhoto:!!m.photoSig&&m.photoSig!==menuSignature(m.parts)})+'<div class="entrymain"><b>'+esc(m.name)+'</b><small>'+esc(m.parts.map(x=>block(x)?.name).filter(Boolean).join(" · "))+'</small><small>'+(m.count||0)+'× gekocht · '+(stars(m.ratings)?stars(m.ratings).toFixed(1).replace(".",",")+" ★":"Noch keine Bewertungen")+'</small></div><button class="btn alt tiny" data-menu="'+esc(m.id)+'">Rezept lesen</button></div>').join("")||'<div class="card empty">Noch keine gespeicherten Menüs. Du kannst sie direkt im Wochenplan übernehmen.</div>';$("#menuList").querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>editMenu(b.dataset.menu))}
 $("#menuSort").onchange=renderMenus;
-function renderRatings(){let s='<h3>Familienbewertung (optional)</h3>';people.forEach(([id,name])=>{s+='<div class="row between"><strong>'+name+'</strong><div>';for(let k=1;k<=5;k++)s+='<button class="star'+((ratings[id]||0)>=k?" on":"")+'" type="button" data-rate="'+id+'" data-n="'+k+'">★</button>';s+='</div></div>'});$("#menuRatings").innerHTML=s;$("#menuRatings").querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{ratings[b.dataset.rate]=Number(b.dataset.n);renderRatings()})}
-function editMenu(key){editingMenu=key||"";const m=db.menus.find(m=>m.id===key)||{name:"",parts:[],recipe:"",ratings:{},count:0};menuParts=[...m.parts];ratings={...m.ratings};menuPhotoFile=null;$("#editMenuPhoto").value="";$("#editMenuName").value=m.name;$("#editMenuRecipe").value=m.recipe||"";$("#menuSearch").value="";$("#menuMatches").hidden=true;$("#cookedMenu").hidden=!key;$("#deleteMenu").hidden=!key;chips(menuParts,$("#menuParts"));renderRatings();openDialog("#menuDialog")}
-$("#newMenu").onclick=()=>editMenu("");
-$("#menuSearch").oninput=()=>partSearch($("#menuSearch"),$("#menuMatches"),menuParts,()=>chips(menuParts,$("#menuParts")));
-$("#editMenuPhoto").onchange=e=>menuPhotoFile=e.target.files?.[0]||null;
-$("#saveMenu").onclick=async()=>{const name=$("#editMenuName").value.trim();if(!name)return toast("Bitte Menüname eingeben.");const m=db.menus.find(m=>m.id===editingMenu)||{id:id(),count:0};const prevParts=menuSignature(m.parts);Object.assign(m,{name,parts:[...new Set(menuParts)],recipe:$("#editMenuRecipe").value.trim(),ratings:{...ratings}});if(!editingMenu)db.menus.push(m);save();if(menuPhotoFile)try{await storeImage("menu:"+m.id,menuPhotoFile);m.photoSig=menuSignature(m.parts);save()}catch(e){toast("Menüfoto konnte nicht gespeichert werden.")}else if(editingMenu&&prevParts!==menuSignature(m.parts)){m.photoMismatch=true;}closeDialog("#menuDialog");render();toast("Menü gespeichert")};
-$("#cookedMenu").onclick=()=>{const m=db.menus.find(m=>m.id===editingMenu);if(!m)return;m.count=(m.count||0)+1;m.lastCooked=iso(new Date());save();render();toast("Als gekocht gezählt")};
-$("#deleteMenu").onclick=()=>{const m=db.menus.find(m=>m.id===editingMenu);if(!m||!confirm("Menü aus Kochbuch löschen?"))return;db.menus=db.menus.filter(x=>x.id!==m.id);save();closeDialog("#menuDialog");render()};
+function editMenu(key){
+  const m=db.menus.find(x=>x.id===key);
+  if(!m)return;
+  $("#menuViewTitle").textContent=m.name;
+  $("#menuViewParts").innerHTML=(m.parts||[]).map(i=>block(i)?.name).filter(Boolean)
+    .map(n=>'<span class="pill">'+esc(n)+'</span>').join("")||'<span class="muted">Noch keine Bausteine</span>';
+  $("#menuViewRecipe").textContent=m.recipe||"Noch keine Zubereitung hinterlegt.";
+  const sources=Array.isArray(m.sourceLinks)?m.sourceLinks:[];
+  $("#menuViewSources").innerHTML=sources.length
+    ?'<strong>Quellen:</strong> '+sources.filter(x=>x&&typeof x.url==="string"&&/^https:\/\//.test(x.url))
+      .map(x=>'<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.label||"Quelle")+'</a>').join(" · ")
+    :"";
+  $("#menuViewRatings").textContent=(m.count||0)+"× gekocht · "+
+    people.map(([key,name])=>name+": "+(m.ratings&&m.ratings[key]?m.ratings[key]+" / 5 ★":"noch keine Bewertung")).join(" · ");
+  openDialog("#menuDialog");
+}
 function plannedSet(){const ids=new Set();for(let i=0;i<7;i++){const p=db.plans[iso(plus(focus,i))];(p?.parts||[]).forEach(x=>ids.add(x))}return ids}
 function shopItems(){const planned=plannedSet(),cart=weekCart();return db.blocks.filter(b=>planned.has(b.id)||cart.manual.includes(b.id)).map(b=>{const s=cart.status[b.id]||{};const auto=cart.manual.includes(b.id)||b.stock==="leer"||(!["voll","halb","wenig"].includes(b.stock)&&b.pantry!=="standard");return {...b,toBuy:s.toBuy===undefined?auto:s.toBuy,checked:!!s.checked,actualStore:s.store||b.store}})}
 function renderShopping(){
