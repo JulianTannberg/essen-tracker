@@ -85,7 +85,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <div id="offerNotesList"></div>
 </div></details><div class="card soft"><p class="small">Die Liste entsteht aus deinen geplanten Gerichten. Bei Grundvorräten und Resten kannst du entscheiden, ob du sie kaufen musst. Waren ohne festen Laden bleiben für den Preisvergleich offen.</p><div class="row between"><strong id="shopWeek"></strong><button id="copyShopping" class="btn">Liste kopieren</button></div></div>
 <div class="card"><h3>Artikel schnell ergänzen</h3><input id="shopSearch" type="search" placeholder="Kartoffeln, Äpfel, Milch …"><div id="shopMatches" class="searchlist" hidden></div><div class="sectionbar"><strong class="small">Angeheftet & zuletzt genutzt</strong></div><div id="shopQuick" class="wraprow"></div></div>
-<div id="shoppingLists"></div></section>
+<div id="shoppingLists"></div><div id="selectedOfferLists"></div></section>
 </main>
 <nav class="app-bottom-nav" aria-label="Hauptnavigation Essen-Tracker">
   <a href="./index.html#todayView"><span>⌂</span>Heute</a>
@@ -111,7 +111,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <dialog id="blockDialog"><div class="dialogtop"><h2>Baustein bearbeiten</h2><button class="btn ghost" data-close="blockDialog">✕</button></div>
 <label for="editBlockName">Lebensmittel</label><input id="editBlockName" type="text">
 <div class="cols"><div><label for="editBlockCat">Kategorie</label><select id="editBlockCat"></select></div><div><label for="editBlockStore">Üblicher Laden</label><select id="editBlockStore"><option value="Offen">Noch offen</option><option value="Lidl">Lidl</option><option value="Combi">Combi</option><option value="Beide">Beide / Preisvergleich</option></select></div></div>
-<div class="cols"><div><label for="editBlockStock">Vermutlicher Vorrat</label><select id="editBlockStock"><option value="unbekannt">Nicht erfasst</option><option value="voll">Ganze Packung / genug</option><option value="halb">Etwa eine halbe Packung</option><option value="wenig">Kleiner Rest</option><option value="leer">Leer</option></select></div><div><label for="editBlockPantry">Einkauf</label><select id="editBlockPantry"><option value="normal">Bei Bedarf</option><option value="standard">Regelmäßig prüfen</option></select></div></div>
+<div class="cols"><div><label for="editBlockStock">Vermutlicher Vorrat</label><select id="editBlockStock"><option value="unbekannt">Nicht erfasst</option><option value="vorhanden">Vorhanden, Menge offen</option><option value="voll">Ganze Packung / genug</option><option value="halb">Etwa eine halbe Packung</option><option value="wenig">Kleiner Rest</option><option value="leer">Leer</option></select></div><div><label for="editBlockPantry">Einkauf</label><select id="editBlockPantry"><option value="normal">Bei Bedarf</option><option value="standard">Regelmäßig prüfen</option></select></div></div>
 <label for="editBlockNote">Zubereitung / Hinweise</label><textarea id="editBlockNote" placeholder="z. B. Airfryer, auftauen, später aufwärmen …"></textarea>
 <label for="editBlockPhoto">Eigenes Baustein-/Produktfoto (optional)</label><input id="editBlockPhoto" type="file" accept="image/*"><p class="photo-note">Eigene Fotos haben Vorrang vor den Standardbildern. KI-Symbolbilder von Produkten können von der tatsächlichen Verpackung abweichen.</p>
 <div class="wraprow"><button id="saveBlock" class="btn">Speichern</button><button id="deleteBlock" class="btn warn">Baustein löschen</button><button class="btn alt" data-close="blockDialog">Abbrechen</button></div></dialog>
@@ -206,7 +206,7 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
     if(!cats.includes(row.category))continue;
     const store=["Lidl","Combi","Beide","Offen"].includes(row.store)?row.store:"Offen";
     db.blocks.push({id:id(),name:row.name,category:row.category,store,
-      stock:"unbekannt",pantry:row.pantry==="standard"?"standard":"normal",
+      stock:row.name==="Rosenkohl TK"?"vorhanden":"unbekannt",pantry:row.pantry==="standard"?"standard":"normal",
       note:row.note||"",pinned:false,lastUsed:0,origin:"catalog"});
     seen.add(nkey(row.name));
   }
@@ -412,6 +412,13 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
   if(previous.length===3&&m.photoSig===menuSignature(previous))m.photoSig=menuSignature(m.parts||[]);
  }
  db.mealPhotoMigrationVersion=90;save();
+})();
+(function preserveFrozenBrusselsSproutsV96(){
+ if(db.rosenkohlStockNotedV96)return;
+ const r=db.blocks.find(b=>nkey(b?.name)===nkey("Rosenkohl TK"));
+ if(r&&r.origin==="catalog"&&r.stock==="unbekannt")r.stock="vorhanden";
+ db.rosenkohlStockNotedV96=true;
+ save();
 })();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
 function menuSignature(parts){return JSON.stringify([...(Array.isArray(parts)?parts:[])].sort());}
@@ -1020,7 +1027,40 @@ function renderOfferNotes(){
 }
 
 function plannedSet(){const ids=new Set();for(let i=0;i<7;i++){const p=db.plans[iso(plus(focus,i))];(p?.parts||[]).forEach(x=>ids.add(x))}return ids}
-function shopItems(){const planned=plannedSet(),cart=weekCart();return db.blocks.filter(b=>planned.has(b.id)||cart.manual.includes(b.id)).map(b=>{const s=cart.status[b.id]||{};const auto=cart.manual.includes(b.id)||b.stock==="leer"||(!["voll","halb","wenig"].includes(b.stock)&&b.pantry!=="standard");return {...b,toBuy:s.toBuy===undefined?auto:s.toBuy,checked:!!s.checked,actualStore:s.store||b.store}})}
+function shopItems(){
+ const planned=plannedSet(),cart=weekCart();
+ const replaced=new Set((offersRelevantToWeek()?selectedOffers():[]).flatMap(o=>o.replaces||[]).map(nkey));
+ return db.blocks.filter(b=>(planned.has(b.id)||cart.manual.includes(b.id))&&!replaced.has(nkey(b.name)))
+ .map(b=>{
+  const state=cart.status[b.id]||{};
+  const auto=cart.manual.includes(b.id)||b.stock==="leer"||
+   (!["voll","halb","wenig","vorhanden"].includes(b.stock)&&b.pantry!=="standard");
+  return {...b,toBuy:state.toBuy===undefined?auto:state.toBuy,checked:!!state.checked,actualStore:state.store||b.store};
+ });
+}
+function offersRelevantToWeek(){
+ return iso(focus)<="2026-11-16"&&iso(plus(focus,6))>="2026-11-10";
+}
+function renderSelectedOffers(){
+ const host=$("#selectedOfferLists");if(!host)return;
+ if(!offersRelevantToWeek()){host.innerHTML="";return;}
+ const choices=db.offerSelections?.[NOVEMBER_WEEK_ID]||{},picks=selectedOffers();
+ if(!picks.length){host.innerHTML="";return;}
+ const groups=["Combi","Getränke & Vorrat","Hunde"];
+ host.innerHTML='<h3 style="margin-top:18px">Vorgemerkte Angebotsartikel</h3>'+
+ groups.map(group=>{
+  const arr=picks.filter(o=>o.group===group);if(!arr.length)return "";
+  return '<div class="card"><h3>'+esc(group)+'</h3>'+
+   arr.map(o=>'<div class="entry"><div class="entrymain"><b>'+esc(o.name)+'</b>'+
+    '<small>'+esc(o.price)+' · '+esc(o.store)+' · '+(choices[o.id]?.done?'Bereits gekauft':'Noch einkaufen')+'</small></div>'+
+    '<label class="checkrow"><input type="checkbox" data-offer-shop-done="'+esc(o.id)+'" '+(choices[o.id]?.done?'checked':'')+'> Erledigt</label></div>').join("")+
+   '</div>';
+ }).join("");
+ host.querySelectorAll("[data-offer-shop-done]").forEach(el=>el.onchange=()=>{
+  const m=offerChoiceMap(),k=el.dataset.offerShopDone;
+  m[k]={selected:true,done:el.checked};save();render();
+ });
+}
 function renderShopping(){
 $("#shopWeek").textContent=focus.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})+" – "+plus(focus,6).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
 const quick=sortBlocks(db.blocks.filter(b=>b.pinned||db.recent.slice(0,10).includes(b.id)),"pinned").slice(0,16);$("#shopQuick").innerHTML=quick.map(b=>'<button class="btn alt tiny" data-quick="'+esc(b.id)+'">+ '+esc(b.name)+'</button>').join("")||'<span class="muted">Bausteine anheften oder suchen.</span>';$("#shopQuick").querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>addShopping(b.dataset.quick));
@@ -1029,10 +1069,26 @@ $("#shoppingLists").innerHTML=stores.map(s=>{const items=list.filter(b=>store({s
 $("#shoppingLists").querySelectorAll("[data-buy]").forEach(x=>x.onchange=()=>{const k=x.dataset.buy;weekCart().status[k]={...(weekCart().status[k]||{}),toBuy:x.checked,checked:false};save();renderShopping();applyPhotos()});
 $("#shoppingLists").querySelectorAll("[data-done]").forEach(x=>x.onchange=()=>{const k=x.dataset.done;weekCart().status[k]={...(weekCart().status[k]||{}),checked:x.checked,toBuy:true};const b=block(k);if(b&&x.checked)used(b);save();renderShopping();applyPhotos()});
 $("#shoppingLists").querySelectorAll("[data-store]").forEach(x=>x.onchange=()=>{const k=x.dataset.store;weekCart().status[k]={...(weekCart().status[k]||{}),store:x.value};save();renderShopping();applyPhotos()});
+renderSelectedOffers();
 }
 function addShopping(key){if(!weekCart().manual.includes(key))weekCart().manual.push(key);weekCart().status[key]={...(weekCart().status[key]||{}),toBuy:true,checked:false};const b=block(key);if(b)used(b);save();$("#shopSearch").value="";$("#shopMatches").hidden=true;renderShopping();applyPhotos();}
 $("#shopSearch").oninput=e=>{const v=nkey(e.target.value),matches=$("#shopMatches");if(!v){matches.hidden=true;return}const a=db.blocks.filter(b=>nkey(b.name).includes(v)).slice(0,15);matches.hidden=false;matches.innerHTML=a.map(b=>'<button type="button" data-choice="'+esc(b.id)+'">'+emoji(b.name)+" "+esc(b.name)+'</button>').join("")||'<p class="muted">Noch nicht angelegt – unter Bausteine hinzufügen.</p>';matches.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>addShopping(b.dataset.choice))};
-function shoppingText(){const groups=["Lidl","Combi","Preisvergleich / offen"];const a=shopItems().filter(x=>x.toBuy&&!x.checked);return "Einkauf "+iso(focus)+" bis "+iso(plus(focus,6))+"\n\n"+groups.map(s=>s+"\n"+a.filter(x=>store({store:x.actualStore})===s).map(x=>"- "+x.name).join("\n")).join("\n\n")}
+function shoppingText(){
+ const groups=["Lidl","Combi","Preisvergleich / offen"];
+ const a=shopItems().filter(x=>x.toBuy&&!x.checked);
+ let result="Einkauf "+iso(focus)+" bis "+iso(plus(focus,6))+"\n\n"+
+  groups.map(group=>group+"\n"+a.filter(x=>store({store:x.actualStore})===group).map(x=>"- "+x.name).join("\n")).join("\n\n");
+ if(offersRelevantToWeek()){
+  const current=db.offerSelections?.[NOVEMBER_WEEK_ID]||{};
+  const toBuy=selectedOffers().filter(o=>!current[o.id]?.done);
+  if(toBuy.length)result+="\n\nProspektnotizen (Preise vor Ort prüfen):\n"+
+   ["Combi","Getränke & Vorrat","Hunde"].map(g=>{
+    const lines=toBuy.filter(o=>o.group===g).map(o=>"- "+o.name+" – "+o.price+" (Combi)");
+    return lines.length?g+"\n"+lines.join("\n"):"";
+   }).filter(Boolean).join("\n\n");
+ }
+ return result;
+}
 $("#copyShopping").onclick=async()=>{try{await navigator.clipboard.writeText(shoppingText());toast("Einkaufsliste kopiert")}catch(e){const el=document.createElement("textarea");el.value=shoppingText();document.body.append(el);el.select();document.execCommand("copy");el.remove();toast("Liste kopiert")}};
 $("#importKitchen").onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=JSON.parse(await f.text());const arr=Array.isArray(data)?data:Array.isArray(data.blocks)?data.blocks:[];if(!arr.length)throw Error("Keine Bausteine");let n=0;for(const v of arr){if(!v.name)continue;let b=db.blocks.find(x=>nkey(x.name)===nkey(v.name));if(!b){b={id:id(),name:String(v.name),category:cats.includes(v.category)?v.category:"Sonstiges",store:["Combi","Lidl","Beide","Offen"].includes(v.store)?v.store:"Offen",stock:"unbekannt",pantry:v.pantry==="standard"?"standard":"normal",pinned:false,lastUsed:0};db.blocks.push(b);n++}}save();render();toast(n+" Bausteine importiert; bestehende bleiben erhalten.")}catch(err){alert("Die Datei enthält keine gültige Bausteinliste.")}e.target.value=""};
 $("#exportKitchen").onclick=()=>{const data=JSON.stringify(db,null,2),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));a.download="kuechenplaner-"+iso(new Date())+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)};
