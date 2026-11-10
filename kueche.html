@@ -155,19 +155,37 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
 })();
 
 (function seedFirstSchnitzelMenuDraft(){
-  // Einmaliger, bewusst unvollständiger Rezeptentwurf: Gemüse wird später gewählt.
+  // Einmaliger Menüentwurf: Gurkensalat ist die ausgewählte Beilage.
   if(Number(db.firstSchnitzelMenuVersion||0)>=85)return;
   const schnitzel=db.blocks.find(b=>nkey(b.name)===nkey("TK-Schnitzel"));
   const kroketten=db.blocks.find(b=>nkey(b.name)===nkey("Jeden Tag Backofen-Kroketten 750 g"));
+  const gurkensalat=db.blocks.find(b=>nkey(b.name)===nkey("Gurkensalat"));
   const exists=db.menus.some(m=>nkey(m.name)===nkey("Schnitzel mit Kroketten"));
-  if(schnitzel&&kroketten&&!exists){
+  if(schnitzel&&kroketten&&gurkensalat&&!exists){
     db.menus.push({
-      id:id(),name:"Schnitzel mit Kroketten",parts:[schnitzel.id,kroketten.id],
-      recipe:"ENTWURF – Gemüse noch offen.\n\nZutaten: Fertig gekauftes TK-Schnitzel; Jeden Tag Backofen-Kroketten (TK, 750-g-Packung). Mengen nach den mitessenden Personen festlegen.\n\nZubereitung: Beide Produkte nach ihren jeweiligen Packungsangaben zubereiten. Für den Ninja 902 nach Eignung und verfügbaren Airfryer-Angaben prüfen: Schnitzel und Kroketten in getrennte Zonen geben, nicht überfüllen, bei Bedarf wenden bzw. schütteln. Die SYNC-Funktion kann die Endzeiten abstimmen. Konkrete Temperatur und Minuten erst nach Prüfung der Verpackungen festlegen.\n\nGemüsebeilage später auswählen und als weiteren Baustein ergänzen. Dann ist die endgültige Menükombination festgelegt.",
+      id:id(),name:"Schnitzel mit Kroketten",parts:[schnitzel.id,kroketten.id,gurkensalat.id],
+      recipe:"MENÜ: Fertiges TK-Schnitzel, Jeden Tag Backofen-Kroketten (750-g-Packung) und selbst gemachter Gurkensalat.\n\nGURKENSALAT (für ca. 2 Portionen): 1 Salatgurke in sehr dünne Scheiben hobeln. Aus 2 EL Kräuteressig, 1 EL Wasser, 1 TL Zucker, etwas Salz, Pfeffer und Dill ein Dressing rühren. Mit Gurke vermengen, kühl stellen und ziehen lassen. Vor dem Essen abschmecken und bei Bedarf etwas Flüssigkeit abgießen.\n\nSCHNITZEL & KROKETTEN: Als fertige TK-Produkte nach Packungsangabe zubereiten. Für den Ninja 902 nur nach Eignung für Airfryer: getrennte Zonen, nicht überfüllen, ggf. wenden/schütteln und mit SYNC fertigstellen. Temperaturen und Garzeiten erst anhand der jeweiligen Verpackungen festlegen.\n\nMengen für Schnitzel/Kroketten entsprechend den mitessenden Personen wählen. Noch keine Bewertung oder Kochhäufigkeit eingetragen.",
       ratings:{},count:0,status:"draft"
     });
   }
   db.firstSchnitzelMenuVersion=85;
+  save();
+})();
+(function setSchnitzelGurkensalatOnce(){
+  // Vorhandenen ursprünglichen Entwurf ergänzen, ohne später eigene Änderungen zu überschreiben.
+  if(Number(db.schnitzelGurkensalatVersion||0)>=1)return;
+  const m=db.menus.find(x=>nkey(x.name)===nkey("Schnitzel mit Kroketten"));
+  const salad=db.blocks.find(b=>nkey(b.name)===nkey("Gurkensalat"));
+  const schnitzel=db.blocks.find(b=>nkey(b.name)===nkey("TK-Schnitzel"));
+  const kroketten=db.blocks.find(b=>nkey(b.name)===nkey("Jeden Tag Backofen-Kroketten 750 g"));
+  if(m&&salad&&schnitzel&&kroketten&&m.status==="draft" &&
+      Array.isArray(m.parts)&&m.parts.length===2 &&
+      m.parts.includes(schnitzel.id)&&m.parts.includes(kroketten.id) &&
+      String(m.recipe||"").includes("Gemüse noch offen.")){
+    m.parts.push(salad.id);
+    m.recipe="MENÜ: Fertiges TK-Schnitzel, Jeden Tag Backofen-Kroketten (750-g-Packung) und selbst gemachter Gurkensalat.\n\nGURKENSALAT (für ca. 2 Portionen): 1 Salatgurke in sehr dünne Scheiben hobeln. Aus 2 EL Kräuteressig, 1 EL Wasser, 1 TL Zucker, etwas Salz, Pfeffer und Dill ein Dressing rühren. Mit Gurke vermengen, kühl stellen und ziehen lassen. Vor dem Essen abschmecken und bei Bedarf etwas Flüssigkeit abgießen.\n\nSCHNITZEL & KROKETTEN: Fertige TK-Produkte nach Packungsangabe zubereiten. Im Ninja 902 getrennte Zonen nur bei geeigneten Packungsangaben, ggf. wenden/schütteln; Temperatur und Zeit anhand der Verpackung festlegen.\n\nMengen entsprechend den mitessenden Personen wählen.";
+  }
+  db.schnitzelGurkensalatVersion=1;
   save();
 })();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
