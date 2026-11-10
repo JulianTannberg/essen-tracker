@@ -3603,10 +3603,17 @@ body{padding-bottom:78px!important}
 .bowel-indicator.missing{color:var(--muted);opacity:.8}
 .dot.period-forecast{background:transparent;border:1.5px dashed var(--period);width:9px;height:9px;opacity:.65}
 .period-forecast-note{font-size:12px;color:var(--muted);padding:9px 12px;background:var(--paper);border:1px dashed var(--line);border-radius:12px;margin:8px 0 3px}
+.period-forecast-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:9px 0 12px}
+.period-forecast-tools button,.period-manual button{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700}
+.period-manual{margin:7px 0 14px;padding:12px;background:var(--paper);border:1px solid var(--line);border-radius:13px;font-size:12px}
+.period-manual summary{cursor:pointer;color:var(--accent);font-weight:750}
+.period-manual label{margin-top:10px}
+.period-manual .manual-actions{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.period-manual p{font-size:11px;color:var(--muted);line-height:1.5;margin:10px 0 0}
 
 </style>
 </head>
-<body data-app-build="66">
+<body data-app-build="67">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3614,7 +3621,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v66</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v67</div>
   </header>
 
   <main>
@@ -3691,7 +3698,17 @@ body{padding-bottom:78px!important}
       </div>
       <div class="calendar-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
       <div id="calendar" class="calendar"></div>
-      <div id="periodForecastNotice" class="period-forecast-note" hidden></div>
+      <div id="periodForecastNotice" class="period-forecast-note" aria-live="polite"></div>
+      <div class="period-forecast-tools"><button type="button" id="jumpPeriodForecast" hidden>Zum geschätzten Termin</button></div>
+      <details class="period-manual">
+        <summary>Periodenprognose: Datum selbst festlegen</summary>
+        <label>Voraussichtlicher Beginn<input type="date" id="manualPeriodForecastDate"></label>
+        <div class="manual-actions">
+          <button id="saveManualPeriodForecast" type="button">Datum übernehmen</button>
+          <button id="clearManualPeriodForecast" type="button">Automatisch berechnen</button>
+        </div>
+        <p>Nur eine Erinnerung, kein bestätigter Periodeneintrag. Wenn neue tatsächliche Beginne eingetragen werden, passt sich die automatische Berechnung an.</p>
+      </details>
       <div class="calendar-legend">
         <span><i class="dot period"></i> Periode eingetragen</span>
         <span><i class="dot period-forecast"></i> Periode voraussichtlich</span>
@@ -3963,14 +3980,14 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=66"></script>
+<script src="./daily-thoughts-v65.js?v=67"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
 const DEFAULT={
   entries:[],
   settings:{
-    waterLabel:"Wasser",waterMl:700,beerStart:"2026-09-10",
+    waterLabel:"Wasser",waterMl:700,beerStart:"2026-09-10",periodManualForecastDate:"",
     freeDays:{label:"Bierfreie Tage",start:"2026-09-10",mode:"beer"},
     freeGoals:[{id:"beer-free",label:"Bierfreie Tage",start:"2026-09-10",categoryId:"beer",enabled:true}],
     homeVisibility:{moon:true,weight:true,water:true,freeDays:true,calendarSpecial:true,quick:true,wellbeing:true,sticky:true},
@@ -4279,17 +4296,39 @@ function confirmedPeriodStarts(){
   return starts;
 }
 function periodForecast(){
+  // Eine manuell festgelegte Schätzung hat bis zum Ablauf ihres Tages Vorrang.
+  const manual=String(state.settings.periodManualForecastDate||"");
+  if(/^\d{4}-\d{2}-\d{2}$/.test(manual)&&manual>=localDate())return {date:manual,source:"manual",uncertain:true};
   const starts=confirmedPeriodStarts();
   if(starts.length<2)return null;
-  const distances=starts.slice(1).map((date,i)=>daysBetween(starts[i],date));
-  // Sehr unregelmäßige oder offensichtlich falsch dokumentierte Zyklen nicht prognostizieren.
-  const recent=distances.slice(-3);
-  if(recent.some(n=>n<18||n>60))return null;
-  const ordered=[...recent].sort((a,b)=>a-b),cycle=Math.round(ordered[Math.floor(ordered.length/2)]);
-  const predicted=addDays(starts[starts.length-1],cycle);
-  // Eine unverifizierte Prognose verschwindet am Folgetag und wird nicht weitergezählt.
+  // Zwei echte Beginne reichen aus; mehr erfasste Zyklen verbessern den Mittelwert.
+  const gaps=starts.slice(1).map((ds,i)=>daysBetween(starts[i],ds));
+  const recent=gaps.slice(-5);
+  if(recent.some(n=>n<18||n>90))return null;
+  const totalWeight=recent.reduce((sum,_,i)=>sum+i+1,0);
+  const cycle=Math.round(recent.reduce((sum,n,i)=>sum+n*(i+1),0)/totalWeight);
+  let predicted=addDays(starts[starts.length-1],cycle),skipped=0;
+  // Abgelaufene Markierungen verschwinden; keine verpasste Periode wird gespeichert.
+  // Maximal zwei weitere rechnerische Zyklen ohne Bestätigung erlauben.
+  while(predicted<localDate()&&skipped<2){predicted=addDays(predicted,cycle);skipped++;}
   if(predicted<localDate())return null;
-  return {date:predicted,cycle,uncertain:starts.length<3||(recent.length>1&&Math.max(...recent)-Math.min(...recent)>7)};
+  return {date:predicted,cycle,source:"automatic",skipped,uncertain:starts.length<3||skipped>0||recent.length>1&&(Math.max(...recent)-Math.min(...recent)>7)};
+}
+function saveManualPeriodForecast(){
+  const input=document.querySelector("#manualPeriodForecastDate"),ds=input?.value||"";
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ds))return showToast("Bitte ein Datum wählen");
+  if(ds<localDate())return showToast("Bitte ein heutiges oder zukünftiges Datum wählen");
+  state.settings.periodManualForecastDate=ds;
+  shownMonth=startMonth(parseDate(ds));
+  save();
+  renderMonth();
+  showToast("Voraussichtlicher Beginn gesetzt");
+}
+function clearManualPeriodForecast(){
+  state.settings.periodManualForecastDate="";
+  save();
+  renderMonth();
+  showToast("Automatische Berechnung aktiv");
 }
 function toggleBowelDay(){
   if(selectedDate>localDate())return;
@@ -5316,7 +5355,21 @@ function renderWeightChart(){
 function renderMonth(){
   buildFilter();const y=shownMonth.getFullYear(),m=shownMonth.getMonth(),filter=document.querySelector("#monthFilter").value||"all";document.querySelector("#monthLabel").textContent=shownMonth.toLocaleDateString("de-DE",{month:"long",year:"numeric"});const first=new Date(y,m,1),shift=(first.getDay()+6)%7,start=new Date(y,m,1-shift),entries=monthEntries(),cal=document.querySelector("#calendar");cal.innerHTML="";
   const forecast=periodForecast(),notice=document.querySelector("#periodForecastNotice");
-  if(notice){notice.hidden=!forecast;if(forecast)notice.textContent=`Voraussichtlicher Periodenbeginn: ${parseDate(forecast.date).toLocaleDateString("de-DE",{day:"2-digit",month:"long"})} (ca. ${forecast.cycle} Tage). Nur eine Schätzung – ohne Eintrag verschwindet die Markierung nach diesem Tag.`;}
+  const jump=document.querySelector("#jumpPeriodForecast"),manualInput=document.querySelector("#manualPeriodForecastDate");
+  if(manualInput&&document.activeElement!==manualInput)manualInput.value=state.settings.periodManualForecastDate||"";
+  if(jump){jump.hidden=!forecast;jump.onclick=()=>{if(forecast){shownMonth=startMonth(parseDate(forecast.date));renderMonth();}};}
+  if(notice){
+    const starts=confirmedPeriodStarts();
+    if(forecast){
+      const when=parseDate(forecast.date).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+      const method=forecast.source==="manual"?"selbst gewähltes Datum":`aus ${starts.length} erfassten Periodenbeginnen, geschätzter Zyklus ${forecast.cycle} Tage`;
+      notice.textContent=`Voraussichtliche Periode: ${when} (${method}). ${forecast.uncertain?"Nur grobe Schätzung. ":""}Ohne echten Eintrag wird dieser Punkt nach dem Tag entfernt. Nicht eingetragene Zyklen gelten nicht als bestätigt.`;
+    }else if(starts.length<2){
+      notice.textContent=`Noch keine automatische Vorhersage: ${starts.length} von mindestens 2 getrennten Periodenbeginnen erfasst. Du kannst unten auch ein erwartetes Datum selbst festlegen.`;
+    }else{
+      notice.textContent="Derzeit keine verlässliche automatische Vorhersage aus den vorhandenen Einträgen. Bitte gegebenenfalls einen tatsächlichen Periodenbeginn nachtragen oder unten eine eigene Schätzung setzen.";
+    }
+  }
   for(let i=0;i<42;i++){
     const d=new Date(start);d.setDate(start.getDate()+i);
     const ds=localDate(d),outside=d.getMonth()!==m;
@@ -5822,6 +5875,8 @@ function renderAll(){renderSummary();renderWeightToday();renderQuick();renderBow
 
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
 document.querySelector("#bowelToggle").onclick=toggleBowelDay;
+document.querySelector("#saveManualPeriodForecast").onclick=saveManualPeriodForecast;
+document.querySelector("#clearManualPeriodForecast").onclick=clearManualPeriodForecast;
 document.querySelector("#fab").onclick=openTypeDialog;document.querySelector("#closeTypeDialog").onclick=()=>document.querySelector("#typeDialog").close();document.querySelectorAll("[data-type-choice]").forEach(b=>b.onclick=()=>openNewEntry(b.dataset.typeChoice));
 
 const entryPhotoInput=document.querySelector("#entryPhotoInput");
@@ -5873,7 +5928,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=66",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=67",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -5885,6 +5940,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=66"></script>
+<script src="./herb-knowledge-v64.js?v=67"></script>
 </body>
 </html>
