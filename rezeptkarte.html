@@ -110,12 +110,12 @@ li::marker{color:var(--sage);font-weight:800}
  <header class="head"><div class="kicker">Mein Kochbuch / Aus meiner Küche</div><h1 id="title">Rezept</h1></header>
  <p class="subtitle" id="subtitle">Ein Rezept aus meinem Kochbuch</p>
  <div class="upper">
-  <div class="imagebox"><span class="placeholder" id="placeholder">🍽️</span><img id="photo" alt="Mein Tellerfoto"></div>
+  <div><div class="imagebox"><span class="placeholder" id="placeholder">🍽️</span><img id="photo" alt="Foto vom fertigen Gericht"></div><div id="photoCredit" style="font-size:11px;color:var(--sage);margin:7px 2px 0;min-height:14px"></div></div>
   <div class="ingredients"><h2 id="ingredientsTitle">Zutaten</h2><div class="ingredients-grid" id="ingredients"></div></div>
  </div>
  <div class="prep-title"><h2>Zubereitung</h2></div>
  <div class="steps" id="steps"></div>
- <aside class="notice" id="notice" hidden></aside>
+ <aside class="notice" id="notice" hidden></aside><div class="sources" id="recipeSources" style="margin:14px 4px;font-size:12px;color:var(--sage)"></div>
 </div></main>
 <script>
 (function(){
@@ -157,17 +157,39 @@ function diaryMenuPhoto(date,dish){
      typeof meal.photo==="string"&&/^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(meal.photo))?.photo||"";
  }catch(e){return "";}
 }
-function displayRecipePhoto(src){
+function displayRecipePhoto(src,example=false,sourceUrl="",credit=""){
  if(!src)return;
- const photo=el("photo");photo.src=src;photo.style.display="block";
+ const photo=el("photo"),info=el("photoCredit");
+ photo.src=src;photo.style.display="block";
  el("placeholder").style.display="none";
+ info.textContent="";
+ if(example){
+  info.append(document.createTextNode("Beispielfoto, nicht unbedingt exakt das Rezept · "));
+  if(/^https:\/\/www\.pexels\.com\/photo\//.test(sourceUrl)){
+   const link=document.createElement("a");link.href=sourceUrl;
+   link.target="_blank";link.rel="noopener noreferrer";link.textContent=credit||"Fotoquelle";
+   info.append(link);
+  }
+  photo.onerror=()=>{
+   photo.style.display="none";el("placeholder").style.display="";
+   info.textContent="Beispielfoto derzeit nicht verfügbar";
+  };
+ }else{
+  photo.onerror=null;
+ }
 }
 if(!name){
  el("content").innerHTML='<p class="error">Dieses Rezept wurde auf diesem Gerät nicht gefunden. Öffne es zuerst aus dem Kochbuch.</p>';
  el("print").disabled=true;return;
 }
+const photoCard=(r
+ ?menus.find(x=>Array.isArray(x.recipeIds)&&x.recipeIds[0]===r.id)?.card
+ :(m||photoMenu)?.card)||{};
+const sampleUrl=(typeof photoCard.image==="string"&&/^https:\/\/images\.pexels\.com\/photos\/\d+\//.test(photoCard.image))
+ ?photoCard.image:"";
 let card;
 if(r)card=r.card||{};
+else if((m?.card?.sections||photoMenu?.card?.sections)?.length)card=(m||photoMenu).card;
 else if(found.length){
  const groups=[],sections=[],notes=[];
  for(const recipe of found){
@@ -210,17 +232,31 @@ if(Array.isArray(card.notes)&&card.notes.length){
 }
 el("print").addEventListener("click",()=>window.print());
 if(photoKey){
- displayRecipePhoto(diaryMenuPhoto(planKey||"",name));
+ const diary=diaryMenuPhoto(planKey||"",name);
+ if(diary)displayRecipePhoto(diary);
+ else if(sampleUrl)displayRecipePhoto(sampleUrl,true,photoCard.imageSourceUrl,photoCard.imageCredit);
  try{
   const q=indexedDB.open("essenTracker.kitchen.images",1);
   q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains("photos"))q.result.createObjectStore("photos");};
-  q.onsuccess=()=>{const read=q.result.transaction("photos","readonly").objectStore("photos").get(photoKey);
+  q.onsuccess=()=>{
+   const read=q.result.transaction("photos","readonly").objectStore("photos").get(photoKey);
    read.onsuccess=()=>{
     if(read.result)displayRecipePhoto(URL.createObjectURL(read.result));
-    else displayRecipePhoto(diaryMenuPhoto(planKey||"",name));
    };
   };
  }catch(e){}
+}
+const sourceHolder=el("recipeSources");
+const references=[...((m||photoMenu)?.sourceLinks||[])];
+if(r?.source)references.push({label:"Rezeptidee / Inspiration",url:r.source});
+if(references.length){
+ sourceHolder.append(document.createTextNode("Rezeptquellen: "));
+ for(const item of references){
+  if(!item||!/^https:\/\//.test(item.url||""))continue;
+  const a=document.createElement("a");a.href=item.url;a.textContent=item.label||"Quelle";
+  a.target="_blank";a.rel="noopener noreferrer";a.style.marginRight="12px";
+  sourceHolder.append(a);
+ }
 }
 })();
 </script>
