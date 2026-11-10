@@ -39,6 +39,13 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 .day-meal-photo{width:68px;height:68px;object-fit:cover;border-radius:12px;flex-shrink:0;border:1px solid var(--line)}
 .day-feature .day-open{width:100%}
 @media(max-width:480px){.day-meal-photo{width:60px;height:60px}}
+.plan-preview{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;background:var(--mist);padding:12px;margin:12px 0}
+.plan-preview img{height:90px;width:90px;object-fit:cover;border-radius:10px;flex-shrink:0}
+.plan-preview div{flex:1;min-width:0}
+.plan-preview strong{font-size:16px;display:block;color:var(--deep)}
+.plan-preview small{display:block;margin-top:5px;color:var(--muted)}
+.plan-cooked-check{display:flex;align-items:center;gap:10px;padding:14px;margin:14px 0 5px;background:var(--mist);border-radius:14px;color:var(--deep);font-weight:700}
+.plan-cooked-check input{height:21px;width:21px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -75,14 +82,18 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
   <a href="./index.html#settingsView"><span>⚙</span>Einstellungen</a>
 </nav>
 <dialog id="planDialog"><div class="dialogtop"><h2 id="planTitle">Tag planen</h2><button class="btn ghost" data-close="planDialog">✕</button></div>
+<div class="plan-preview"><img id="planPreviewImage" alt="Foto des bereits eingetragenen Gerichts" style="display:none"><div><strong id="planPreviewName">Tagesmenü</strong><small id="planPreviewHint">Dein ausgewähltes Menü erscheint hier.</small></div></div>
 <label for="planMenu">Fertiges Menü auswählen (optional)</label><select id="planMenu"></select>
 <label>Einzelrezepte für diesen Tag auswählen</label><div id="planRecipeChoices" class="recipe-choices"></div>
 <label class="checkrow" style="margin-top:9px"><input id="saveCompositeMenu" type="checkbox"> Diese Kombination als Menü im Kochbuch speichern</label>
+<p class="muted small" id="planMenuStatus"></p>
 <label for="planName">Name des Gerichts</label><input id="planName" type="text" placeholder="z. B. Lachs mit Kroketten">
 <label>Weitere einzelne Lebensmittel (optional)</label><input id="planSearch" type="search" placeholder="Baustein suchen und hinzufügen"><div id="planMatches" class="searchlist" hidden></div><div id="planParts" class="chips"></div>
 <label>Wer isst mit?</label><div class="select-grid"><div><label for="personSelf">Ich</label><select id="personSelf"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Koche selbst</option><option value="nicht">Nicht da</option></select></div><div><label for="personHusband">Mann</label><select id="personHusband"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Kocht selbst</option><option value="nicht">Nicht da</option></select></div><div><label for="personDaughter">Tochter</label><select id="personDaughter"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Kocht selbst</option><option value="nicht">Nicht da</option></select></div></div>
 <label for="planNote">Notiz / weitere Gerichte oder Varianten</label><textarea id="planNote" placeholder="z. B. Tochter macht eine vegane Bowl, Mann bekommt anderes Schnitzel"></textarea>
 
+<label class="plan-cooked-check" for="planCooked"><input type="checkbox" id="planCooked"><span>Dieses Gericht wurde gekocht</span></label>
+<p class="muted small" id="planCookedHint"></p>
 <div class="line"></div><div class="wraprow"><button class="btn" id="savePlan">Tag speichern</button><button class="btn warn" id="deletePlan">Planung löschen</button><button class="btn alt" data-close="planDialog">Abbrechen</button></div></dialog>
 <dialog id="blockDialog"><div class="dialogtop"><h2>Baustein bearbeiten</h2><button class="btn ghost" data-close="blockDialog">✕</button></div>
 <label for="editBlockName">Lebensmittel</label><input id="editBlockName" type="text">
@@ -592,7 +603,7 @@ function menuForPlan(p){
     ||db.menus.find(m=>menuSignature(m.parts||[])===sig&&sig!=="[]")
     ||null;
 }
-function setCookedState(key,cooked){
+function setCookedState(key,cooked,renderNow=true){
  const p=db.plans[key];if(!p||!!p.cooked===cooked)return;
  const m=menuForPlan(p);
  if(cooked){
@@ -617,7 +628,7 @@ function setCookedState(key,cooked){
   }
   delete p.countedRecipeIds;
  }
- save();render();
+ save();if(renderNow)render();
 }
 let kitchenDiaryMeals;
 function readDiaryMeals(){
@@ -735,29 +746,52 @@ function fillPlanRecipeChoices(){
   recomputePlanParts();
   if(planRecipeIds.length&&!$("#planName").value.trim())
    $("#planName").value=planRecipeIds.map(id=>db.recipes.find(r=>r.id===id)?.shortName).filter(Boolean).join(" mit ");
+  refreshPlanPreview();
  });
 }
 function recomputePlanParts(){
  planParts=[...new Set([...planManualParts,...planRecipeIds.flatMap(id=>db.recipes.find(r=>r.id===id)?.parts||[])])];
  chips(planManualParts,$("#planParts"));
 }
+function selectedPlanMenu(){
+ const name=$("#planName").value.trim(),sig=menuSignature(planRecipeIds);
+ const selected=db.menus.find(m=>m.id===$("#planMenu").value);
+ if(selected&&nkey(selected.name)===nkey(name)&&menuSignature(selected.recipeIds||[])===sig)return selected;
+ return db.menus.find(m=>nkey(m.name)===nkey(name)&&menuSignature(m.recipeIds||[])===sig)||null;
+}
+function refreshPlanPreview(){
+ const name=$("#planName").value.trim(),menu=selectedPlanMenu();
+ $("#planPreviewName").textContent=name||"Noch kein Menü gewählt";
+ $("#planPreviewHint").textContent=menu?"Dieses Gericht ist bereits im Kochbuch.":"Für diesen Tag auswählen und speichern.";
+ const check=$("#saveCompositeMenu");
+ check.disabled=!!menu;
+ if(menu)check.checked=false;
+ $("#planMenuStatus").textContent=menu?"Dieses Menü ist bereits im Kochbuch. Du musst es nicht nochmals speichern.":"Neue Zusammenstellung: Hier ankreuzen, damit sie zusätzlich im Kochbuch erscheint.";
+ $("#planCookedHint").textContent=(menu?(Number(menu.count)||0)+"× bisher gekocht · ":"")+"Setze das Häkchen, sobald das Gericht gekocht wurde. Es wird nur einmal pro Tag gezählt.";
+ showPlanPicture($("#planPreviewImage"),planEditing,{name},menu);
+}
+
 function editPlan(key){
  planEditing=key;
  const p=db.plans[key]||{name:"",parts:[],people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:""};
- planRecipeIds=[...(p.recipeIds||[])];
- planManualParts=[...(p.manualParts||(!planRecipeIds.length?p.parts||[]:[]))];
+ planRecipeIds=[...(Array.isArray(p.recipeIds)?p.recipeIds:[])];
+ planManualParts=[...(Array.isArray(p.manualParts)?p.manualParts:(!planRecipeIds.length&&Array.isArray(p.parts)?p.parts:[]))];
  recomputePlanParts();
  $("#planTitle").textContent=day(key).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
  $("#planName").value=p.name||"";$("#planNote").value=p.note||"";
  $("#planMenu").innerHTML='<option value="">Eigene Kombination zusammenstellen</option>'+db.menus.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>').join("");
  $("#planMenu").value=p.menuId||"";
- $("#saveCompositeMenu").checked=false;
+ $("#saveCompositeMenu").checked=false;$("#saveCompositeMenu").disabled=false;
+ $("#planCooked").checked=!!p.cooked;
  people.forEach(([id])=>$("#person"+(id==="self"?"Self":id==="husband"?"Husband":"Daughter")).value=p.people?.[id]||(id==="daughter"?"selbst":"ganz"));
  $("#planSearch").value="";$("#planMatches").hidden=true;
  fillPlanRecipeChoices();
+ refreshPlanPreview();
  openDialog("#planDialog");
 }
-$("#planSearch").addEventListener("input",()=>partSearch($("#planSearch"),$("#planMatches"),planManualParts,()=>recomputePlanParts()));
+
+$("#planSearch").addEventListener("input",()=>partSearch($("#planSearch"),$("#planMatches"),planManualParts,()=>{recomputePlanParts();refreshPlanPreview();}));
+$("#planName").addEventListener("input",refreshPlanPreview);
 $("#planMenu").onchange=e=>{
  const m=db.menus.find(m=>m.id===e.target.value);if(!m)return;
  $("#planName").value=m.name;
@@ -765,6 +799,7 @@ $("#planMenu").onchange=e=>{
  planManualParts=planRecipeIds.length?[]:[...(m.parts||[])];
  recomputePlanParts();
  fillPlanRecipeChoices();
+ refreshPlanPreview();
 };
 $("#savePlan").onclick=()=>{
  const name=$("#planName").value.trim();
@@ -776,24 +811,27 @@ $("#savePlan").onclick=()=>{
   parts,manualParts:[...planManualParts],recipeIds:[...planRecipeIds],
   people:{self:$("#personSelf").value,husband:$("#personHusband").value,daughter:$("#personDaughter").value},
   note:$("#planNote").value.trim(),menuId:""};
+ const signature=menuSignature(p.recipeIds);
  const selected=db.menus.find(m=>m.id===$("#planMenu").value);
- if(selected&&selected.name===p.name)p.menuId=selected.id;
- if(!p.menuId&&p.recipeIds.length){
-  const matched=db.menus.find(m=>nkey(m.name)===nkey(p.name)&&menuSignature(m.recipeIds||[])===menuSignature(p.recipeIds));
+ if(selected&&nkey(selected.name)===nkey(p.name)&&signature===menuSignature(selected.recipeIds||[]))p.menuId=selected.id;
+ if(!p.menuId){
+  const matched=db.menus.find(m=>nkey(m.name)===nkey(p.name)&&signature===menuSignature(m.recipeIds||[]));
   if(matched)p.menuId=matched.id;
  }
- if($("#saveCompositeMenu").checked&&p.recipeIds.length&&!p.menuId){
-  const m={id:id(),name:p.name,recipeIds:[...p.recipeIds],parts:[...parts],status:"confirmed",ratings:{},count:0};
+ if($("#saveCompositeMenu").checked&&!p.menuId&&(p.recipeIds.length||parts.length)){
+  const m={id:id(),name:p.name,recipeIds:[...p.recipeIds],parts:[...parts],status:"personal-combination",ratings:{},count:0};
   db.menus.push(m);p.menuId=m.id;
  }
- // Wechsel bereits abgehakter Tage darf keine alten Kochhäufigkeiten am falschen Rezept belassen.
- if(old.cooked&&(menuSignature(old.recipeIds||[])!==menuSignature(p.recipeIds)||old.menuId!==p.menuId)){
-  setCookedState(planEditing,false);delete p.countedMenuId;delete p.countedRecipeIds;p.cooked=false;
- }
+ const changed=menuSignature(old.recipeIds||[])!==signature||old.menuId!==p.menuId;
+ const wantCooked=$("#planCooked").checked;
+ if(old.cooked&&(changed||!wantCooked))setCookedState(planEditing,false,false);
+ if(changed||!wantCooked){delete p.countedMenuId;delete p.countedRecipeIds;p.cooked=false;}
  db.plans[planEditing]=p;
+ if(wantCooked&&!p.cooked)setCookedState(planEditing,true,false);
  parts.forEach(i=>{const b=block(i);if(b)used(b)});
  save();closeDialog("#planDialog");render();toast("Wochenplan gespeichert");
 };
+
 $("#deletePlan").onclick=()=>{
  if(db.plans[planEditing]?.cooked)setCookedState(planEditing,false);
  delete db.plans[planEditing];save();closeDialog("#planDialog");render();
