@@ -385,7 +385,7 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
  db.mealPhotoMigrationVersion=90;save();
 })();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
-function menuSignature(parts){return JSON.stringify([...(parts||[])].sort());}
+function menuSignature(parts){return JSON.stringify([...(Array.isArray(parts)?parts:[])].sort());}
 let view="week",focus=weekStart(new Date()),planEditing="",planParts=[],planManualParts=[],planRecipeIds=[],menuParts=[],editingBlock="",editingMenu="",ratings={},menuPhotoFile=null,blockPhotoFile=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){alert("Speicherplatz voll. Bitte zuerst eine Sicherung exportieren.");}}
 function toast(s){const t=$("#toast");t.textContent=s;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2300);}
@@ -621,9 +621,10 @@ function renderWeek(){
  $("#weekRange").textContent=focus.toLocaleDateString("de-DE",{day:"numeric",month:"long"})+" – "+plus(focus,6).toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"});
  const wrap=$("#weekDays");wrap.innerHTML="";
  for(let i=0;i<7;i++){
+  try{
   const date=plus(focus,i),key=iso(date),p=db.plans[key],menu=menuForPlan(p),hasCard=!!menu||!!p?.recipeIds?.length,el=document.createElement("div");
   el.className="card dayline"+(p?.cooked?" is-cooked":"");
-  const details=p?(p.parts||[]).map(x=>block(x)?.name).filter(Boolean).join(" · "):"";
+  const details=p?(Array.isArray(p.parts)?p.parts:[]).map(x=>block(x)?.name).filter(Boolean).join(" · "):"";
   const peopleText=p?people.map(([k,v])=>v+": "+({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"])).join(" · "):"";
   el.innerHTML='<div class="daydate"><small>'+names[date.getDay()]+'</small><strong>'+date.getDate()+'</strong><small>'+(date.getMonth()+1)+'.</small></div>'+
    '<div class="daymain"><button type="button" class="day-open" aria-label="'+esc(hasCard?"Rezept öffnen: "+p.name:"Tag bearbeiten")+'"><strong>'+esc(p?.name||"Noch offen")+'</strong><div class="daysub">'+esc(details||"Bausteine auswählen")+'</div>'+(p?'<div class="daysub">'+esc(peopleText)+'</div>':'')+(hasCard?'<span class="openhint">Rezept ansehen ›</span>':'')+'</button>'+
@@ -637,6 +638,17 @@ function renderWeek(){
   el.querySelector(".day-edit").onclick=()=>editPlan(key);
   const cb=el.querySelector(".cooked-check input");if(cb)cb.onchange=()=>setCookedState(key,cb.checked);
   wrap.appendChild(el);
+  }catch(err){
+    if(window.__kitchenReportError)window.__kitchenReportError({message:"Tag "+(i+1)+": "+String(err?.message||err)});
+    const d=plus(focus,i),row=document.createElement("div");
+    row.className="card dayline";
+    const b=document.createElement("button");
+    b.className="day-open";
+    b.type="button";
+    b.textContent=d.toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"})+" – Planung öffnen";
+    b.onclick=()=>editPlan(iso(d));
+    row.appendChild(b);wrap.appendChild(row);
+  }
  }
 }
 $("#weekPrev").onclick=()=>{focus=plus(focus,-7);render()};
@@ -723,7 +735,7 @@ function renderBlocks(){
 const status=$("#catalogStatus");if(status)status.textContent=db.blocks.length?"":("Es sind keine Lebensmittel geladen. Bitte die Seite neu laden; lokale Browserdaten nicht löschen.");
 const filter=$("#blockSearch").value.trim(),cat=$("#blockCatFilter").value,sort=$("#blockSort").value;
 $("#blockCatFilter").innerHTML='<option value="">Alle Kategorien</option>'+cats.map(c=>'<option value="'+esc(c)+'"'+(cat===c?' selected':'')+'>'+esc(c)+'</option>').join("");
-const arr=sortBlocks(db.blocks.filter(b=>(!cat||b.category===cat)&&nkey(b.name).includes(nkey(filter))),sort);
+const arr=sortBlocks(db.blocks.filter(b=>b&&typeof b.name==="string"&&(!cat||b.category===cat)&&nkey(b.name).includes(nkey(filter))),sort);
 $("#blockList").innerHTML=arr.map(b=>'<div class="card entry">'+pict(b)+'<div class="entrymain"><b>'+esc(b.name)+'</b><small>'+esc(b.category||"Sonstiges")+' · '+esc(b.store||"Offen")+' · Bestand: '+esc(b.stock||"unbekannt")+'</small></div><div class="rowbuttons"><button class="btn ghost tiny" data-pin="'+esc(b.id)+'" title="'+(b.pinned?"Lösen":"Anheften")+'">'+(b.pinned?"📌":"♧")+'</button>'+(b.pinned?'<button class="btn ghost tiny" data-up="'+esc(b.id)+'">↑</button><button class="btn ghost tiny" data-down="'+esc(b.id)+'">↓</button>':'')+'<button class="btn alt tiny" data-edit="'+esc(b.id)+'">✎</button></div></div>').join("")||'<div class="card empty">Noch keine Bausteine. Importiere unsere Liste oder lege einen an.</div>';
 $("#blockList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editBlock(b.dataset.edit));
 $("#blockList").querySelectorAll("[data-pin]").forEach(b=>b.onclick=()=>{const x=block(b.dataset.pin);x.pinned=!x.pinned;if(x.pinned)x.pinOrder=Math.max(0,...db.blocks.map(t=>t.pinOrder||0))+1;save();render()});
