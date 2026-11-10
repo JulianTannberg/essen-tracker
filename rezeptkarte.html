@@ -120,39 +120,85 @@ li::marker{color:var(--sage);font-weight:800}
 <script>
 (function(){
 "use strict";
-const qs=new URLSearchParams(location.search),key=qs.get("menu");
+const qs=new URLSearchParams(location.search);
+const menuKey=qs.get("menu"),recipeKey=qs.get("recipe"),planKey=qs.get("plan");
 let db={};try{db=JSON.parse(localStorage.getItem("essenTracker.kitchen.v1")||"{}");}catch(e){}
-const menu=(db.menus||[]).find(m=>m.id===key);
 const el=id=>document.getElementById(id);
-const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc=x=>String(x==null?"":x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const list=items=>"<ul>"+items.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>";
-if(!menu){el("content").innerHTML='<p class="error">Dieses Rezept wurde auf diesem Gerät nicht gefunden. Öffne es zuerst aus dem Kochbuch.</p>';el("print").disabled=true;return;}
-document.title=menu.name+" · Rezeptkarte";
-const card=menu.card||{};
-el("title").textContent=menu.name;
+const recipes=Array.isArray(db.recipes)?db.recipes:[];
+const menus=Array.isArray(db.menus)?db.menus:[];
+const r=recipes.find(r=>r.id===recipeKey);
+const m=menus.find(m=>m.id===menuKey);
+const p=planKey&&db.plans?.[planKey];
+const ids=r?[r.id]:p?(p.recipeIds||[]):m?(m.recipeIds||[]):[];
+const found=ids.map(id=>recipes.find(r=>r.id===id)).filter(Boolean);
+const name=r?.name||p?.name||m?.name;
+const photoMenu=p?(menus.find(m=>m.id===p.menuId)||menus.find(m=>JSON.stringify([...(m.recipeIds||[])].sort())===JSON.stringify([...ids].sort()))):m;
+const photoKey=r?"recipe:"+r.id:photoMenu?"menu:"+photoMenu.id:planKey?"plan:"+planKey:"";
+if(!name){
+ el("content").innerHTML='<p class="error">Dieses Rezept wurde auf diesem Gerät nicht gefunden. Öffne es zuerst aus dem Kochbuch.</p>';
+ el("print").disabled=true;return;
+}
+let card;
+if(r)card=r.card||{};
+else if(found.length){
+ const groups=[],sections=[],notes=[];
+ for(const recipe of found){
+  const rc=recipe.card||{};
+  for(const g of rc.ingredients||[])groups.push({title:recipe.shortName||recipe.name,items:g.items||[]});
+  for(const section of rc.sections||[])sections.push({
+   title:(recipe.shortName||recipe.name)+" · "+section.title,
+   steps:section.steps,text:section.text
+  });
+  for(const n of rc.notes||[])notes.push((recipe.shortName||recipe.name)+": "+n);
+ }
+ card={subtitle:"Ein Menü aus "+found.map(r=>r.shortName||r.name).join(" · "),
+  servings:found.map(r=>r.card?.servings).filter(Boolean)[0]||"Nach Bedarf",
+  time:"Siehe einzelne Zubereitungen",category:"Kombiniertes Menü",
+  ingredients:groups,sections,notes};
+}else card=m?.card||{};
+document.title=name+" · Rezeptkarte";
+el("title").textContent=name;
 el("subtitle").textContent=card.subtitle||"Mein Lieblingsrezept";
 el("ingredientsTitle").textContent="Zutaten"+(card.servings?" · "+card.servings:"");
 let groups=Array.isArray(card.ingredients)?card.ingredients:[];
 if(!groups.length){
- const parts=(menu.parts||[]).map(id=>(db.blocks||[]).find(b=>b.id===id)?.name).filter(Boolean);
+ const entry=r||m||p||{};
+ const parts=(entry.parts||[]).map(id=>(db.blocks||[]).find(b=>b.id===id)?.name).filter(Boolean);
  groups=[{title:"Bestandteile",items:parts.length?parts:["Noch keine Zutaten erfasst"]}];
 }
-el("ingredients").innerHTML=groups.map(g=>'<section class="ingredient-group"><h3>'+esc(g.title||"Zutaten")+'</h3>'+list(g.items||[])+'</section>').join("");
+el("ingredients").innerHTML=groups.map(g=>
+ '<section class="ingredient-group"><h3>'+esc(g.title||"Zutaten")+'</h3>'+list(g.items||[])+'</section>'
+).join("");
 let sections=Array.isArray(card.sections)?card.sections:[];
 if(!sections.length){
- const paragraphs=String(menu.recipe||"Noch keine Anleitung hinterlegt.").split(/\n\s*\n/).filter(Boolean);
- sections=paragraphs.map((s,i)=>({title:(i+1)+" · "+(s.split("\n").length>1?s.split("\n")[0]:"Zubereitung"),text:s.split("\n").slice(1).join("\n")||s}));
+ const paragraphs=String((m||p)?.recipe||"Noch keine Anleitung hinterlegt.").split(/\n\s*\n/).filter(Boolean);
+ sections=paragraphs.map((line,i)=>({title:(i+1)+" · "+(line.split("\n").length>1?line.split("\n")[0]:"Zubereitung"),text:line.split("\n").slice(1).join("\n")||line}));
 }
-el("steps").innerHTML=sections.map(s=>'<section class="step-card"><h3>'+esc(s.title||"Zubereitung")+'</h3>'+(Array.isArray(s.steps)?"<ol>"+s.steps.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ol>":"<p>"+esc(s.text||"")+"</p>")+'</section>').join("");
-if(Array.isArray(card.notes)&&card.notes.length){el("notice").hidden=false;el("notice").innerHTML="<strong>HINWEIS:</strong> "+card.notes.map(esc).join(" ");}
+el("steps").innerHTML=sections.map(section=>'<section class="step-card"><h3>'+
+ esc(section.title||"Zubereitung")+'</h3>'+
+ (Array.isArray(section.steps)?"<ol>"+section.steps.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ol>":"<p>"+esc(section.text||"")+"</p>")+'</section>'
+).join("");
+if(Array.isArray(card.notes)&&card.notes.length){
+ el("notice").hidden=false;
+ el("notice").innerHTML="<strong>HINWEIS:</strong> "+card.notes.map(esc).join(" ");
+}
 el("print").addEventListener("click",()=>window.print());
-try{
- const q=indexedDB.open("essenTracker.kitchen.images",1);
- q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains("photos"))q.result.createObjectStore("photos");};
- q.onsuccess=()=>{const read=q.result.transaction("photos","readonly").objectStore("photos").get("menu:"+menu.id);
- read.onsuccess=()=>{if(read.result){const pic=el("photo");pic.src=URL.createObjectURL(read.result);pic.style.display="block";el("placeholder").style.display="none";}};
- };
-}catch(e){}
+if(photoKey){
+ try{
+  const q=indexedDB.open("essenTracker.kitchen.images",1);
+  q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains("photos"))q.result.createObjectStore("photos");};
+  q.onsuccess=()=>{const read=q.result.transaction("photos","readonly").objectStore("photos").get(photoKey);
+   read.onsuccess=()=>{
+    if(read.result){
+     const pic=el("photo");pic.src=URL.createObjectURL(read.result);
+     pic.style.display="block";el("placeholder").style.display="none";
+    }
+   };
+  };
+ }catch(e){}
+}
 })();
 </script>
 </body></html>
