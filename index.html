@@ -3655,6 +3655,7 @@ body{padding-bottom:78px!important}
 
 /* v77 · Gekochte Lebensmittel aus dem gemeinsamen, kompakten Fotoatlas */
 .food-sprite{display:inline-block;flex:0 0 auto;width:36px;height:36px;border-radius:9px;border:1px solid rgba(95,112,85,.16);background-image:url("./assets/kitchen-food-sprite.webp");background-repeat:no-repeat;background-size:300% 300%;background-color:#f2eee5;vertical-align:middle}
+.food-sprite.new-food-photo{background-image:url("./assets/kitchen-food-sprite-2.webp")}
 .meal-food-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .meal-food-piece{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 9px 3px 3px;border:1px solid #e1e7da;background:#f7f9f4;border-radius:11px;font-size:11px;font-weight:650;line-height:1.35;color:#596752}
 .meal-food-piece .food-sprite{width:32px;height:32px}
@@ -3675,7 +3676,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="77">
+<body data-app-build="78">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3683,7 +3684,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v77</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v78</div>
   </header>
 
   <main>
@@ -4048,7 +4049,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=77"></script>
+<script src="./daily-thoughts-v65.js?v=78"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4126,7 +4127,7 @@ function showToast(msg){const t=document.querySelector("#toast");t.textContent=m
 function mealPhoto(mealId){return mealId&&state.mealPhotos?state.mealPhotos[mealId]||"":""}
 // v77: dieselben 9 gekochten Standardbilder wie im Küchenplaner.
 // Nur bei erkannten Einzelzutaten anzeigen, nicht pauschal für ganze Gerichte.
-function foodPhotoIndex(name){
+function foodPhotoIndex(name,mealKind=""){
   const n=normalizedItem(name).replace(/\s+/g," ").trim().replace(/^tk[- ]/, "");
   if(/\b(?:mit|und)\b|[,;&+\/]/.test(n))return -1;
   if(/\bkroketten\b/.test(n))return 0;
@@ -4134,17 +4135,29 @@ function foodPhotoIndex(name){
   if(n==="lachs"||/^lachsfilet\b/.test(n))return 2;
   if(n==="reis"||/^reis\s+(?:gekocht|pur|natur)\b/.test(n))return 3;
   if(/^(?:kartoffeln|pellkartoffeln|salzkartoffeln|gekochte kartoffeln)(?:\s|$)/.test(n))return 4;
-  if(/^(?:möhren|moehren|karotten)(?:\s|$)/.test(n))return 5;
+  if(/^(?:rohe?\s+|frische?\s+|gekochte?\s+)?(?:möhren?|moehren?|karotten?|babymöhren|babymöhrchen|babykarotten)(?:\s|$)/.test(n)){
+    if(/gekocht|gedünstet|gedampft|gegart|tiefgefroren|tiefgekühlt/.test(n))return 5;
+    return /roh|frisch|baby/.test(n)||mealKind==="breakfast"?9:5;
+  }
   if(n==="spaghetti")return 6;
   if(n==="tortellini"||/^tortellini\b/.test(n))return 7;
   if(/^champignons(?:\s|$)/.test(n))return 8;
+  if(/^(?:apfel|äpfel|apfelscheiben|apfelspalten)(?:\s|$)/.test(n))return 10;
+  if(/^(?:gurke|gurken|salatgurke)(?:\s|$)/.test(n))return 11;
+  if(/^(?:tomate|tomaten)(?:\s|$)/.test(n))return 12;
+  if(/^(?:blattsalat|rucola|kopfsalat|salat)(?:\s|$)/.test(n))return 13;
+  if(/^(?:eier|ei|gekochte eier|gekochtes ei)(?:\s|$)/.test(n))return 14;
+  if(/^(?:wraps|wrap)(?:\s|$)/.test(n))return 15;
+  if(/^(?:jiaozi|gyoza)(?:\s|$)/.test(n))return 16;
+  if(/^(?:chicken nuggets|nuggets)(?:\s|$)/.test(n))return 17;
   return -1;
 }
-function foodPhotoTag(name,extraClass=""){
-  const i=foodPhotoIndex(name);
+function foodPhotoTag(name,extraClass="",mealKind=""){
+  const i=foodPhotoIndex(name,mealKind);
   if(i<0)return "";
-  const position=(i%3)*50+"% "+Math.floor(i/3)*50+"%";
-  return '<span class="food-sprite '+escapeHtml(extraClass)+'" style="background-position:'+position+'" role="img" aria-label="'+escapeHtml(String(name).trim())+'"></span>';
+  const cell=i>=9?i-9:i;
+  const position=(cell%3)*50+"% "+Math.floor(cell/3)*50+"%";
+  return '<span class="food-sprite'+(i>=9?" new-food-photo":"")+' '+escapeHtml(extraClass)+'" style="background-position:'+position+'" role="img" aria-label="'+escapeHtml(String(name).trim())+'"></span>';
 }
 
 function currentFoodTerms(raw){
@@ -4951,7 +4964,7 @@ function renderTimeline(){
     const catLabels=categoryLabelsFromEntries(g.items);
     const parts=g.items.flatMap(e=>foodParts(e.value));
     const values=parts.map(escapeHtml).join(", ");
-    const foodImages=parts.map(p=>({name:p,tag:foodPhotoTag(p)})).filter(p=>p.tag);
+    const foodImages=parts.map(p=>({name:p,tag:foodPhotoTag(p,"",first.mealKind||guessMealKind(g.time))})).filter(p=>p.tag);
     const tileImages=[...new Map(foodImages.map(p=>[normalizedItem(p.name),p])).values()].slice(0,4);
     const photo=mealPhoto(g.mealId), kind=mealKindMeta(first.mealKind,g.time);
     const thumb=photo
@@ -5213,7 +5226,7 @@ function renderIngredientCategories(){
   box.innerHTML=parts.filter(part=>{const key=normalizedItem(part);if(seen.has(key))return false;seen.add(key);return true}).map(part=>{
     const key=normalizedItem(part),selected=ingredientDraftFor(part);
     const labels=cats.filter(c=>selected.has(c.id)).map(c=>c.label);
-    return `<div class="ingredient-cat-row"><details><summary><span class="ingredient-cat-visual">${foodPhotoTag(part)}<span><span class="ingredient-cat-name">${escapeHtml(part)}</span><small class="ingredient-cat-summary">${labels.length?escapeHtml(labels.join(" · ")):"Kategorien zuordnen"}</small></span></span></summary>
+    return `<div class="ingredient-cat-row"><details><summary><span class="ingredient-cat-visual">${foodPhotoTag(part,"",currentMealKind())}<span><span class="ingredient-cat-name">${escapeHtml(part)}</span><small class="ingredient-cat-summary">${labels.length?escapeHtml(labels.join(" · ")):"Kategorien zuordnen"}</small></span></span></summary>
       <div class="ingredient-cat-options">${cats.map(c=>`<label><input type="checkbox" data-ingredient-key="${escapeHtml(key)}" value="${escapeHtml(c.id)}" ${selected.has(c.id)?"checked":""}>${escapeHtml(c.label)}</label>`).join("")}</div>
     </details></div>`;
   }).join("");
@@ -6276,7 +6289,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=77",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=78",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6288,6 +6301,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=77"></script>
+<script src="./herb-knowledge-v64.js?v=78"></script>
 </body>
 </html>
