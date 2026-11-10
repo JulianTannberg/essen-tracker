@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f1f1e6">
+<title>Rezeptkarte · Mein Kochbuch</title>
+<style>
+:root{--forest:#284731;--sage:#5b7654;--light:#edf1e7;--paper:#fcf9ef;--gold:#cfb373;--ink:#313a32}
+*{box-sizing:border-box}
+body{margin:0;background:#e6e9df;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);line-height:1.42}
+.toolbar{max-width:900px;margin:0 auto;padding:15px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.toolbar a{color:var(--forest);text-decoration:none;font-weight:650}
+.toolbar .hint{color:#63715e;font-size:12px;margin-right:auto}
+button{border:0;border-radius:10px;background:var(--forest);color:white;font:600 14px system-ui;padding:12px 17px;cursor:pointer}
+.sheet{max-width:870px;margin:0 auto 28px;padding:26px;background:var(--paper);box-shadow:0 12px 42px #1b2a1e25;border:1px solid #d3d4c4;position:relative;overflow:hidden}
+.sheet::before{content:"";display:block;position:absolute;height:8px;background:linear-gradient(90deg,#567558,#b9c19f,#d5b987,#567558);inset:0 0 auto}
+.masthead{padding:14px 4px 22px;border-bottom:2px solid #cdd5bc}
+.eyebrow{text-transform:uppercase;letter-spacing:.22em;color:var(--sage);font-weight:750;font-size:11px}
+h1{font:italic 700 clamp(28px,4vw,42px) Georgia,"Times New Roman",serif;line-height:1.12;color:var(--forest);margin:8px 0}
+.subtitle{font-size:13px;color:#6a7469;margin:0}
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:18px;margin:21px 0}
+.photo{min-height:235px;background:radial-gradient(circle at 50% 35%,#f7f6eb,#dbe4d5);border:7px solid #fff;box-shadow:0 3px 15px #00000016;display:flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden}
+.photo img{display:none;width:100%;height:100%;max-height:310px;object-fit:contain}
+.placeholder{font-size:75px;opacity:.65}
+.meta{background:#e9eee0;border:1px solid #d4dfc9;border-radius:12px;padding:17px;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.meta div{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start;font-size:14px}
+.meta .symbol{font-size:20px}
+.meta strong{color:var(--forest);display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.columns{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.25fr);gap:20px;align-items:start}
+h2{background:var(--forest);color:#fff;font:italic 700 23px Georgia,serif;letter-spacing:.01em;border-radius:8px 18px 8px 8px;padding:8px 14px;margin:0 0 14px}
+.group{break-inside:avoid;margin-bottom:18px}
+.group h3{font:700 17px Georgia,serif;color:var(--forest);border-bottom:1px solid #c4d1bd;padding-bottom:4px;margin:0 0 8px}
+ul,ol{margin:0 0 9px;padding-left:22px}
+li{padding:0 0 5px}
+li::marker{color:var(--sage);font-weight:700}
+.group p{margin:4px 0 10px;white-space:pre-wrap}
+.notes{margin-top:17px;background:#edf1e4;border-left:5px solid #83a077;border-radius:4px 12px 12px 4px;padding:13px 17px;break-inside:avoid}
+.notes h3{margin:0 0 7px;color:var(--forest);font:italic bold 19px Georgia,serif}
+.notes ul{margin:0}
+.footer{margin-top:24px;padding-top:12px;border-top:1px solid #cbd3c4;font:italic 15px Georgia,serif;color:#71816c;text-align:center}
+.error{padding:22px;color:#7b2828}
+@media(max-width:650px){.sheet{margin:0 0 24px;padding:16px}.hero,.columns{grid-template-columns:1fr}.photo{min-height:205px}.meta{display:grid;grid-template-columns:1fr 1fr;padding:13px}.masthead{padding-top:16px}h2{font-size:21px}}
+@page{size:A4 portrait;margin:9mm}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;margin:0}
+  .toolbar{display:none!important}
+  .sheet{margin:0;padding:12px 15px;max-width:none;box-shadow:none;border:none;width:100%;overflow:visible}
+  .sheet::before{height:5px}
+  .masthead{padding:8px 0 12px}
+  h1{font-size:32px}
+  .hero{grid-template-columns:1.2fr .8fr;gap:12px;margin:14px 0}
+  .photo{min-height:160px;max-height:230px;border-width:4px}
+  .photo img{max-height:220px}
+  .columns{grid-template-columns:.9fr 1.3fr;gap:17px}
+  h2{font-size:20px;padding:6px 10px}
+  .group{margin-bottom:11px}
+  .group h3{font-size:15px}
+  .group,li,.meta{font-size:11.3px}
+  .meta{display:flex;gap:8px;padding:10px}
+  .meta div{font-size:11px}
+  li{padding-bottom:3px}
+  .notes{margin-top:10px;padding:10px}
+  .footer{margin-top:12px}
+}
+</style>
+</head>
+<body>
+<div class="toolbar"><a href="./kueche.html">← Zurück zum Kochbuch</a><span class="hint">Rezeptkarte · fürs Anzeigen oder Ausdrucken</span><button type="button" id="print">Drucken / als PDF speichern</button></div>
+<main class="sheet" id="sheet">
+ <header class="masthead"><div class="eyebrow">Mein Küchenplaner · Aus meinem Kochbuch</div><h1 id="title">Rezeptkarte</h1><p class="subtitle" id="subtitle">Ein Rezept aus meiner Sammlung</p></header>
+ <div class="hero">
+  <div class="photo"><span class="placeholder" id="placeholder">🍽️</span><img id="photo" alt="Foto des fertigen Gerichts"></div>
+  <div class="meta"><div><span class="symbol">🍽️</span><span><strong>Portionen</strong><span id="servings">Individuell</span></span></div><div><span class="symbol">🕒</span><span><strong>Zeit & Vorbereitung</strong><span id="time">Siehe Anleitung</span></span></div><div><span class="symbol">🌿</span><span><strong>Küche</strong><span id="category">Hausgemacht</span></span></div></div>
+ </div>
+ <div class="columns"><aside><h2>Zutaten</h2><div id="ingredients"></div></aside><article><h2>Zubereitung</h2><div id="method"></div></article></div>
+ <section class="notes" id="notes" hidden><h3>Gut zu wissen</h3><ul id="noteList"></ul></section>
+ <footer class="footer">Mit Freude gekocht · zum Wiederfinden und Nachkochen ♡</footer>
+</main>
+<script>
+(function(){
+"use strict";
+var KEY="essenTracker.kitchen.v1";
+var params=new URLSearchParams(location.search);
+var menuId=params.get("menu");
+var db;
+try{db=JSON.parse(localStorage.getItem(KEY)||"{}");}catch(e){db={};}
+var menu=(db.menus||[]).find(function(m){return m.id===menuId;});
+function el(id){return document.getElementById(id);}
+function safe(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+if(!menu){el("sheet").innerHTML='<p class="error">Dieses Rezept ist auf diesem Gerät nicht verfügbar. Bitte das Rezept zuerst im Kochbuch öffnen.</p>';el("print").disabled=true;return;}
+document.title=menu.name+" · Rezeptkarte";
+el("title").textContent=menu.name;
+var card=menu.card||{};
+el("subtitle").textContent=card.subtitle||"Ein Lieblingsrezept aus meiner Sammlung";
+el("servings").textContent=card.servings||"Nach Bedarf";
+el("time").textContent=card.time||"Siehe Anleitung";
+el("category").textContent=card.category||"Kochbuch";
+var blocks=db.blocks||[];
+var ingredients=el("ingredients");
+var method=el("method");
+function section(title,content){return '<section class="group"><h3>'+safe(title)+'</h3>'+content+'</section>';}
+if(Array.isArray(card.ingredients)&&card.ingredients.length){
+ ingredients.innerHTML=card.ingredients.map(function(s){return section(s.title,'<ul>'+s.items.map(function(x){return '<li>'+safe(x)+'</li>';}).join('')+'</ul>');}).join('');
+}else{
+ var parts=(menu.parts||[]).map(function(id){var b=blocks.find(function(b){return b.id===id;});return b&&b.name;}).filter(Boolean);
+ ingredients.innerHTML=section("Bestandteile",'<ul>'+parts.map(function(p){return '<li>'+safe(p)+'</li>';}).join('')+'</ul>');
+}
+if(Array.isArray(card.sections)&&card.sections.length){
+ method.innerHTML=card.sections.map(function(s){
+  return section(s.title,Array.isArray(s.steps)?'<ol>'+s.steps.map(function(t){return '<li>'+safe(t)+'</li>';}).join('')+'</ol>':'<p>'+safe(s.text||'')+'</p>');
+ }).join('');
+}else{
+ var paragraphs=String(menu.recipe||"Noch keine Zubereitung hinterlegt.").split(/\n\s*\n/).filter(Boolean);
+ method.innerHTML=paragraphs.map(function(p){var lines=p.split('\n');var title=lines.length>1?lines.shift():"Zubereitung";return section(title,'<p>'+safe(lines.length?lines.join('\n'):p)+'</p>');}).join('');
+}
+if(Array.isArray(card.notes)&&card.notes.length){
+ el("notes").hidden=false;
+ el("noteList").innerHTML=card.notes.map(function(x){return '<li>'+safe(x)+'</li>';}).join('');
+}
+el("print").addEventListener("click",function(){window.print();});
+try{
+ var req=indexedDB.open("essenTracker.kitchen.images",1);
+ req.onupgradeneeded=function(){if(!req.result.objectStoreNames.contains("photos"))req.result.createObjectStore("photos");};
+ req.onsuccess=function(){var tx=req.result.transaction("photos","readonly");var read=tx.objectStore("photos").get("menu:"+menu.id);
+ read.onsuccess=function(){if(read.result){var img=el("photo");img.src=URL.createObjectURL(read.result);img.style.display="block";el("placeholder").style.display="none";}};
+ };
+}catch(e){}
+})();
+</script>
+</body>
+</html>
