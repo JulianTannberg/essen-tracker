@@ -61,6 +61,17 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <div class="wraprow"><button type="button" class="btn" id="applyWeekIdeas">Alle freien Tage vormerken</button></div>
 <p class="muted" id="weekIdeaStatus" aria-live="polite"></p>
 </div></details>
+<details class="week-settings" id="mealPrepSteps">
+<summary>🌿 Vorbereitungsplan – was du wann schon erledigen kannst</summary>
+<div class="week-settings-content" id="mealPrepStepsBody">
+<p><strong>Mittwoch:</strong> Pizza oder andere vorhandene TK-Mahlzeit, damit vor dem Einkauf nichts Frisches fehlt.</p>
+<p><strong>Donnerstag:</strong> Nach dem Einkauf das Kokos-Curry kochen und zusätzlich Gemüse für Freitag schneiden. Rohes Gemüse abgedeckt im Kühlschrank lagern.</p>
+<p><strong>Freitag:</strong> Vorbereitetes Gemüse anbraten. Reis frisch kochen, Ei/Hähnchen nur separat nach Wunsch zubereiten.</p>
+<p><strong>Samstag:</strong> Steak frisch braten, Rosenkohl direkt aus der Truhe garen. Fleisch gekühlt lagern und Verbrauchsdatum beachten.</p>
+<p><strong>Sonntag:</strong> Linsensuppe zubereiten; Bratwurst separat. Zusätzliche Suppe rasch kühlen oder portionsweise einfrieren.</p>
+<p><strong>Montag:</strong> Kartoffeln und übriges Gemüse zur Pfanne verarbeiten; Dip nach Wahl.</p>
+<p class="muted"><strong>Wichtig:</strong> Gekochten Reis nicht lange ungekühlt lagern. Für das Freitagsgericht besser frischen Reis statt Reis vom Donnerstag nehmen.</p>
+</div></details>
 <div id="weekDays"></div>
 <div class="hint">Tipp: Erst ein Gericht für eine Person planen, dann die anderen zuordnen. Änderungen bleiben nur auf diesem Gerät gespeichert.</div>
 <details class="week-settings"><summary>⚙ Einkaufstag und Wochenanzeige</summary>
@@ -474,6 +485,38 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
  db.novemberRecipePackVersion=98;
  save();
 })();
+(function refineNovemberShoppingV99(){
+ if(Number(db.novemberRecipeShoppingVersion||0)>=99)return;
+ // Fertig-Dip ist eine bewusste Auswahl zwischen Produkten, keine Doppelbestellung.
+ const dip=db.recipes.find(r=>r.id==="fertiger-dip"&&r.origin==="chat-recipe-pack-98");
+ if(dip)dip.parts=[];
+ const pizzaName="Vegane TK-Pizza";
+ let veganPizza=db.blocks.find(b=>nkey(b.name)===nkey(pizzaName));
+ if(!veganPizza){
+  veganPizza={id:id(),name:pizzaName,category:"Beilagen & Teigwaren",
+   store:"Beide",stock:"unbekannt",pantry:"normal",
+   note:"Fertige tiefgekühlte Pizza ohne tierische Zutaten. Sorte und Zutaten vor dem Einkauf prüfen.",
+   pinned:false,lastUsed:0,origin:"catalog-week-99"};
+  db.blocks.push(veganPizza);
+ }
+ const pizzaRecipe=db.recipes.find(r=>r.id==="tk-pizza-fertig"&&r.origin==="chat-recipe-pack-98");
+ if(pizzaRecipe&&!pizzaRecipe.parts.includes(veganPizza.id))pizzaRecipe.parts.push(veganPizza.id);
+ for(const menu of db.menus){
+  if(menu.origin!=="chat-recipe-pack-98")continue;
+  const recipeIds=menu.recipeIds||[];
+  menu.parts=[...new Set(recipeIds.flatMap(rid=>db.recipes.find(r=>r.id===rid)?.parts||[]))];
+ }
+ const oldAutoNote=/^(?:Wagner Big City|Vegane Grundlage;|Vegane Reispfanne als Grundlage|Rosenkohl aus der vorhandenen|Suppe zunächst vegan zubereiten|Tzatziki oder Kartoffelcreme)/;
+ for(const spec of (window.KITCHEN_RECIPE_PACK_V98?.menus||[])){
+  const plan=db.plans[spec.date];
+  if(!plan||plan.menuId!==spec.id||plan.cooked||plan.origin!=="chat-week-98")continue;
+  if(oldAutoNote.test(String(plan.note||"")))plan.note=spec.prep;
+  plan.mealPrepNote=spec.prep;
+  plan.parts=[...new Set((db.menus.find(m=>m.id===spec.id)?.parts)||plan.parts||[])];
+ }
+ db.novemberRecipeShoppingVersion=99;
+ save();
+})();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
 function menuSignature(parts){return JSON.stringify([...(Array.isArray(parts)?parts:[])].sort());}
 let view="week",focus=weekStart(new Date()),planEditing="",planParts=[],planManualParts=[],planRecipeIds=[],menuParts=[],editingBlock="",editingMenu="",ratings={},menuPhotoFile=null,blockPhotoFile=null;
@@ -750,6 +793,7 @@ function showPlanPicture(img,date,p,menu){
 }
 
 function renderWeek(){
+ const prep=$("#mealPrepSteps");if(prep)prep.hidden=iso(weekStart(new Date()))!=="2026-11-10" && iso(focus)!=="2026-11-10";
  focus=weekStart(focus);
  $("#shopDay").value=String(db.shoppingDay);
  $("#weekJump").value=iso(focus);
@@ -1043,6 +1087,7 @@ function acceptWeekIdea(idea,quiet=false){
 }
 function renderWeekIdeas(){
  const host=$("#weekIdeaList");if(!host)return;
+ const panel=$("#weekIdeaDetails");if(panel)panel.hidden=iso(focus)!=="2026-11-10";
  host.innerHTML=weekIdeasNovember.map((idea,i)=>{
   const occupied=db.plans[idea.date];
   return '<div class="card" style="padding:12px;margin-bottom:8px">'+
