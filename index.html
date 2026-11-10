@@ -3591,13 +3591,11 @@ body{padding-bottom:78px!important}
 
 
 /* v66: Stuhlgang abhaken und unverbindliche Perioden-Vorschau */
-.bowel-card{display:grid;gap:9px;margin:13px 0;padding:13px 15px;background:var(--paper);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
-.bowel-card-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-.bowel-card strong{font-size:15px;color:var(--ink)}
-.bowel-toggle{border:1px solid var(--accent);background:#fff;color:var(--accent);font-size:13px;font-weight:800;padding:10px 14px;border-radius:12px;cursor:pointer}
-.bowel-toggle[aria-pressed="true"]{background:var(--accent);color:white}
-.bowel-toggle:disabled{opacity:.45;cursor:default}
-.bowel-detail{color:var(--muted);font-size:11px;line-height:1.45}
+/* v70: kompakte Schnellwahl ohne extra Verdauungskarte */
+#waterQuickButton{display:block;width:100%;margin-top:12px;padding:8px 5px;background:var(--accent-soft);color:var(--accent);border:1px solid #c9d9c9;border-radius:11px;font-size:12px;line-height:1.25;font-weight:800;text-align:center;cursor:pointer}
+#waterQuickButton:active{filter:brightness(.96)}
+#bowelQuickButton[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:#9ab7a4}
+#bowelQuickButton:disabled{opacity:.55;cursor:default}
 .bowel-indicator{font-style:normal;font-size:11px;line-height:1;font-weight:900}
 .bowel-indicator.recorded{color:var(--accent)}
 .bowel-indicator.missing{color:var(--muted);opacity:.8}
@@ -3613,7 +3611,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="69">
+<body data-app-build="70">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3621,7 +3619,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v69</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v70</div>
   </header>
 
   <main>
@@ -3648,7 +3646,7 @@ body{padding-bottom:78px!important}
       <button type="button" id="thoughtHerbLink" class="thought-herb-link" hidden>🌿 Im Kräuterwissen weiterlesen →</button>
 
       <div id="todaySummary" class="summary-card">
-        <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small><span id="waterCelebrate" class="goal-flourish" aria-hidden="true"></span></div>
+        <div id="waterTodayCard"><small>Trinken</small><span id="waterCount" class="big">0,0 / 3,0 L</span><div class="water-progress"><span id="waterProgressBar"></span></div><small id="waterSub">heute</small><button id="waterQuickButton" type="button">+ 1 Flasche · 700 ml</button><span id="waterCelebrate" class="goal-flourish" aria-hidden="true"></span></div>
         <div id="freeDaysTodayCard" class="beer-card">
           
           <div id="freeGoalsTodayList" class="free-goals-today-list"></div>
@@ -3672,13 +3670,6 @@ body{padding-bottom:78px!important}
 
       <div id="quickSectionTitle" class="section-title"><h2>Schnell eintragen</h2><small>Ich bin stolz auf dich ♡</small></div>
       <div id="quickGrid" class="quick-grid"></div>
-      <section id="bowelCard" class="bowel-card" aria-label="Verdauungstagebuch">
-        <div class="bowel-card-top">
-          <strong>Verdauung · Stuhlgang</strong>
-          <button id="bowelToggle" class="bowel-toggle" type="button" aria-pressed="false">✓ Stuhlgang gehabt</button>
-        </div>
-        <div id="bowelDetail" class="bowel-detail">Ein Haken bedeutet: an diesem Tag Stuhlgang gehabt.</div>
-      </section>
 
 <div id="timelineSection" class="timeline-section">
         <div class="section-title"><h2>Heute gegessen &amp; eingetragen</h2><small id="timelineDayLabel"></small></div>
@@ -3984,7 +3975,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=69"></script>
+<script src="./daily-thoughts-v65.js?v=70"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4342,25 +4333,13 @@ function toggleBowelDay(){
   save();
 }
 function renderBowel(){
-  const btn=document.querySelector("#bowelToggle"),label=document.querySelector("#bowelDetail");
-  if(!btn||!label)return;
-  const checked=!!state.bowelDays?.[selectedDate],future=selectedDate>localDate();
+  const btn=document.querySelector("#bowelQuickButton");
+  if(!btn)return;
+  const checked=!!state.bowelDays?.[selectedDate];
+  btn.disabled=selectedDate>localDate();
   btn.setAttribute("aria-pressed",String(checked));
-  btn.disabled=future;
-  btn.textContent=checked?"✓ Eingetragen · rückgängig":"✓ Stuhlgang gehabt";
-  const day=selectedDate===localDate()?"heute":parseDate(selectedDate).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
-  const start=state.bowelTrackingStart;
-  let recorded=0,unmarked=0;
-  if(start){
-    for(let i=1;i<=7;i++){
-      const ds=addDays(localDate(),-i);
-      if(ds<start)continue;
-      if(state.bowelDays?.[ds])recorded++;else unmarked++;
-    }
-  }
-  label.textContent=future?"Zukünftige Tage kannst du noch nicht abhaken.":checked
-    ? `Für ${day} erfasst. ${recorded+unmarked?`Letzte 7 abgeschlossene Tage: ${recorded} mit Haken, ${unmarked} ohne Eintrag.`:""}`
-    : `Für ${day} noch kein Haken. ${recorded+unmarked?`Letzte 7 abgeschlossene Tage: ${recorded} mit Haken, ${unmarked} ohne Eintrag.`:""} Kein Haken bedeutet nicht automatisch keinen Stuhlgang.`;
+  btn.setAttribute("aria-label",checked?"Stuhlgang erfasst – antippen zum Rückgängigmachen":"Stuhlgang heute erfassen");
+  btn.innerHTML=`Stuhlgang<small>${checked?"✓ Erfasst":"Antippen"}</small>`;
 }
 function weightEntriesSorted(){
   return state.entries.filter(e=>e.type==="weight"&&Number.isFinite(Number(e.weightKg))).slice().sort((a,b)=>(a.date+"T"+a.time).localeCompare(b.date+"T"+b.time));
@@ -4773,6 +4752,8 @@ function renderSummary(){
   document.querySelector("#waterCount").textContent=`${liters.toFixed(1).replace(".",",")} / 3,0 L`;
   document.querySelector("#waterSub").textContent=totalMl?`${waters.length} Trink-Eintrag${waters.length===1?"":"e"}`:"Noch nichts eingetragen";
   const bar=document.querySelector("#waterProgressBar");if(bar)bar.style.width=`${Math.min(100,(totalMl/3000)*100)}%`;
+  const waterQuick=document.querySelector("#waterQuickButton");
+  if(waterQuick)waterQuick.textContent=`+ ${state.settings.waterLabel||"1 Flasche"} · ${Number(state.settings.waterMl)||700} ml`;
   const waterCelebrate=document.querySelector("#waterCelebrate");
   if(waterCelebrate){
     const words=["geschafft ♡","prima ♡","voll ♡","passt ♡"];
@@ -4829,8 +4810,13 @@ function confetti(count){
 }
 function renderQuick(){
   const g=document.querySelector("#quickGrid");g.innerHTML="";
+  const bowel=document.createElement("button");
+  bowel.id="bowelQuickButton";
+  bowel.type="button";
+  bowel.className="quick-btn";
+  bowel.onclick=toggleBowelDay;
+  g.appendChild(bowel);
   const qs=[
-    {label:state.settings.waterLabel||"Wasser",sub:`${state.settings.waterMl||700} ml`,type:"drink",value:"Wasser",tag:"water",amountMl:Number(state.settings.waterMl)||700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
     {label:"Durchfall",sub:"jetzt",type:"symptom",value:"Durchfall"},
     {label:"Sodbrennen",sub:"jetzt",type:"symptom",value:"Sodbrennen"}
@@ -5881,7 +5867,11 @@ function initDayPageSwipe(){
 function renderAll(){renderSummary();renderWeightToday();renderQuick();renderBowel();renderTimeline();renderKnown();renderSettings();renderHomeVisibility();if(document.querySelector("#monthView").classList.contains("active"))renderMonth()}
 
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.view==="todayView"){selectedDate=localDate();shownMonth=startMonth(new Date())}setView(b.dataset.view)});
-document.querySelector("#bowelToggle").onclick=toggleBowelDay;
+document.querySelector("#waterQuickButton").onclick=()=>{
+  addEntry("drink","Wasser",{tags:["water"],amountMl:Number(state.settings.waterMl)||700});
+  save();
+  showToast("Wasser gespeichert");
+};
 document.querySelector("#saveManualPeriodForecast").onclick=saveManualPeriodForecast;
 document.querySelector("#clearManualPeriodForecast").onclick=clearManualPeriodForecast;
 document.querySelector("#fab").onclick=openTypeDialog;document.querySelector("#closeTypeDialog").onclick=()=>document.querySelector("#typeDialog").close();document.querySelectorAll("[data-type-choice]").forEach(b=>b.onclick=()=>openNewEntry(b.dataset.typeChoice));
@@ -5935,7 +5925,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=69",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=70",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -5947,6 +5937,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=69"></script>
+<script src="./herb-knowledge-v64.js?v=70"></script>
 </body>
 </html>
