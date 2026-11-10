@@ -118,6 +118,17 @@
 .patterns-fold summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:800;padding:5px 3px}
 .patterns-fold>p{font-size:12px;line-height:1.5;color:var(--muted);margin:9px 3px 12px}
 .patterns-fold .pattern-card{margin:7px 0;box-shadow:none;border:1px solid var(--line);border-radius:13px;background:#fff}
+.ingredient-cat-row{border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.85);margin:8px 0;overflow:hidden}
+.ingredient-cat-row summary{display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none;cursor:pointer;padding:10px 12px;color:var(--ink)}
+.ingredient-cat-row summary::-webkit-details-marker{display:none}
+.ingredient-cat-row summary::after{content:"⌄";font-size:18px;color:var(--accent);flex-shrink:0}
+.ingredient-cat-row details[open] summary::after{content:"⌃"}
+.ingredient-cat-name{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.ingredient-cat-summary{display:block;color:var(--muted);font-size:11px;line-height:1.35;margin-top:2px;font-weight:500}
+.ingredient-cat-options{display:flex;flex-wrap:wrap;gap:7px;padding:8px 10px 12px;border-top:1px solid var(--line)}
+.ingredient-cat-options label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;padding:7px 8px;background:#fff;font-size:11px;font-weight:650}
+.ingredient-cat-options input{width:16px;height:16px;margin:0;accent-color:var(--accent)}
+.ingredient-cat-empty{font-size:12px;color:var(--muted);padding:10px 2px}
 
     .settings-card{margin:12px 0;padding:14px;display:grid;gap:12px}.settings-card h3{margin:0}.settings-card p{margin:0;color:var(--muted);font-size:13px}
     .file-label{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:#fff;display:block}.file-label input{display:none}
@@ -3617,7 +3628,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="71">
+<body data-app-build="72">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3625,7 +3636,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v71</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v72</div>
   </header>
 
   <main>
@@ -3880,10 +3891,15 @@ body{padding-bottom:78px!important}
         </label>
         <label id="periodFlowWrap" style="display:none">Stärke<select id="periodFlow"><option value="">ohne Angabe</option><option value="leicht">leicht</option><option value="mittel">mittel</option><option value="stark">stark</option></select></label>
         <div id="entryHint" class="hint"></div>
+        <div id="ingredientCategoryWrap" class="entry-category-wrap" style="display:none">
+          <span>Kategorien je Bestandteil (optional)</span>
+          <div class="category-note">Gib Zutaten mit Komma getrennt ein. Jede erhält ihre eigenen Kategorien. Einmal bestätigte Zuordnungen werden beim nächsten Mal vorgeschlagen und können geändert werden.</div>
+          <div id="ingredientCategoryList"></div>
+        </div>
         <label id="entryCategoryWrap" class="entry-category-wrap">
           <span>Kategorien (optional)</span>
           <div id="entryCategoryList" class="entry-category-list"></div>
-          <div class="category-note">Die Auswahl gilt für diesen Eintrag. Bekannte Lebensmittel/Getränke merkt sich die App für das nächste Mal.</div>
+          <div class="category-note">Die Auswahl gilt für dieses Getränk. Die App merkt sie sich für das nächste Mal.</div>
         </label>
         <label>Notiz (optional)<textarea id="entryNote" placeholder="Optional"></textarea></label>
         <label id="entryPhotoWrap" class="photo-picker"><span>Essensfoto (optional)</span>
@@ -3981,7 +3997,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=71"></script>
+<script src="./daily-thoughts-v65.js?v=72"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -3994,7 +4010,7 @@ const DEFAULT={
     homeVisibility:{moon:true,weight:true,water:true,freeDays:true,calendarSpecial:true,quick:true,wellbeing:true,sticky:true},
     customEntryCategories:[],
     calendar:{dailyQuotes:true,moon:true,seasons:true,holidays:true,wheel:true,rauhnacht:true,farmers:true,schoolHolidays:true,customQuotes:[]},todoItems:[{id:"walk",label:"Spaziergang",enabled:true},{id:"move",label:"Bewegung",enabled:true},{id:"rest",label:"Ruhepause",enabled:true},{id:"evening",label:"Abendroutine",enabled:true}]},
-  wellbeingDone:{},quoteChoices:{},itemTagMemory:{},drinkHydrationMemory:{},mealPhotos:{},bowelDays:{},bowelTrackingStart:null,
+  wellbeingDone:{},quoteChoices:{},itemTagMemory:{},drinkHydrationMemory:{},mealPhotos:{},bowelDays:{},bowelTrackingStart:null,ingredientTagMemory:{},
   quick:[
     {label:"Wasser",sub:"700 ml",type:"drink",value:"Wasser",tag:"water",amountMl:700},
     {label:"Bauchschmerzen",sub:"jetzt",type:"symptom",value:"Bauchschmerzen"},
@@ -4012,6 +4028,7 @@ let printFilters=["all"];
 let entryPhotoData="";
 let removeEntryPhoto=false;
 let mealKindTouched=false;
+let ingredientTagDraft=new Map();
 
 function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT))}
 function load(){
@@ -4024,6 +4041,7 @@ function load(){
       wellbeingDone:(x.wellbeingDone&&typeof x.wellbeingDone==="object")?x.wellbeingDone:{},
       quoteChoices:(x.quoteChoices&&typeof x.quoteChoices==="object")?x.quoteChoices:{},
       itemTagMemory:(x.itemTagMemory&&typeof x.itemTagMemory==="object")?x.itemTagMemory:{},
+      ingredientTagMemory:(x.ingredientTagMemory&&!Array.isArray(x.ingredientTagMemory)&&typeof x.ingredientTagMemory==="object")?x.ingredientTagMemory:{},
       drinkHydrationMemory:(x.drinkHydrationMemory&&typeof x.drinkHydrationMemory==="object")?x.drinkHydrationMemory:{},
       mealPhotos:(x.mealPhotos&&typeof x.mealPhotos==="object")?x.mealPhotos:{},
       bowelDays:(x.bowelDays&&!Array.isArray(x.bowelDays)&&typeof x.bowelDays==="object")?x.bowelDays:{},
@@ -5081,14 +5099,58 @@ const TYPE_UI={
   period:{title:"Periode eintragen",valueLabel:"",placeholder:"",hint:"Der Tag wird im Kalender mit einem roten Punkt markiert.",amount:false,value:false,period:true}
 };
 
+function foodParts(raw){
+  return String(raw||"").split(",").map(x=>x.trim()).filter(Boolean);
+}
+function verifiedCategoryIds(ids){
+  const allowed=new Set(allEntryCategories().map(c=>c.id));
+  return [...new Set(Array.isArray(ids)?ids:[])].filter(id=>allowed.has(id));
+}
+function rememberedIngredientCategories(value){
+  const key=normalizedItem(value),memory=state.ingredientTagMemory||{};
+  if(Object.prototype.hasOwnProperty.call(memory,key))return verifiedCategoryIds(memory[key]);
+  // Alte Einträge mit mehreren Bestandteilen trugen gemeinsame Tags.
+  // Deren Kategorien dürfen nicht automatisch einzelnen Bestandteilen zugewiesen werden.
+  const previous=[...state.entries].filter(e=>e.type==="food"&&normalizedItem(e.value)===key).reverse()
+    .find(e=>!e.mealId||state.entries.filter(p=>p.mealId===e.mealId&&p.date===e.date&&p.type==="food").length===1);
+  return previous?verifiedCategoryIds((previous.tags||[]).filter(t=>String(t).startsWith("cat:")).map(t=>t.slice(4))):[];
+}
+function ingredientDraftFor(value){
+  const key=normalizedItem(value);
+  if(!ingredientTagDraft.has(key))ingredientTagDraft.set(key,new Set(rememberedIngredientCategories(value)));
+  return ingredientTagDraft.get(key);
+}
+function renderIngredientCategories(){
+  const box=document.querySelector("#ingredientCategoryList");if(!box)return;
+  const parts=foodParts(document.querySelector("#entryValue")?.value);
+  if(!parts.length){box.innerHTML='<div class="ingredient-cat-empty">Nach Eingabe der Zutaten kannst du ihre Kategorien einzeln festlegen.</div>';return;}
+  const cats=allEntryCategories(),seen=new Set();
+  box.innerHTML=parts.filter(part=>{const key=normalizedItem(part);if(seen.has(key))return false;seen.add(key);return true}).map(part=>{
+    const key=normalizedItem(part),selected=ingredientDraftFor(part);
+    const labels=cats.filter(c=>selected.has(c.id)).map(c=>c.label);
+    return `<div class="ingredient-cat-row"><details><summary><span><span class="ingredient-cat-name">${escapeHtml(part)}</span><small class="ingredient-cat-summary">${labels.length?escapeHtml(labels.join(" · ")):"Kategorien zuordnen"}</small></span></summary>
+      <div class="ingredient-cat-options">${cats.map(c=>`<label><input type="checkbox" data-ingredient-key="${escapeHtml(key)}" value="${escapeHtml(c.id)}" ${selected.has(c.id)?"checked":""}>${escapeHtml(c.label)}</label>`).join("")}</div>
+    </details></div>`;
+  }).join("");
+  box.querySelectorAll("[data-ingredient-key]").forEach(cb=>cb.onchange=()=>{
+    const key=cb.dataset.ingredientKey,selected=ingredientTagDraft.get(key)||new Set();
+    if(cb.checked)selected.add(cb.value);else selected.delete(cb.value);
+    ingredientTagDraft.set(key,selected);
+    const labels=cats.filter(c=>selected.has(c.id)).map(c=>c.label);
+    const summary=cb.closest("details")?.querySelector(".ingredient-cat-summary");
+    if(summary)summary.textContent=labels.length?labels.join(" · "):"Kategorien zuordnen";
+  });
+}
 function selectedEntryCategoryIds(){
   return [...document.querySelectorAll('#entryCategoryList input[type="checkbox"]:checked')].map(x=>x.value)
 }
 function renderEntryCategories(type,selected=[]){
   const wrap=document.querySelector("#entryCategoryWrap"),box=document.querySelector("#entryCategoryList");
   if(!wrap||!box)return;
-  const allowed=type==="food"||type==="drink";
+  const allowed=type==="drink";
   wrap.style.display=allowed?"grid":"none";
+  const ingredientWrap=document.querySelector("#ingredientCategoryWrap");
+  if(ingredientWrap)ingredientWrap.style.display=type==="food"?"grid":"none";
   if(!allowed){box.innerHTML="";return}
   const selectedSet=new Set(selected);
   box.innerHTML=allEntryCategories().map(c=>`<label class="category-choice"><input type="checkbox" value="${escapeHtml(c.id)}" ${selectedSet.has(c.id)?"checked":""}><span>${escapeHtml(c.label)}</span></label>`).join("");
@@ -5115,6 +5177,7 @@ function autoCategoryIds(type,value){
 }
 function refreshEntryCategoriesFromValue(){
   const type=document.querySelector("#entryType").value,value=document.querySelector("#entryValue").value;
+  if(type==="food"){renderIngredientCategories();return;}
   if(editingIds.length)return;
   renderEntryCategories(type,autoCategoryIds(type,value));
 }
@@ -5141,7 +5204,7 @@ function configureEntryForm(type){
   renderEntryCategories(type,[]);
 }
 function openNewEntry(type){
-  clearEditing();mealKindTouched=false;document.querySelector("#typeDialog").close();configureEntryForm(type);
+  clearEditing();ingredientTagDraft=new Map();mealKindTouched=false;document.querySelector("#typeDialog").close();configureEntryForm(type);
   const now=localTime();
   document.querySelector("#entryTime").value=now;
   document.querySelector("#entryValue").value="";
@@ -5150,7 +5213,7 @@ function openNewEntry(type){
   document.querySelector("#periodFlow").value="";
   document.querySelector("#entryNote").value="";
   resetPhotoField();renderEntryCategories(type,[]);
-  if(type==="food")setMealKind(guessMealKind(now),false);
+  if(type==="food"){setMealKind(guessMealKind(now),false);renderIngredientCategories();}
   document.querySelector("#entryDialog").showModal();
   if(type==="food")renderMealPhotoSuggestions();
   if(type==="drink")refreshHydrationOption();
@@ -5159,6 +5222,15 @@ function openEditDialog(id){
   const first=state.entries.find(e=>e.id===id);if(!first)return;
   const items=first.mealId?state.entries.filter(e=>e.mealId===first.mealId&&e.date===first.date):[first];
   editingIds=items.map(e=>e.id);editingDate=first.date;mealKindTouched=!!first.mealKind;
+  ingredientTagDraft=new Map();
+  if(first.type==="food"){
+    items.forEach(e=>{
+      const key=normalizedItem(e.value);
+      if(!ingredientTagDraft.has(key))ingredientTagDraft.set(key,new Set());
+      const selected=ingredientTagDraft.get(key);
+      (e.tags||[]).forEach(t=>{if(String(t).startsWith("cat:"))selected.add(String(t).slice(4));});
+    });
+  }
   configureEntryForm(first.type);
   document.querySelector("#entryDialogTitle").textContent=items.length>1?"Mahlzeit ändern":TYPE_UI[first.type]?.title||"Eintrag ändern";
   document.querySelector("#entryTime").value=first.time;
@@ -5172,10 +5244,14 @@ function openEditDialog(id){
     entryPhotoData=mealPhoto(first.mealId);setPhotoPreview(entryPhotoData);
     setMealKind(first.mealKind||guessMealKind(first.time),false);
   }
-  const editCats=new Set();
-  items.forEach(e=>(e.tags||[]).forEach(t=>{if(String(t).startsWith("cat:"))editCats.add(String(t).slice(4))}));
-  if(items.some(e=>normalizedItem(e.value)==="bier"))editCats.add("beer");
-  renderEntryCategories(first.type,[...editCats]);
+  if(first.type==="food"){
+    renderIngredientCategories();
+  }else{
+    const editCats=new Set();
+    items.forEach(e=>(e.tags||[]).forEach(t=>{if(String(t).startsWith("cat:"))editCats.add(String(t).slice(4))}));
+    if(items.some(e=>normalizedItem(e.value)==="bier"))editCats.add("beer");
+    renderEntryCategories(first.type,[...editCats]);
+  }
   document.querySelector("#deleteEntry").style.display="block";
   document.querySelector("#entryDialog").showModal();
   if(first.type==="food")renderMealPhotoSuggestions();
@@ -5194,7 +5270,7 @@ function saveDialog(ev){
   let amount=null,weight=null;
   if(type==="drink"&&amountRaw){amount=Number(amountRaw);if(!Number.isFinite(amount)||amount<=0)return showToast("Bitte eine gültige Menge in ml eingeben")}
   if(type==="weight"){weight=Number(String(amountRaw).replace(",","."));if(!Number.isFinite(weight)||weight<=0)return showToast("Bitte Gewicht in kg eingeben")}
-  const categoryIds=(type==="food"||type==="drink")?selectedEntryCategoryIds():[];
+  const categoryIds=type==="drink"?selectedEntryCategoryIds():[];
   if(normalizedItem(raw)==="bier"){
     if(!categoryIds.includes("beer"))categoryIds.push("beer");
     if(!categoryIds.includes("alcohol"))categoryIds.push("alcohol");
@@ -5202,8 +5278,17 @@ function saveDialog(ev){
   const catTags=categoryIds.map(categoryTag);
   if(editingIds.length)state.entries=state.entries.filter(e=>!editingIds.includes(e.id));
   if(type==="food"){
-    const mealId=oldMealId||uid(),parts=raw.split(",").map(x=>x.trim()).filter(Boolean),mealKind=currentMealKind();
-    parts.forEach(v=>{addEntry("food",v,{date,time,note,mealId,tags:catTags,mealKind});rememberCategories(v,categoryIds)});
+    const mealId=oldMealId||uid(),parts=foodParts(raw),mealKind=currentMealKind();
+    state.ingredientTagMemory=state.ingredientTagMemory||{};
+    parts.forEach(v=>{
+      const key=normalizedItem(v);
+      const ids=verifiedCategoryIds([...(ingredientDraftFor(v)||[])]);
+      const previous=oldItems.find(e=>normalizedItem(e.value)===key);
+      const otherTags=(previous?.tags||[]).filter(t=>!String(t).startsWith("cat:"));
+      addEntry("food",v,{date,time,note,mealId,tags:[...new Set([...otherTags,...ids.map(categoryTag)])],mealKind});
+      // Pro Lebensmittel merken, aber jedes Mal bearbeitbar lassen.
+      state.ingredientTagMemory[key]=ids;
+    });
     state.mealPhotos=state.mealPhotos||{};
     if(removeEntryPhoto) delete state.mealPhotos[mealId];
     else if(entryPhotoData) state.mealPhotos[mealId]=entryPhotoData;
@@ -5983,7 +6068,7 @@ if(entryTimeInput)entryTimeInput.addEventListener("change",()=>{
 
 document.querySelector("#entryForm").addEventListener("submit",saveDialog);
 document.querySelector("#entryValue").addEventListener("change",()=>{refreshEntryCategoriesFromValue();renderMealPhotoSuggestions();if(document.querySelector("#entryType").value==="drink")refreshHydrationOption()});
-document.querySelector("#entryValue").addEventListener("input",()=>{const t=document.querySelector("#entryType").value;if(t==="food")renderMealPhotoSuggestions();if(t==="drink")refreshHydrationOption()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
+document.querySelector("#entryValue").addEventListener("input",()=>{const t=document.querySelector("#entryType").value;if(t==="food"){renderMealPhotoSuggestions();renderIngredientCategories();}if(t==="drink")refreshHydrationOption()});document.querySelector("#closeEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#cancelEntryDialog").onclick=()=>{clearEditing();resetPhotoField();mealKindTouched=false;document.querySelector("#entryDialog").close()};document.querySelector("#deleteEntry").onclick=deleteCurrentEntry;
 document.querySelector("#prevMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()-1,1);renderMonth()};document.querySelector("#nextMonth").onclick=()=>{shownMonth=new Date(shownMonth.getFullYear(),shownMonth.getMonth()+1,1);renderMonth()};document.querySelector("#monthFilter").onchange=renderMonth;
 document.querySelectorAll("[data-weight-range]").forEach(b=>b.onclick=()=>{weightChartRange=b.dataset.weightRange||"month";renderWeightChart()});
 window.addEventListener("beforeprint",()=>{
@@ -6008,7 +6093,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=71",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=72",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6020,6 +6105,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=71"></script>
+<script src="./herb-knowledge-v64.js?v=72"></script>
 </body>
 </html>
