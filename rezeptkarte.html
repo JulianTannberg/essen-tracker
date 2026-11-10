@@ -147,11 +147,9 @@ else if(found.length){
  for(const recipe of found){
   const rc=recipe.card||{};
   for(const g of rc.ingredients||[])groups.push({title:recipe.shortName||recipe.name,items:g.items||[]});
-  for(const section of rc.sections||[])sections.push({
-   title:(recipe.shortName||recipe.name)+" · "+section.title,
-   steps:section.steps,text:section.text
-  });
-  for(const n of rc.notes||[])notes.push((recipe.shortName||recipe.name)+": "+n);
+  const allSteps=(rc.sections||[]).flatMap(section=>Array.isArray(section.steps)?section.steps:section.text?[section.text]:[]);
+  sections.push({title:recipe.shortName||recipe.name,steps:allSteps.length?allSteps:["Zubereitung noch nicht hinterlegt."]});
+  for(const n of (rc.notes||[]).slice(0,1))notes.push((recipe.shortName||recipe.name)+": "+n);
  }
  card={subtitle:"Ein Menü aus "+found.map(r=>r.shortName||r.name).join(" · "),
   servings:found.map(r=>r.card?.servings).filter(Boolean)[0]||"Nach Bedarf",
