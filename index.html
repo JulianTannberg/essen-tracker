@@ -3659,6 +3659,7 @@ body{padding-bottom:78px!important}
 .food-sprite.third-food-photo{background-image:url("./assets/kitchen-food-sprite-3.webp");background-size:300% 200%}
 .food-sprite.atlas-food-photo{background-image:url("./assets/kitchen-food-sprite-4.webp");background-size:900% 500%}
 .food-sprite.atlas5-food-photo{background-image:url("./assets/kitchen-food-sprite-5.webp");background-size:800% 600%}
+.food-sprite.atlas6-food-photo{background-image:url("./assets/kitchen-food-sprite-6.webp");background-size:1000% 400%}
 .meal-food-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .meal-food-piece{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 9px 3px 3px;border:1px solid #e1e7da;background:#f7f9f4;border-radius:11px;font-size:11px;font-weight:650;line-height:1.35;color:#596752}
 .meal-food-piece .food-sprite{width:32px;height:32px}
@@ -3679,7 +3680,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="82">
+<body data-app-build="83">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3687,7 +3688,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v82</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v83</div>
   </header>
 
   <main>
@@ -4052,7 +4053,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=82"></script>
+<script src="./daily-thoughts-v65.js?v=83"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4133,6 +4134,7 @@ function mealPhoto(mealId){return mealId&&state.mealPhotos?state.mealPhotos[meal
 function foodPhotoIndex(name,mealKind=""){
   const n=normalizedItem(name).replace(/\s+/g," ").trim().replace(/^tk[- ]/, "");
   if(/^haferkochcreme\s*\/\s*hafersahne$/.test(n))return 137;
+  if(/^(?:gewürze und kräuter|gewürze & kräuter)$/.test(n))return 308;
   if(/\b(?:mit|und)\b|[,;&+\/]/.test(n))return -1;
   if(/\bkroketten\b/.test(n))return 0;
   if(n==="schnitzel"||/^schnitzel\b/.test(n))return 1;
@@ -4229,17 +4231,55 @@ function foodPhotoIndex(name,mealKind=""){
   if(/^(?:leinsamen)(?:\s|$)/.test(n))return 245;
   if(/^(?:honig)(?:\s|$)/.test(n))return 246;
   if(/^(?:ahornsirup)(?:\s|$)/.test(n))return 247;
+  if(/^(?:gemüsebrühe|gemüsebrühe pulver|brühe|gemüsefond|gemüsebouillon)(?:\s|$)/.test(n))return 300;
+  if(/^(?:olivenöl|olivenoel)(?:\s|$)/.test(n))return 301;
+  if(/^(?:öl|speiseöl|rapsöl|sonnenblumenöl|pflanzenöl)(?:\s|$)/.test(n))return 302;
+  if(/^(?:butter)(?:\s|$)/.test(n))return 303;
+  if(/^(?:margarine)(?:\s|$)/.test(n))return 304;
+  if(/^(?:salz)(?:\s|$)/.test(n))return 305;
+  if(/^(?:pfeffer|schwarzer pfeffer)(?:\s|$)/.test(n))return 306;
+  if(/^(?:paprikapulver|paprikagewürz)(?:\s|$)/.test(n))return 307;
+  if(/^(?:gewürze|gewürzmischung|kräuter|kräuter der provence|provenzalische kräuter)(?:\s|$)/.test(n))return 308;
+  if(/^(?:italienische kräuter)(?:\s|$)/.test(n))return 309;
+  if(/^(?:oregano)(?:\s|$)/.test(n))return 310;
+  if(/^(?:basilikum)(?:\s|$)/.test(n))return 311;
+  if(/^(?:thymian)(?:\s|$)/.test(n))return 312;
+  if(/^(?:rosmarin)(?:\s|$)/.test(n))return 313;
+  if(/^(?:petersilie)(?:\s|$)/.test(n))return 314;
+  if(/^(?:schnittlauch)(?:\s|$)/.test(n))return 315;
+  if(/^(?:dill)(?:\s|$)/.test(n))return 316;
+  if(/^(?:minze)(?:\s|$)/.test(n))return 317;
+  if(/^(?:knoblauch)(?:\s|$)/.test(n))return 318;
+  if(/^(?:ingwer)(?:\s|$)/.test(n))return 319;
+  if(/^(?:zitrone|zitronen)(?:\s|$)/.test(n))return 320;
+  if(/^(?:limette|limetten)(?:\s|$)/.test(n))return 321;
+  if(/^(?:essig|apfelessig)(?:\s|$)/.test(n))return 322;
+  if(/^(?:balsamico|balsamicoessig)(?:\s|$)/.test(n))return 323;
+  if(/^(?:senf)(?:\s|$)/.test(n))return 324;
+  if(/^(?:ketchup)(?:\s|$)/.test(n))return 325;
+  if(/^(?:mayonnaise|mayo)(?:\s|$)/.test(n))return 326;
+  if(/^(?:remoulade)(?:\s|$)/.test(n))return 327;
+  if(/^(?:currysoße|currysauce)(?:\s|$)/.test(n))return 328;
+  if(/^(?:sweet-chili-sauce|sweet-chili-soße|chilisoße)(?:\s|$)/.test(n))return 329;
+  if(/^(?:joghurt)(?:\s|$)/.test(n))return 330;
+  if(/^(?:skyr)(?:\s|$)/.test(n))return 331;
+  if(/^(?:hüttenkäse|hüttenkaese)(?:\s|$)/.test(n))return 334;
+  if(/^(?:saure sahne)(?:\s|$)/.test(n))return 335;
+  if(/^(?:vegane sahne)(?:\s|$)/.test(n))return 337;
+  if(/^(?:hafermilch|haferdrink)(?:\s|$)/.test(n))return 338;
+  if(/^(?:sojamilch|sojadrink)(?:\s|$)/.test(n))return 339;
   return -1;
 }
 function foodPhotoTag(name,extraClass="",mealKind=""){
   const i=foodPhotoIndex(name,mealKind);
   if(i<0)return "";
-  const atlas5=i>=200,atlas=i>=100&&!atlas5,third=i>=18&&!atlas&&!atlas5;
-  const cell=atlas5?i-200:atlas?i-100:third?i-18:(i>=9?i-9:i);
-  const position=atlas5?(cell%8)/7*100+"% "+Math.floor(cell/8)/5*100+"%":
+  const atlas6=i>=300,atlas5=i>=200&&!atlas6,atlas=i>=100&&!atlas5&&!atlas6,third=i>=18&&!atlas&&!atlas5&&!atlas6;
+  const cell=atlas6?i-300:atlas5?i-200:atlas?i-100:third?i-18:(i>=9?i-9:i);
+  const position=atlas6?(cell%10)/9*100+"% "+Math.floor(cell/10)/3*100+"%":
+    atlas5?(cell%8)/7*100+"% "+Math.floor(cell/8)/5*100+"%":
     atlas?(cell%9)/8*100+"% "+Math.floor(cell/9)/4*100+"%":
     (cell%3)*50+"% "+Math.floor(cell/3)*(third?100:50)+"%";
-  const cls=atlas5?" atlas5-food-photo":atlas?" atlas-food-photo":third?" third-food-photo":i>=9?" new-food-photo":"";
+  const cls=atlas6?" atlas6-food-photo":atlas5?" atlas5-food-photo":atlas?" atlas-food-photo":third?" third-food-photo":i>=9?" new-food-photo":"";
   return '<span class="food-sprite'+cls+' '+escapeHtml(extraClass)+'" style="background-position:'+position+'" role="img" aria-label="'+escapeHtml(String(name).trim())+'"></span>';
 }
 
@@ -6372,7 +6412,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=82",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=83",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6388,6 +6428,6 @@ initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=82"></script>
+<script src="./herb-knowledge-v64.js?v=83"></script>
 </body>
 </html>
