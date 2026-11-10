@@ -90,7 +90,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <p class="photo-note">Das Menüfoto passt nur zu der gespeicherten Zusammenstellung. Bei abweichenden Bestandteilen werden die Bausteine angezeigt.</p>
 <div id="menuRatings"></div><div class="wraprow"><button id="saveMenu" class="btn">Menü speichern</button><button id="cookedMenu" class="btn alt">Heute gekocht +1</button><button id="deleteMenu" class="btn warn">Menü löschen</button></div></dialog>
 <div class="toast" id="toast" role="status"></div>
-<script src="./kitchen-block-library-v84.js?v=84"></script>
+<script src="./kitchen-block-library-v85.js?v=85"></script>
 <script>
 (function(){
 "use strict";
@@ -111,6 +111,29 @@ function weekStart(d){return plus(d,-((d.getDay()-Number(db.shoppingDay)+7)%7));
 function read(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.blocks))return r;}catch(e){}return {blocks:[],menus:[],plans:{},shoppingDay:2,shopping:{},manual:[],recent:[]};}
 let db=read();
 db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)?db.menus:[];db.plans=db.plans||{};db.shopWeeks=db.shopWeeks||{};db.recent=db.recent||[];
+(function migrateKitchenBlocksV85(){
+  // Bewahrt vorhandene IDs, Vorrat und Menüverknüpfungen beim Umbenennen.
+  if(Number(db.kitchenCatalogMigration||0)>=85)return;
+  const rename=(oldName,newName,note)=>{
+    const b=db.blocks.find(x=>nkey(x.name)===nkey(oldName));
+    if(b&&!db.blocks.some(x=>nkey(x.name)===nkey(newName))){
+      b.name=newName;
+      if(!b.note)b.note=note;
+    }
+  };
+  rename("Schnitzel","TK-Schnitzel","Fertig gekauftes Tiefkühlprodukt; Garzeit nach Verpackung.");
+  rename("Pommes","TK-Pommes","Fertig gekaufte Tiefkühl-Pommes.");
+  const general=db.blocks.find(b=>nkey(b.name)===nkey("Fleisch von der Combi-Theke"));
+  if(general){
+    const id=general.id;
+    const isPlanned=Object.values(db.plans).some(p=>(p.parts||[]).includes(id));
+    const isMenuPart=db.menus.some(m=>(m.parts||[]).includes(id));
+    const isInShopping=Object.values(db.shopWeeks).some(w=>(w.manual||[]).includes(id)||Object.prototype.hasOwnProperty.call(w.status||{},id));
+    if(!isPlanned&&!isMenuPart&&!isInShopping)db.blocks=db.blocks.filter(b=>b.id!==id);
+  }
+  db.kitchenCatalogMigration=85;
+  save();
+})();
 (function seedKitchenBlockLibrary(){
   // Einmalige Ergänzung der Bibliothek. Bereits bestehende Artikel bleiben komplett unverändert.
   // Ein vom Nutzer gelöschter Katalogeintrag wird beim nächsten Start nicht erneut angelegt.
