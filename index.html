@@ -3655,7 +3655,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="73">
+<body data-app-build="74">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3663,12 +3663,13 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v73</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v74</div>
   </header>
 
   <main>
     <section id="todayView" class="view active">
       <div id="weekStrip" class="week-strip" aria-label="Tage auswählen"></div>
+       <a href="./kueche.html" style="display:block;text-align:center;text-decoration:none;padding:11px 14px;margin:10px 0 14px;border-radius:13px;background:#e6efe3;color:#3a6847;font-weight:750;font-size:13px;border:1px solid #cfdfca">🍲 Mein Küchenplaner · Woche, Bausteine &amp; Einkauf →</a>
 
       <div id="todayTopGrid" class="today-top-grid">
         <div id="wellbeingCard" class="wellbeing-card">
@@ -3776,6 +3777,7 @@ body{padding-bottom:78px!important}
 
     <section id="settingsView" class="view">
       <div class="section-title"><h2>Einstellungen</h2><small>Planer</small></div>
+      <div class="settings-card"><h3>🍲 Küchenplaner</h3><p>Wochenplan, Lebensmittelbausteine, Kochbuch und Einkaufsübersicht.</p><a href="./kueche.html" class="secondary-btn" style="display:inline-block;text-decoration:none">Küchenplaner öffnen →</a></div>
       <div class="settings-card">
         <h3>Startseite</h3>
         <p>Hier kannst du Bereiche nur ausblenden. Deine Einträge und Einstellungen bleiben erhalten.</p>
@@ -4026,7 +4028,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=73"></script>
+<script src="./daily-thoughts-v65.js?v=74"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -6219,7 +6221,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=73",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=74",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6231,6 +6233,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=73"></script>
+<script src="./herb-knowledge-v64.js?v=74"></script>
 </body>
 </html>
