@@ -154,6 +154,22 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
   save();
 })();
 
+(function seedFirstSchnitzelMenuDraft(){
+  // Einmaliger, bewusst unvollständiger Rezeptentwurf: Gemüse wird später gewählt.
+  if(Number(db.firstSchnitzelMenuVersion||0)>=85)return;
+  const schnitzel=db.blocks.find(b=>nkey(b.name)===nkey("TK-Schnitzel"));
+  const kroketten=db.blocks.find(b=>nkey(b.name)===nkey("Jeden Tag Backofen-Kroketten 750 g"));
+  const exists=db.menus.some(m=>nkey(m.name)===nkey("Schnitzel mit Kroketten"));
+  if(schnitzel&&kroketten&&!exists){
+    db.menus.push({
+      id:id(),name:"Schnitzel mit Kroketten",parts:[schnitzel.id,kroketten.id],
+      recipe:"ENTWURF – Gemüse noch offen.\n\nZutaten: Fertig gekauftes TK-Schnitzel; Jeden Tag Backofen-Kroketten (TK, 750-g-Packung). Mengen nach den mitessenden Personen festlegen.\n\nZubereitung: Beide Produkte nach ihren jeweiligen Packungsangaben zubereiten. Für den Ninja 902 nach Eignung und verfügbaren Airfryer-Angaben prüfen: Schnitzel und Kroketten in getrennte Zonen geben, nicht überfüllen, bei Bedarf wenden bzw. schütteln. Die SYNC-Funktion kann die Endzeiten abstimmen. Konkrete Temperatur und Minuten erst nach Prüfung der Verpackungen festlegen.\n\nGemüsebeilage später auswählen und als weiteren Baustein ergänzen. Dann ist die endgültige Menükombination festgelegt.",
+      ratings:{},count:0,status:"draft"
+    });
+  }
+  db.firstSchnitzelMenuVersion=85;
+  save();
+})();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
 function menuSignature(parts){return JSON.stringify([...(parts||[])].sort());}
 let view="week",focus=weekStart(new Date()),planEditing="",planParts=[],menuParts=[],editingBlock="",editingMenu="",ratings={},menuPhotoFile=null,blockPhotoFile=null;
