@@ -54,6 +54,13 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <main class="wrap"><div id="kitchenDiagnostics" class="card" role="status" aria-live="polite" hidden style="border-color:#d7b894;color:#805c32"><strong>Die Küchenseite konnte nicht vollständig geladen werden.</strong><p id="kitchenErrorDetails" class="small"></p><p class="small">Bitte nicht die App-Daten löschen. Der Fehler betrifft die Anzeige, nicht automatisch deine gespeicherten Einträge.</p></div>
 <section id="week" class="tab active"><div class="sectionbar"><h2>Wochenplan</h2><div class="row"><button class="btn alt tiny" id="weekPrev" title="Vorherige Woche">‹</button><button class="btn alt tiny" id="weekNext" title="Nächste Woche">›</button></div></div>
 <p class="week-range-line" id="weekRange"></p>
+<details class="week-settings" id="weekIdeaDetails"><summary>🍲 Wochenideen 10.–16. November · Curry &amp; TK-Rosenkohl</summary>
+<div class="week-settings-content">
+<p class="muted">Vorschläge aus unserem Gespräch, noch keine fertig ausgearbeiteten Rezepte. Du kannst die freien Tage übernehmen; vorhandene Tagespläne bleiben unverändert.</p>
+<div id="weekIdeaList"></div>
+<div class="wraprow"><button type="button" class="btn" id="applyWeekIdeas">Alle freien Tage vormerken</button></div>
+<p class="muted" id="weekIdeaStatus" aria-live="polite"></p>
+</div></details>
 <div id="weekDays"></div>
 <div class="hint">Tipp: Erst ein Gericht für eine Person planen, dann die anderen zuordnen. Änderungen bleiben nur auf diesem Gerät gespeichert.</div>
 <details class="week-settings"><summary>⚙ Einkaufstag und Wochenanzeige</summary>
@@ -70,7 +77,13 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <div class="sectionbar"><h2>Einzelrezepte</h2></div><div id="recipeList"></div>
 <div class="sectionbar"><h2>Zusammengestellte Menüs</h2></div>
 <div class="card"><label for="menuSort">Sortieren</label><select id="menuSort"><option value="count">Am häufigsten gekocht</option><option value="rated">Beste Bewertung</option><option value="recent">Zuletzt gekocht</option><option value="name">Name</option></select></div><div id="menuList"></div><div class="sectionbar"><h2>Ideen zum Ausprobieren</h2></div><p class="muted">Rezepte von Chefkoch und Rezeptwelt. Noch nicht von euch gekocht oder bewertet. Die Originalseiten enthalten die Anleitungen.</p><div id="recipeIdeas"></div></section>
-<section id="shopping" class="tab"><h2>Einkaufsübersicht</h2><div class="card soft"><p class="small">Die Liste entsteht aus deinen geplanten Gerichten. Bei Grundvorräten und Resten kannst du entscheiden, ob du sie kaufen musst. Waren ohne festen Laden bleiben für den Preisvergleich offen.</p><div class="row between"><strong id="shopWeek"></strong><button id="copyShopping" class="btn">Liste kopieren</button></div></div>
+<section id="shopping" class="tab"><h2>Einkaufsübersicht</h2>
+<details class="week-settings" id="offerNotesDetails" open>
+<summary>🏷️ Combi-Angebote aus deiner Notiz · November 2026</summary>
+<div class="week-settings-content">
+<p class="muted">Übertragene Prospektangaben – nicht live überprüft. Preise und Gültigkeit vor dem Einkauf prüfen. Erst durch „Vormerken“ kommen Artikel auf die Einkaufsliste.</p>
+<div id="offerNotesList"></div>
+</div></details><div class="card soft"><p class="small">Die Liste entsteht aus deinen geplanten Gerichten. Bei Grundvorräten und Resten kannst du entscheiden, ob du sie kaufen musst. Waren ohne festen Laden bleiben für den Preisvergleich offen.</p><div class="row between"><strong id="shopWeek"></strong><button id="copyShopping" class="btn">Liste kopieren</button></div></div>
 <div class="card"><h3>Artikel schnell ergänzen</h3><input id="shopSearch" type="search" placeholder="Kartoffeln, Äpfel, Milch …"><div id="shopMatches" class="searchlist" hidden></div><div class="sectionbar"><strong class="small">Angeheftet & zuletzt genutzt</strong></div><div id="shopQuick" class="wraprow"></div></div>
 <div id="shoppingLists"></div></section>
 </main>
@@ -582,7 +595,7 @@ function closeDialog(sel){$(sel).close();}
 document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closeDialog("#"+b.dataset.close)));
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{view=b.dataset.tab;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.id===view));document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===view));render();window.scrollTo(0,0);}));
 function render(){
- const tasks=[["Woche",renderWeek],["Bausteine",renderBlocks],["Kochbuch",renderMenus],["Ideen",renderIdeas],["Einkauf",renderShopping],["Bilder",applyPhotos]];
+ const tasks=[["Woche",renderWeek],["Wochenvorschläge",renderWeekIdeas],["Bausteine",renderBlocks],["Kochbuch",renderMenus],["Ideen",renderIdeas],["Einkauf",renderShopping],["Angebote",renderOfferNotes],["Bilder",applyPhotos]];
  for(const [section,fn] of tasks){
    try{fn()}catch(err){
      if(window.__kitchenReportError)window.__kitchenReportError({message:section+": "+String(err?.message||err)});
@@ -922,6 +935,90 @@ function editMenu(key){
     people.map(([key,name])=>name+": "+(m.ratings&&m.ratings[key]?m.ratings[key]+" / 5 ★":"noch keine Bewertung")).join(" · ");
   openDialog("#menuDialog");
 }
+
+const NOVEMBER_WEEK_ID="2026-11-10";
+const weekIdeasNovember=[
+ {date:"2026-11-11",name:"Vegane Curry-Reispfanne",parts:["Reis","Kokosmilch","Möhren frisch","Champignons","Paprika","Currypaste"],note:"Vegane Grundlage; gegebenenfalls Hähnchen getrennt ergänzen. Currypaste auf vegane Zutaten prüfen.",vegan:true},
+ {date:"2026-11-12",name:"Pizza-Tag",parts:["TK-Pizza"],note:"Wagner Big City / Die Backfrische laut Combi-Angebotsnotiz. Für die Tochter eine vegane Pizza oder Alternative getrennt vorsehen."},
+ {date:"2026-11-13",name:"Gebratener Reis mit Gemüse",parts:["Reis","Möhren frisch","Paprika","Erbsen","Sojasoße"],note:"Vegane Reispfanne als Grundlage. Ei oder Hähnchen bei Wunsch erst getrennt zugeben.",vegan:true},
+ {date:"2026-11-14",name:"Rumpsteak mit Kartoffeln und TK-Rosenkohl",parts:["Rumpsteak","Kartoffeln","Rosenkohl TK"],note:"Rosenkohl aus der vorhandenen Tiefkühltruhe verbrauchen. Für die Tochter eine vegane Hauptkomponente gesondert planen."},
+ {date:"2026-11-15",name:"Linsensuppe mit Bratwurst separat",parts:["Linsen","Möhren frisch","Kartoffeln","Gemüsebrühe","Bratwurst"],note:"Suppe zunächst vegan zubereiten; grobe Bratwurst nur für diejenigen separat garen, die sie möchten."},
+ {date:"2026-11-16",name:"Kartoffeln mit Gemüse und Dip",parts:["Kartoffeln","Möhren frisch"],note:"Tzatziki oder Kartoffelcreme (Combi-Angebot) nach Wunsch. Für Tochter veganen Dip vorsehen. Reste können verwendet werden."}
+];
+const novemberOfferNotes=[
+ {id:"emsland-wasser",name:"Emsland Quelle Mineralwasser",group:"Getränke & Vorrat",store:"Combi",details:"12 × 0,7/0,75 l · 3,99 € + 3,30 € Pfand · 0,48/0,44 €/l laut Notiz",price:"3,99 € + 3,30 € Pfand",replaces:["Mineralwasser"]},
+ {id:"rumpsteak",name:"Roastbeef oder Rumpsteak",group:"Combi",store:"Combi",details:"2,49 € / 100 g · 24,90 € / kg · Do–Sa laut Notiz (12.–14.11. vermutet; bitte prüfen)",price:"2,49 €/100 g",replaces:["Rumpsteak"]},
+ {id:"dip",name:"Salatkönig Tzatziki oder Kartoffelcreme",group:"Combi",store:"Combi",details:"500-g-Becher · 1,99 € · 3,98 €/kg",price:"1,99 €/500 g",replaces:[]},
+ {id:"wagner-pizza",name:"Wagner Big City / Die Backfrische",group:"Combi",store:"Combi",details:"Pizza, 320–445 g · 1,99 € · ab 4,42 €/kg laut Notiz",price:"1,99 €",replaces:["TK-Pizza"]},
+ {id:"mandeldrink",name:"Bio Mandeldrink ungesüßt",group:"Getränke & Vorrat",store:"Combi",details:"1 l · 1,11 € · Normalpreis laut Notiz 1,35 €",price:"1,11 €/1 l",replaces:["Mandelmilch"]},
+ {id:"hunde-beinscheibe",name:"Rinder-Beinscheibe (für Hunde)",group:"Hunde",store:"Combi",details:"0,99 € / 100 g · 9,90 €/kg · Menge noch offen; nur Einkaufsnotiz, keine Fütterungsempfehlung",price:"0,99 €/100 g",replaces:[]}
+];
+function weekIdeaLabel(date){
+ return day(date).toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"});
+}
+function acceptWeekIdea(idea,quiet=false){
+ if(db.plans[idea.date])return false;
+ const parts=[...new Set(idea.parts.map(name=>db.blocks.find(b=>nkey(b.name)===nkey(name))?.id).filter(Boolean))];
+ db.plans[idea.date]={
+  name:idea.name,parts,manualParts:[...parts],recipeIds:[],menuId:"",
+  people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:idea.note,
+  cooked:false,origin:"week-idea-november-2026"
+ };
+ if(!quiet){focus=weekStart(day(idea.date));save();render();toast("Als Vorschlag in den Tagesplan übernommen");}
+ return true;
+}
+function renderWeekIdeas(){
+ const host=$("#weekIdeaList");if(!host)return;
+ host.innerHTML=weekIdeasNovember.map((idea,i)=>{
+  const occupied=db.plans[idea.date];
+  return '<div class="card" style="padding:12px;margin-bottom:8px">'+
+   '<div class="row between"><strong>'+esc(weekIdeaLabel(idea.date))+'</strong><button type="button" class="btn alt tiny" data-idea-day="'+i+'" '+(occupied?'disabled':'')+'>'+(occupied?'Tag schon belegt':'Für den Tag vormerken')+'</button></div>'+
+   '<p style="margin:7px 0 2px"><strong>'+esc(idea.name)+'</strong></p>'+
+   '<p class="muted" style="margin:0">'+esc(idea.note)+'</p></div>';
+ }).join("");
+ host.querySelectorAll("[data-idea-day]").forEach(b=>b.onclick=()=>acceptWeekIdea(weekIdeasNovember[Number(b.dataset.ideaDay)]));
+ const count=weekIdeasNovember.filter(idea=>!db.plans[idea.date]).length;
+ $("#applyWeekIdeas").disabled=count===0;
+ $("#weekIdeaStatus").textContent=count?count+" freie Tage können ergänzt werden. Dienstag (Schnitzel) bleibt unangetastet.":"Für diese sechs Tage gibt es bereits Einträge; nichts wird überschrieben.";
+}
+$("#applyWeekIdeas").onclick=()=>{
+ let added=0;
+ for(const idea of weekIdeasNovember)if(acceptWeekIdea(idea,true))added++;
+ if(added){focus=weekStart(day(NOVEMBER_WEEK_ID));save();render();}
+ toast(added?added+" freie Tagespläne übernommen":"Keine freien Tage zum Ergänzen");
+};
+function offerChoiceMap(){
+ if(!db.offerSelections||typeof db.offerSelections!=="object")db.offerSelections={};
+ if(!db.offerSelections[NOVEMBER_WEEK_ID])db.offerSelections[NOVEMBER_WEEK_ID]={};
+ return db.offerSelections[NOVEMBER_WEEK_ID];
+}
+function selectedOffers(){const current=db.offerSelections?.[NOVEMBER_WEEK_ID]||{};return novemberOfferNotes.filter(o=>current[o.id]?.selected);}
+function renderOfferNotes(){
+ const host=$("#offerNotesList");if(!host)return;
+ const choices=db.offerSelections?.[NOVEMBER_WEEK_ID]||{};
+ const groups=["Combi","Getränke & Vorrat","Hunde"];
+ host.innerHTML=groups.map(group=>
+  '<h3 style="margin-top:14px">'+esc(group)+'</h3>'+
+  novemberOfferNotes.filter(o=>o.group===group).map(offer=>{
+   const selection=choices[offer.id]||{},sel=!!selection.selected;
+   return '<div class="card" style="margin-bottom:8px;padding:12px">'+
+    '<strong>'+esc(offer.name)+'</strong><div class="small">'+esc(offer.details)+'</div>'+
+    '<div class="wraprow" style="margin-top:10px;align-items:center">'+
+     '<button class="btn alt tiny" data-offer-select="'+esc(offer.id)+'">'+(sel?'Von Einkaufsliste entfernen':'Für Einkauf vormerken')+'</button>'+
+     (sel?'<label class="checkrow"><input type="checkbox" data-offer-done="'+esc(offer.id)+'" '+(selection.done?'checked':'')+'> Gekauft</label>':'')+
+    '</div></div>';
+  }).join("")
+ ).join("");
+ host.querySelectorAll("[data-offer-select]").forEach(btn=>btn.onclick=()=>{
+  const o=offerChoiceMap(),k=btn.dataset.offerSelect;
+  o[k]={selected:!o[k]?.selected,done:false};save();render();
+ });
+ host.querySelectorAll("[data-offer-done]").forEach(box=>box.onchange=()=>{
+  const o=offerChoiceMap(),k=box.dataset.offerDone;
+  o[k]={selected:true,done:box.checked};save();render();
+ });
+}
+
 function plannedSet(){const ids=new Set();for(let i=0;i<7;i++){const p=db.plans[iso(plus(focus,i))];(p?.parts||[]).forEach(x=>ids.add(x))}return ids}
 function shopItems(){const planned=plannedSet(),cart=weekCart();return db.blocks.filter(b=>planned.has(b.id)||cart.manual.includes(b.id)).map(b=>{const s=cart.status[b.id]||{};const auto=cart.manual.includes(b.id)||b.stock==="leer"||(!["voll","halb","wenig"].includes(b.stock)&&b.pantry!=="standard");return {...b,toBuy:s.toBuy===undefined?auto:s.toBuy,checked:!!s.checked,actualStore:s.store||b.store}})}
 function renderShopping(){
