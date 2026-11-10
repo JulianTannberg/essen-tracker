@@ -91,7 +91,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <h3 style="margin-top:20px">Zubereitung</h3><div id="menuViewRecipe" style="white-space:pre-line;line-height:1.65"></div>
 <div id="menuViewSources" class="small" style="margin-top:16px"></div>
 <div id="menuViewRatings" class="small muted" style="margin-top:16px"></div>
-<div class="wraprow" style="margin-top:18px"><button class="btn alt" data-close="menuDialog">Schließen</button></div></dialog>
+<div class="wraprow" style="margin-top:18px"><button class="btn" id="menuPrint">Rezeptkarte anzeigen / drucken</button><button class="btn alt" data-close="menuDialog">Schließen</button></div></dialog>
 <div class="toast" id="toast" role="status"></div>
 <script src="./kitchen-block-library-v85.js?v=85"></script>
 <script>
@@ -191,8 +191,8 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
   db.schnitzelGurkensalatVersion=1;
   save();
 })();
-(function publishConfirmedSchnitzelMenuV87(){
-  if(Number(db.confirmedSchnitzelMenuVersion||0)>=87)return;
+(function publishConfirmedSchnitzelMenuV88(){
+  if(Number(db.confirmedSchnitzelMenuVersion||0)>=88)return;
   const schnitzel=db.blocks.find(b=>nkey(b.name)===nkey("TK-Schnitzel"));
   const kroketten=db.blocks.find(b=>nkey(b.name)===nkey("Jeden Tag Backofen-Kroketten 750 g"));
   const gurkensalat=db.blocks.find(b=>nkey(b.name)===nkey("Gurkensalat"));
@@ -211,16 +211,16 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
     "2. 2 EL Wein-Branntweinessig, 3 EL Wasser, 2 TL Zucker, ½ TL Salz und Pfeffer verrühren. Mit Gurken und Zwiebeln vermengen. Nach Wunsch Dill hinzufügen.",
     "3. Mindestens 20–30 Minuten im Kühlschrank ziehen lassen. Danach abschmecken und nach Geschmack aufteilen: Für die kräftig-essigsaure Portion den dritten EL Essig ergänzen; für die süßere Portion bei Bedarf etwa 1 TL Zucker einrühren.",
     "",
-    "NINJA DUAL-ZONE-AIRFRYER – RICHTWERTE FÜR TK-PRODUKTE",
-    "Zone 1: Schnitzel – AIR FRY · 180 °C · zunächst 15 Minuten einstellen (allgemeiner Richtwert: 10–15 Min.).",
-    "Zone 2: Kroketten – AIR FRY · 200 °C · zunächst 13 Minuten einstellen (allgemeiner Richtwert: 12–14 Min.).",
+    "NINJA DUAL-ZONE-AIRFRYER – BEI UNS AUSPROBIERT",
+    "Zone 1: Fertig paniertes TK-Schnitzel – AIR FRY · 180 °C · insgesamt 20 Minuten (zunächst 15 Minuten, dann um 5 Minuten verlängert). Nicht selbst panieren.",
+    "Zone 2: Jeden Tag Kroketten – AIR FRY · 200 °C · 12 Minuten; waren schon ziemlich dunkel. Ab Minute 10 Bräunung prüfen und gegebenenfalls früher beenden.",
     "1. Knusperplatten einsetzen, beide Produkte tiefgefroren ohne Stapeln in getrennten Zonen verteilen.",
     "2. Beide Zonen wie oben einstellen, SYNC wählen und starten: Das Gerät stimmt das Garende ab.",
-    "3. Schnitzel etwa nach der Hälfte wenden; Kroketten nach etwa 6–7 Minuten vorsichtig schütteln.",
+    "3. Schnitzel etwa nach der Hälfte wenden; Kroketten nach etwa 6–7 Minuten vorsichtig schütteln und ab Minute 10 besonders auf die Bräunung achten.",
     "4. Gegen Ende Bräunung prüfen. Falls nötig weitergaren. Besonders wichtig: Schnitzel müssen auch innen vollständig durchgegart sein.",
     "5. Mit dem vorher gekühlten Gurkensalat servieren.",
     "",
-    "WICHTIG: Die Werte sind keine herstellerspezifisch bestätigten Zeiten für diese beiden Verpackungen. Die Combi-Produktseite der Jeden Tag Kroketten nennt für den BACKOFEN 180 °C Umluft und etwa 20 Min., aber keinen Airfryer-Wert. Die genaue TK-Schnitzel-Sorte ist noch nicht bekannt. Hinweise auf den Verpackungen haben Vorrang. Zeit und Temperatur können je nach Portion, Dicke und tatsächlichem Ninja-Modell abweichen.",
+    "WICHTIG: Diese Zeiten sind persönliche Erfahrungen mit den verwendeten Produkten, keine allgemeinen Garzeitgarantien. Herstellerangaben haben Vorrang. Die genaue Sorte des TK-Schnitzels ist nicht bekannt. Schnitzel müssen innen vollständig durchgegart sein.",
     "Der Gurkensalat ist die feste Beilage. Dieses Menü wird im Kochbuch nur angezeigt, nicht bearbeitet."
   ].join("\n");
   const sourceLinks=[
@@ -238,8 +238,59 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
   m.parts=[schnitzel.id,kroketten.id,gurkensalat.id];
   m.recipe=recipe;
   m.sourceLinks=sourceLinks;
+  m.card={
+    "subtitle": "Fertig panierte TK-Schnitzel · knusprige Kroketten · selbst gemachter Gurkensalat",
+    "servings": "2 Personen (Richtmenge)",
+    "time": "Salat: 20–30 Min. ziehen lassen · Airfryer: 12–20 Min.",
+    "category": "Ninja Dual Zone · Tiefkühl & frisch",
+    "ingredients": [
+      {
+        "title": "Gurkensalat",
+        "items": [
+          "1 Salatgurke",
+          "1 kleine Zwiebel",
+          "2–3 EL Wein-Branntweinessig",
+          "3 EL Wasser",
+          "2 TL Zucker (nach Wunsch etwas mehr)",
+          "½ TL Salz",
+          "Etwas Pfeffer, Dill optional"
+        ]
+      },
+      {
+        "title": "Schnitzel & Kroketten",
+        "items": [
+          "2 fertig panierte TK-Schnitzel (keine extra Panade)",
+          "ca. 300–400 g Jeden Tag Backofen-Kroketten (TK)"
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1 · Gurkensalat vorbereiten",
+        "steps": [
+          "Gurke in sehr dünne Scheiben schneiden. Zwiebel fein würfeln oder in dünne Halbringe schneiden.",
+          "2 EL Essig, Wasser, Zucker, Salz und Pfeffer verrühren. Gurken und Zwiebeln dazugeben, nach Wunsch Dill ergänzen.",
+          "Im Kühlschrank 20–30 Minuten ziehen lassen. Dann auf zwei Schüsseln verteilen: für die essigsaure Portion 1 EL Essig ergänzen, für die süßere Portion bei Bedarf 1 TL Zucker."
+        ]
+      },
+      {
+        "title": "2 · TK-Schnitzel & Kroketten",
+        "steps": [
+          "Fertig panierte TK-Schnitzel und gefrorene Kroketten getrennt in die Airfryer-Zonen legen, nicht stapeln. Schnitzel nicht zusätzlich panieren.",
+          "Schnitzel: AIR FRY bei 180 °C, beim letzten Versuch insgesamt 20 Minuten (15 + 5). Kroketten: AIR FRY bei 200 °C, 12 Minuten. Bei Bedarf SYNC nutzen.",
+          "Schnitzel ungefähr zur Hälfte wenden, Kroketten einmal vorsichtig schütteln. Kroketten schon nach 10 Minuten auf die Bräunung prüfen.",
+          "Schnitzel auf vollständige Durchgarung kontrollieren und alles mit Gurkensalat servieren."
+        ]
+      }
+    ],
+    "notes": [
+      "Die Kroketten waren nach 12 Minuten beinahe zu dunkel; nächstes Mal schon ab 10 Minuten beobachten.",
+      "Die Zeit für das TK-Schnitzel wurde von 15 auf insgesamt 20 Minuten verlängert. Es wurde fertig paniert gekauft.",
+      "Persönliche Erfahrungswerte; genaue Garzeiten hängen vom Produkt und Gerät ab. Verpackungshinweise beachten."
+    ]
+  };
   m.status="confirmed";
-  db.confirmedSchnitzelMenuVersion=87;
+  db.confirmedSchnitzelMenuVersion=88;
   save();
 })();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
@@ -479,6 +530,7 @@ function editMenu(key){
   const m=db.menus.find(x=>x.id===key);
   if(!m)return;
   $("#menuViewTitle").textContent=m.name;
+  $("#menuPrint").onclick=()=>{window.location.href="./rezeptkarte.html?menu="+encodeURIComponent(m.id);};
   const menuPhotoKey="menu:"+m.id;
   const photoPreview=$("#menuViewPhoto");
   photoPreview.style.display="none";photoPreview.removeAttribute("src");
