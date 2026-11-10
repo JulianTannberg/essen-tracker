@@ -3662,6 +3662,7 @@ body{padding-bottom:78px!important}
 .food-sprite.atlas6-food-photo{background-image:url("./assets/kitchen-food-sprite-6.webp");background-size:1000% 400%}
 .food-sprite.water-food-photo{background-image:url("./assets/mineralwasser-neutral.webp");background-size:cover}
 .food-sprite.vegan-food-photo{background-image:url("./assets/lidl-vegan-symbolbilder.webp");background-size:200% 100%}
+.food-sprite.lidl-basics-food-photo{background-image:url("./assets/lidl-basics-4.webp");background-size:200% 200%}
 .meal-food-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .meal-food-piece{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:3px 9px 3px 3px;border:1px solid #e1e7da;background:#f7f9f4;border-radius:11px;font-size:11px;font-weight:650;line-height:1.35;color:#596752}
 .meal-food-piece .food-sprite{width:32px;height:32px}
@@ -3682,7 +3683,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="84">
+<body data-app-build="85">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3690,7 +3691,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v84</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v85</div>
   </header>
 
   <main>
@@ -4055,7 +4056,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=84"></script>
+<script src="./daily-thoughts-v65.js?v=85"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4139,6 +4140,10 @@ function foodPhotoIndex(name,mealKind=""){
   if(/^(?:mineralwasser|wasser)(?:\s|$)/.test(n))return 400;
   if(/^(?:veganer joghurt|veganer sojajoghurt|sojajoghurt vegan)(?:\s|$)/.test(n))return 500;
   if(/^vegane sahne(?:\s|$)/.test(n))return 501;
+  if(/^(?:mehl|weizenmehl|weizenmehl type 405)(?:\s|$)/.test(n))return 600;
+  if(/^(?:mandelmilch|mandeldrink)(?:\s|$)/.test(n))return 601;
+  if(/^(?:zucker|haushaltszucker)(?:\s|$)/.test(n))return 602;
+  if(/^(?:hafermilch|haferdrink)(?:\s|$)/.test(n))return 603;
   if(/^dosenchampignons(?:\s|$)/.test(n))return 8;
   if(/^(?:gewürze und kräuter|gewürze & kräuter)$/.test(n))return 308;
   if(/\b(?:mit|und)\b|[,;&+\/]/.test(n))return -1;
@@ -4279,16 +4284,17 @@ function foodPhotoIndex(name,mealKind=""){
 function foodPhotoTag(name,extraClass="",mealKind=""){
   const i=foodPhotoIndex(name,mealKind);
   if(i<0)return "";
-  const water=i===400,vegan=i>=500&&i<=501;
+  const water=i===400,vegan=i>=500&&i<=501,lidl=i>=600&&i<=603;
   const atlas6=i>=300&&i<400,atlas5=i>=200&&i<300,atlas=i>=100&&i<200;
   const third=i>=18&&i<100;
   const cell=atlas6?i-300:atlas5?i-200:atlas?i-100:third?i-18:(i>=9?i-9:i);
-  const position=water?"center":vegan?((i-500)*100)+"% 0%":
+  const position=water?"center":lidl?((i-600)%2*100)+"% "+(Math.floor((i-600)/2)*100)+"%":
+    vegan?((i-500)*100)+"% 0%":
     atlas6?(cell%10)/9*100+"% "+Math.floor(cell/10)/3*100+"%":
     atlas5?(cell%8)/7*100+"% "+Math.floor(cell/8)/5*100+"%":
     atlas?(cell%9)/8*100+"% "+Math.floor(cell/9)/4*100+"%":
     (cell%3)*50+"% "+Math.floor(cell/3)*(third?100:50)+"%";
-  const cls=water?" water-food-photo":vegan?" vegan-food-photo":atlas6?" atlas6-food-photo":atlas5?" atlas5-food-photo":atlas?" atlas-food-photo":third?" third-food-photo":i>=9?" new-food-photo":"";
+  const cls=water?" water-food-photo":lidl?" lidl-basics-food-photo":vegan?" vegan-food-photo":atlas6?" atlas6-food-photo":atlas5?" atlas5-food-photo":atlas?" atlas-food-photo":third?" third-food-photo":i>=9?" new-food-photo":"";
   return '<span class="food-sprite'+cls+' '+escapeHtml(extraClass)+'" style="background-position:'+position+'" role="img" aria-label="'+escapeHtml(String(name).trim())+'"></span>';
 }
 
@@ -6421,7 +6427,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=84",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=85",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -6437,6 +6443,6 @@ initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=84"></script>
+<script src="./herb-knowledge-v64.js?v=85"></script>
 </body>
 </html>
