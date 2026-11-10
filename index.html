@@ -118,6 +118,16 @@
 .patterns-fold summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:800;padding:5px 3px}
 .patterns-fold>p{font-size:12px;line-height:1.5;color:var(--muted);margin:9px 3px 12px}
 .patterns-fold .pattern-card{margin:7px 0;box-shadow:none;border:1px solid var(--line);border-radius:13px;background:#fff}
+.pattern-item{border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.94);margin:7px 0;overflow:hidden}
+.pattern-item>summary{list-style:none;padding:11px 12px;cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.pattern-item>summary::-webkit-details-marker{display:none}
+.pattern-item>summary::after{content:"⌄";color:var(--accent);font-size:17px}
+.pattern-item[open]>summary::after{content:"⌃"}
+.pattern-item strong{font-size:13px;line-height:1.3}
+.pattern-item small{display:block;color:var(--muted);font-size:11px;line-height:1.4;flex:1 1 100%}
+.pattern-detail{border-top:1px solid var(--line);padding:8px 12px 12px}
+.pattern-detail p{margin:6px 0;color:var(--muted);font-size:11px;line-height:1.5}
+.pattern-detail ul{font-size:12px;line-height:1.7;margin:8px 0;padding-left:18px}
 .ingredient-cat-row{border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.85);margin:8px 0;overflow:hidden}
 .ingredient-cat-row summary{display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none;cursor:pointer;padding:10px 12px;color:var(--ink)}
 .ingredient-cat-row summary::-webkit-details-marker{display:none}
@@ -5480,48 +5490,46 @@ function patternTimestamp(e){
   const t=new Date(String(e.date||"")+"T"+String(e.time||"12:00"));
   return Number.isFinite(t.getTime())?t.getTime():NaN;
 }
+
 function patternObservations(entries,nowMs=Date.now()){
+  const windowMs=8*3600000;
   const foods=entries.filter(e=>e.type==="food"&&String(e.value||"").trim()&&Number.isFinite(patternTimestamp(e))&&patternTimestamp(e)<=nowMs);
-  const signals=new Map();
-  entries.filter(e=>(e.type==="symptom"||e.type==="medicine")&&String(e.value||"").trim()).forEach(e=>{
-    const time=patternTimestamp(e);
-    if(!Number.isFinite(time)||time>nowMs)return;
-    const key=e.type+"|"+normalizedItem(e.value);
-    if(!signals.has(key))signals.set(key,{label:String(e.value).trim(),type:e.type,times:[]});
-    signals.get(key).times.push(time);
-  });
-  const groups=new Map();
+  const symptoms=entries.filter(e=>e.type==="symptom"&&String(e.value||"").trim()&&Number.isFinite(patternTimestamp(e))&&patternTimestamp(e)<=nowMs)
+    .map(e=>({time:patternTimestamp(e),label:String(e.value).trim(),key:normalizedItem(e.value)}));
+  const groups=new Map(),catMap=new Map(allEntryCategories().map(c=>[c.id,c.label]));
   function addCandidate(key,label,kind,e){
     if(!groups.has(key))groups.set(key,{key,label,kind,days:new Map()});
     const group=groups.get(key);
-    if(!group.days.has(e.date))group.days.set(e.date,[]);
-    group.days.get(e.date).push(patternTimestamp(e));
+    if(!group.days.has(e.date))group.days.set(e.date,new Set());
+    group.days.get(e.date).add(patternTimestamp(e));
   }
-  const catMap=new Map(allEntryCategories().map(c=>[c.id,c.label]));
   for(const e of foods){
-    const key=normalizedItem(e.value);
-    addCandidate("food:"+key,String(e.value).trim(),"food",e);
-    // Für Kategorien zählt die Mahlzeit, nicht jedes einzelne darin erfasste Element.
-    const tags=new Set((e.tags||[]).filter(x=>typeof x==="string"&&x.startsWith("cat:")).map(x=>x.slice(4)));
-    for(const id of tags)if(catMap.has(id)&&id!=="beer"&&id!=="alcohol")
+    addCandidate("food:"+normalizedItem(e.value),String(e.value).trim(),"food",e);
+    const catIds=new Set((e.tags||[]).filter(x=>typeof x==="string"&&x.startsWith("cat:")).map(x=>x.slice(4)));
+    for(const id of catIds)if(catMap.has(id)&&id!=="beer"&&id!=="alcohol")
       addCandidate("category:"+id,catMap.get(id),"category",e);
   }
   const results=[];
-  for(const signal of signals.values()){
-    const events=signal.times.sort((a,b)=>a-b);
-    for(const group of groups.values()){
-      let hits=0,without=0,pending=0;
-      for(const times of group.days.values()){
-        if(times.some(t=>events.some(st=>st>=t&&st<=t+8*3600000)))hits++;
-        else if(times.some(t=>t+8*3600000>nowMs))pending++;
-        else without++;
-      }
-      if(!hits)continue;
-      const total=hits+without;
-      const section=without>=3&&without>hits?"usually"
-        :hits>=2?"repeated":"single";
-      results.push({label:group.label,kind:group.kind,signal:signal.label,signalType:signal.type,hits,without,pending,total,section});
+  for(const g of groups.values()){
+    let hits=0,without=0,pending=0;
+    const signalMap=new Map();
+    for(const timesSet of g.days.values()){
+      const times=[...timesSet];
+      const matched=symptoms.filter(e=>times.some(t=>e.time>=t&&e.time<=t+windowMs));
+      if(matched.length){
+        hits++;
+        const signalsOnDay=new Set(matched.map(e=>e.key));
+        for(const key of signalsOnDay){
+          if(!signalMap.has(key))signalMap.set(key,{label:matched.find(e=>e.key===key).label,hits:0});
+          signalMap.get(key).hits++;
+        }
+      }else if(times.some(t=>t+windowMs>nowMs))pending++;
+      else without++;
     }
+    if(!hits)continue;
+    const section=without>=3&&without>hits?"usually":hits>=2?"repeated":"single";
+    results.push({label:g.label,kind:g.kind,hits,without,pending,section,
+      signals:[...signalMap.values()].sort((a,b)=>b.hits-a.hits||a.label.localeCompare(b.label,"de"))});
   }
   return results;
 }
@@ -5529,25 +5537,20 @@ function renderPatterns(){
   const box=document.querySelector("#patternList");
   if(!box)return;
   const rows=patternObservations(state.entries);
+  const fmt=x=>`${x.hits} ${x.hits===1?"Tag":"Tage"} mit Beschwerde-Eintrag · ${x.without} ohne passenden Eintrag`;
   const card=x=>{
     const label=x.kind==="category"?"Kategorie: "+x.label:x.label;
-    const signal=x.signalType==="medicine"?"Mittel „"+x.signal+"“":"Beschwerde „"+x.signal+"“";
-    return `<div class="pattern-card"><strong>${escapeHtml(label)}</strong><small>${x.hits} ${x.hits===1?"Tag":"Tage"} mit zeitlichem Treffer vor ${escapeHtml(signal)} · ${x.without} ${x.without===1?"Tag":"Tage"} ohne entsprechenden Eintrag im 8-Stunden-Fenster${x.pending?" · "+x.pending+" noch nicht auswertbar":""}</small></div>`;
+    const details=x.signals.map(z=>`<li>${escapeHtml(z.label)}: ${z.hits} ${z.hits===1?"Tag":"Tage"}</li>`).join("");
+    return `<details class="pattern-item"><summary><strong>${escapeHtml(label)}</strong><small>${fmt(x)}</small></summary><div class="pattern-detail"><p>Beschwerden innerhalb von acht Stunden nach dem Essen:</p><ul>${details}</ul>${x.pending?`<p>${x.pending} weitere ${x.pending===1?"Tag ist":"Tage sind"} noch nicht vollständig auswertbar.</p>`:""}<p>Mehrere Beschwerden können am selben Tag auftreten. Ein zeitlicher Treffer beweist keine Ursache.</p></div></details>`;
   };
   const sort=(a,b)=>b.hits-a.hits||b.without-a.without||a.label.localeCompare(b.label,"de");
   const repeated=rows.filter(x=>x.section==="repeated").sort(sort);
   const usually=rows.filter(x=>x.section==="usually").sort((a,b)=>b.without-a.without||b.hits-a.hits);
   const single=rows.filter(x=>x.section==="single").sort(sort);
   let html="";
-  if(repeated.length){
-    html+='<h3 class="patterns-title">Mehrfach beobachtet</h3>'+repeated.map(card).join("");
-  }
-  if(usually.length){
-    html+=`<details class="patterns-fold"><summary>Häufig ohne Beschwerde-Eintrag (${usually.length})</summary><p>Diese Lebensmittel oder Kategorien kamen öfter auch ohne entsprechenden Eintrag vor. Das spricht gegen einen einfachen Zusammenhang, schließt Unverträglichkeiten aber nicht aus.</p>${usually.map(card).join("")}</details>`;
-  }
-  if(single.length){
-    html+=`<details class="patterns-fold"><summary>Einmalige Beobachtungen (${single.length})</summary><p>Ein einzelner zeitlicher Treffer reicht nicht, um ein Lebensmittel als Auslöser einzuordnen.</p>${single.map(card).join("")}</details>`;
-  }
+  if(repeated.length)html+='<h3 class="patterns-title">Mehrfach beobachtet</h3>'+repeated.map(card).join("");
+  if(usually.length)html+=`<details class="patterns-fold"><summary>Häufig ohne Beschwerde-Eintrag (${usually.length})</summary><p>Auch oft ohne nachfolgend eingetragene Beschwerden gegessen. Das spricht gegen einen einfachen Zusammenhang, schließt aber Unverträglichkeiten nicht aus.</p>${usually.map(card).join("")}</details>`;
+  if(single.length)html+=`<details class="patterns-fold"><summary>Einmalige Beobachtungen (${single.length})</summary><p>Ein einzelner Treffer ist kein Nachweis für einen Auslöser.</p>${single.map(card).join("")}</details>`;
   box.innerHTML=html||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
 }
 function freeGoalCategoryOptions(selected){
