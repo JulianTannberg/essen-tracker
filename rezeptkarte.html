@@ -136,6 +136,32 @@ const found=ids.map(id=>recipes.find(r=>r.id===id)).filter(Boolean);
 const name=r?.name||p?.name||m?.name;
 const photoMenu=p?(menus.find(m=>m.id===p.menuId)||menus.find(m=>JSON.stringify([...(m.recipeIds||[])].sort())===JSON.stringify([...ids].sort()))):m;
 const photoKey=r?"recipe:"+r.id:photoMenu?"menu:"+photoMenu.id:planKey?"plan:"+planKey:"";
+function diaryMenuPhoto(date,dish){
+ if(!dish||r)return "";
+ try{
+  const data=JSON.parse(localStorage.getItem("essenTracker.v01")||"{}");
+  const photos=data.mealPhotos||{};
+  const sought=String(dish).toLocaleLowerCase("de").replace(/\b(?:und|mit)\b/g,",")
+    .split(/[,;+]/g).map(x=>x.trim()).filter(x=>x.length>=4);
+  if(!sought.length)return "";
+  const grouped=new Map();
+  for(const e of (Array.isArray(data.entries)?data.entries:[])){
+   if(e?.type!=="food"||!e.mealId||!e.date||date&&date!==e.date)continue;
+   if(!photos[e.mealId])continue;
+   const id=e.date+":"+e.mealId;
+   if(!grouped.has(id))grouped.set(id,{date:e.date,parts:[],photo:photos[e.mealId],time:e.time||""});
+   grouped.get(id).parts.push(String(e.value||"").toLocaleLowerCase("de").trim());
+  }
+  return [...grouped.values()].sort((a,b)=>(b.date+"T"+b.time).localeCompare(a.date+"T"+a.time))
+   .find(meal=>sought.every(w=>meal.parts.some(x=>x===w||x.includes(w)||w.includes(x))) &&
+     typeof meal.photo==="string"&&/^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(meal.photo))?.photo||"";
+ }catch(e){return "";}
+}
+function displayRecipePhoto(src){
+ if(!src)return;
+ const photo=el("photo");photo.src=src;photo.style.display="block";
+ el("placeholder").style.display="none";
+}
 if(!name){
  el("content").innerHTML='<p class="error">Dieses Rezept wurde auf diesem Gerät nicht gefunden. Öffne es zuerst aus dem Kochbuch.</p>';
  el("print").disabled=true;return;
@@ -184,15 +210,14 @@ if(Array.isArray(card.notes)&&card.notes.length){
 }
 el("print").addEventListener("click",()=>window.print());
 if(photoKey){
+ displayRecipePhoto(diaryMenuPhoto(planKey||"",name));
  try{
   const q=indexedDB.open("essenTracker.kitchen.images",1);
   q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains("photos"))q.result.createObjectStore("photos");};
   q.onsuccess=()=>{const read=q.result.transaction("photos","readonly").objectStore("photos").get(photoKey);
    read.onsuccess=()=>{
-    if(read.result){
-     const pic=el("photo");pic.src=URL.createObjectURL(read.result);
-     pic.style.display="block";el("placeholder").style.display="none";
-    }
+    if(read.result)displayRecipePhoto(URL.createObjectURL(read.result));
+    else displayRecipePhoto(diaryMenuPhoto(planKey||"",name));
    };
   };
  }catch(e){}
