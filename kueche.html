@@ -54,9 +54,9 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <main class="wrap"><div id="kitchenDiagnostics" class="card" role="status" aria-live="polite" hidden style="border-color:#d7b894;color:#805c32"><strong>Die Küchenseite konnte nicht vollständig geladen werden.</strong><p id="kitchenErrorDetails" class="small"></p><p class="small">Bitte nicht die App-Daten löschen. Der Fehler betrifft die Anzeige, nicht automatisch deine gespeicherten Einträge.</p></div>
 <section id="week" class="tab active"><div class="sectionbar"><h2>Wochenplan</h2><div class="row"><button class="btn alt tiny" id="weekPrev" title="Vorherige Woche">‹</button><button class="btn alt tiny" id="weekNext" title="Nächste Woche">›</button></div></div>
 <p class="week-range-line" id="weekRange"></p>
-<details class="week-settings" id="weekIdeaDetails"><summary>🍲 Wochenideen 10.–16. November · Curry &amp; TK-Rosenkohl</summary>
+<details class="week-settings" id="weekIdeaDetails"><summary>🍲 Wochenplan mit Meal Prep · 10.–16. November</summary>
 <div class="week-settings-content">
-<p class="muted">Vorschläge aus unserem Gespräch, noch keine fertig ausgearbeiteten Rezepte. Du kannst die freien Tage übernehmen; vorhandene Tagespläne bleiben unverändert.</p>
+<p class="muted">Die Menüs sind jetzt als vollständige Rezeptkarten im Kochbuch. Reihenfolge: Mittwoch Pizza vor dem Einkauf, Donnerstag Curry mit Gemüsevorbereitung, Freitag Reis, Samstag Steak, Sonntag Suppe, Montag Resteküche. Vorhandene eigene Einträge bleiben erhalten.</p>
 <div id="weekIdeaList"></div>
 <div class="wraprow"><button type="button" class="btn" id="applyWeekIdeas">Alle freien Tage vormerken</button></div>
 <p class="muted" id="weekIdeaStatus" aria-live="polite"></p>
@@ -739,6 +739,11 @@ function showPlanPicture(img,date,p,menu){
  const diary=findDiaryMenuPhoto(date,p.name)||(menu?findDiaryMenuPhoto(null,p.name):"");
  if(diary){img.src=diary;img.style.display="block";return;}
  if(!menu)return;
+ const example=menu?.card?.image;
+ if(typeof example==="string"&&/^https:\/\/images\.pexels\.com\/photos\/\d+\//.test(example)){
+  img.src=example;img.style.display="block";
+  img.addEventListener("error",()=>{if(img.src===example)img.style.display="none";},{once:true});
+ }
  getImage("menu:"+menu.id).then(url=>{
   if(img.isConnected&&url){img.src=url;img.style.display="block";}
  });
@@ -937,6 +942,16 @@ function renderIdeas(){
     '<div class="card"><h3>'+esc(r.name)+'</h3><p class="muted">'+esc(r.site)+(r.rating?' · '+esc(r.rating)+' / 5 ★ ('+r.reviews+' Bewertungen)':' · Bewertung nicht verifiziert')+'</p><p class="small"><strong>Bausteine:</strong> '+esc(r.parts.join(", "))+'</p><p class="muted">'+esc(r.extras)+'</p><a class="btn alt tiny" target="_blank" rel="noopener noreferrer" href="'+esc(r.url)+'" style="text-decoration:none;color:#334e3c">Originalrezept lesen</a></div>'
   ).join("");
 }
+function menuCover(m){
+ const image=m.card?.image;
+ if(typeof image!=="string"||!/^https:\/\/images\.pexels\.com\/photos\/\d+\//.test(image)){
+  return pict({name:m.name,id:"menu:"+m.id,noPhoto:!!m.photoSig&&m.photoSig!==menuSignature(m.parts)});
+ }
+ const photoTag=(!m.photoSig||m.photoSig===menuSignature(m.parts))
+  ?'<img data-photo="menu:'+esc(m.id)+'" alt="Eigenes Menüfoto">':"";
+ return '<span class="foodicon" aria-label="Beispielfoto zum Menü">'+emoji(m.name)+
+  '<img data-example-photo="1" src="'+esc(image)+'" alt="Beispielfoto" loading="lazy" style="display:block">'+photoTag+'</span>';
+}
 function renderMenus(){
  const sort=$("#menuSort").value;
  const cmp=(a,b)=>sort==="count"?(b.count||0)-(a.count||0):
@@ -951,12 +966,13 @@ function renderMenus(){
  $("#recipeList").querySelectorAll("[data-recipecard]").forEach(b=>b.onclick=()=>{location.href="./rezeptkarte.html?recipe="+encodeURIComponent(b.dataset.recipecard);});
  const ms=[...db.menus].sort(cmp);
  $("#menuList").innerHTML=ms.map(m=>'<div class="card entry">'+
-  pict({name:m.name,id:"menu:"+m.id,noPhoto:!!m.photoSig&&m.photoSig!==menuSignature(m.parts)})+
+  menuCover(m)+
   '<div class="entrymain"><b>'+esc(m.name)+'</b><small>'+esc((m.recipeIds||[]).length?m.recipeIds.map(id=>db.recipes.find(r=>r.id===id)?.shortName).filter(Boolean).join(" · "):m.parts.map(x=>block(x)?.name).filter(Boolean).join(" · "))+'</small>'+
   '<small>'+(m.count||0)+'× gekocht · '+(stars(m.ratings)?stars(m.ratings).toFixed(1).replace(".",",")+" ★":"Noch keine Bewertungen")+'</small></div>'+
   '<button class="btn alt tiny" data-menu="'+esc(m.id)+'">Ansehen</button></div>').join("")||
   '<div class="card empty">Noch keine gespeicherten Menüs.</div>';
  $("#menuList").querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>{location.href="./rezeptkarte.html?menu="+encodeURIComponent(b.dataset.menu);});
+ $("#menuList").querySelectorAll("[data-example-photo]").forEach(img=>img.addEventListener("error",()=>{img.style.display="none";},{once:true}));
 }
 $("#menuSort").onchange=renderMenus;
 function editMenu(key){
@@ -998,14 +1014,9 @@ function editMenu(key){
 }
 
 const NOVEMBER_WEEK_ID="2026-11-10";
-const weekIdeasNovember=[
- {date:"2026-11-11",name:"Vegane Curry-Reispfanne",parts:["Reis","Kokosmilch","Möhren frisch","Champignons","Paprika","Currypaste"],note:"Vegane Grundlage; gegebenenfalls Hähnchen getrennt ergänzen. Currypaste auf vegane Zutaten prüfen.",vegan:true},
- {date:"2026-11-12",name:"Pizza-Tag",parts:["TK-Pizza"],note:"Wagner Big City / Die Backfrische laut Combi-Angebotsnotiz. Für die Tochter eine vegane Pizza oder Alternative getrennt vorsehen."},
- {date:"2026-11-13",name:"Gebratener Reis mit Gemüse",parts:["Reis","Möhren frisch","Paprika","Erbsen","Sojasoße"],note:"Vegane Reispfanne als Grundlage. Ei oder Hähnchen bei Wunsch erst getrennt zugeben.",vegan:true},
- {date:"2026-11-14",name:"Rumpsteak mit Kartoffeln und TK-Rosenkohl",parts:["Rumpsteak","Kartoffeln","Rosenkohl TK"],note:"Rosenkohl aus der vorhandenen Tiefkühltruhe verbrauchen. Für die Tochter eine vegane Hauptkomponente gesondert planen."},
- {date:"2026-11-15",name:"Linsensuppe mit Bratwurst separat",parts:["Linsen","Möhren frisch","Kartoffeln","Gemüsebrühe","Bratwurst"],note:"Suppe zunächst vegan zubereiten; grobe Bratwurst nur für diejenigen separat garen, die sie möchten."},
- {date:"2026-11-16",name:"Kartoffeln mit Gemüse und Dip",parts:["Kartoffeln","Möhren frisch"],note:"Tzatziki oder Kartoffelcreme (Combi-Angebot) nach Wunsch. Für Tochter veganen Dip vorsehen. Reste können verwendet werden."}
-];
+const weekIdeasNovember=(window.KITCHEN_RECIPE_PACK_V98?.menus||[]).map(m=>({
+ date:m.date,name:m.name,parts:m.recipeParts,note:m.prep,menuId:m.id
+}));
 const novemberOfferNotes=[
  {id:"emsland-wasser",name:"Emsland Quelle Mineralwasser",group:"Getränke & Vorrat",store:"Combi",details:"12 × 0,7/0,75 l · 3,99 € + 3,30 € Pfand · 0,48/0,44 €/l laut Notiz",price:"3,99 € + 3,30 € Pfand",replaces:["Mineralwasser"]},
  {id:"rumpsteak",name:"Roastbeef oder Rumpsteak",group:"Combi",store:"Combi",details:"2,49 € / 100 g · 24,90 € / kg · Do–Sa laut Notiz (12.–14.11. vermutet; bitte prüfen)",price:"2,49 €/100 g",replaces:["Rumpsteak"]},
@@ -1019,13 +1030,15 @@ function weekIdeaLabel(date){
 }
 function acceptWeekIdea(idea,quiet=false){
  if(db.plans[idea.date])return false;
- const parts=[...new Set(idea.parts.map(name=>db.blocks.find(b=>nkey(b.name)===nkey(name))?.id).filter(Boolean))];
+ const menu=db.menus.find(m=>m.id===idea.menuId);
+ if(!menu)return false;
  db.plans[idea.date]={
-  name:idea.name,parts,manualParts:[...parts],recipeIds:[],menuId:"",
-  people:{self:"ganz",husband:"ganz",daughter:"selbst"},note:idea.note,
-  cooked:false,origin:"week-idea-november-2026"
+  name:menu.name,parts:[...menu.parts],manualParts:[],
+  recipeIds:[...(menu.recipeIds||[])],menuId:menu.id,
+  people:{self:"ganz",husband:"ganz",daughter:"selbst"},
+  note:idea.note,cooked:false,origin:"chat-week-98",mealPrepNote:idea.note
  };
- if(!quiet){focus=weekStart(day(idea.date));save();render();toast("Als Vorschlag in den Tagesplan übernommen");}
+ if(!quiet){focus=weekStart(day(idea.date));save();render();toast("Als Menü in den Tagesplan übernommen");}
  return true;
 }
 function renderWeekIdeas(){
