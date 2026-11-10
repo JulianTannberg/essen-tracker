@@ -112,7 +112,13 @@
     .weight-range-btn{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;white-space:nowrap}
     .weight-range-btn.active{background:var(--accent-soft);color:var(--accent)}
     #weightChart{width:100%;display:block;max-width:100%;margin-top:7px}
-    .pattern-card{padding:14px;margin:10px 0}.pattern-card strong{font-size:17px}.pattern-card small{color:var(--muted)}
+    .pattern-card{padding:14px;margin:10px 0}.pattern-card strong{font-size:17px}.pattern-card small{color:var(--muted);display:block;margin-top:3px;line-height:1.5}
+.patterns-title{font-size:16px;margin:17px 2px 8px;color:var(--ink)}
+.patterns-fold{border:1px solid var(--line);background:rgba(255,255,255,.73);border-radius:16px;margin:14px 0;padding:12px}
+.patterns-fold summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:800;padding:5px 3px}
+.patterns-fold>p{font-size:12px;line-height:1.5;color:var(--muted);margin:9px 3px 12px}
+.patterns-fold .pattern-card{margin:7px 0;box-shadow:none;border:1px solid var(--line);border-radius:13px;background:#fff}
+
     .settings-card{margin:12px 0;padding:14px;display:grid;gap:12px}.settings-card h3{margin:0}.settings-card p{margin:0;color:var(--muted);font-size:13px}
     .file-label{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:#fff;display:block}.file-label input{display:none}
     .print-filter-list{display:grid;gap:8px;max-height:46vh;overflow:auto;padding:2px}.print-filter-option{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:650}.print-filter-option input{width:auto;margin:0;accent-color:var(--accent)}
@@ -3611,7 +3617,7 @@ body{padding-bottom:78px!important}
 
 </style>
 </head>
-<body data-app-build="70">
+<body data-app-build="71">
   <header class="topbar">
     <div>
       <div class="eyebrow">Mein Planer · Tracker</div>
@@ -3619,7 +3625,7 @@ body{padding-bottom:78px!important}
       <div id="todayActualDate" class="today-actual-date"></div>
       <div id="dateLine" class="date-line"></div>
     </div>
-    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v70</div>
+    <button id="moonChip" class="moon-chip" type="button" aria-label="Mondphase anzeigen"><canvas id="moonCanvas" width="58" height="58"></canvas><span class="moon-chip-text"><b id="moonPhaseName">Mond</b><small id="moonSignName">–</small></span></button><div class="version">v71</div>
   </header>
 
   <main>
@@ -3724,7 +3730,7 @@ body{padding-bottom:78px!important}
 
     <section id="analysisView" class="view">
       <div class="section-title"><h2>Muster</h2><small>Übersicht</small></div>
-      <div class="planner-card" style="padding:14px;color:var(--muted);font-size:13px">Die Musteransicht zählt zeitliche Zusammenhänge. Sie stellt keine medizinische Diagnose.</div>
+      <div class="planner-card" style="padding:14px;color:var(--muted);font-size:13px">Verglichen werden unterschiedliche Tage, an denen du etwas gegessen hast: mit und ohne entsprechenden Beschwerde-Eintrag innerhalb von 8 Stunden. Fehlende Einträge beweisen keine Beschwerdefreiheit und zeitliche Treffer keinen Auslöser.</div>
       <div id="patternList"></div>
     </section>
 
@@ -3782,7 +3788,7 @@ body{padding-bottom:78px!important}
 
       <div class="settings-card">
         <h3>Kategorien für Essen & Trinken</h3>
-        <p>Beim Eintragen kannst du Dinge markieren, z. B. Alkohol, Milch/Milchprodukte, Süßigkeit oder fettig. Diese Kategorien können für Muster und auch als Auslöser deiner „Freie Tage“-Serien verwendet werden.</p>
+        <p>Beim Eintragen kannst du Lebensmittel kennzeichnen, z. B. Schweinefleisch, Milchprodukte, fettig oder deutlich gewürzt. Wähle nur, was tatsächlich zutrifft – nicht jedes Schnitzel ist fettig. Bratwurst und Schweinenacken enthalten oft mehr Fett; ein mageres Schnitzel aus dem Airfryer ohne zusätzliches Öl nicht unbedingt. Die Markierung gilt für die gesamte eingetragene Mahlzeit. Bereits erfasste Mahlzeiten kannst du am jeweiligen Tag bearbeiten.</p>
         <div class="custom-category-row">
           <input id="newEntryCategory" type="text" placeholder="Eigene Kategorie, z. B. scharf">
           <button id="addEntryCategory" class="secondary-btn" type="button">Hinzufügen</button>
@@ -3975,7 +3981,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=70"></script>
+<script src="./daily-thoughts-v65.js?v=71"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4169,7 +4175,9 @@ const BUILTIN_ENTRY_CATEGORIES=[
   {id:"alcohol",label:"Alkohol"},
   {id:"dairy",label:"Milch / Milchprodukt"},
   {id:"sweets",label:"Süßigkeit"},
-  {id:"fatty",label:"Fettig"}
+  {id:"fatty",label:"Fettig"},
+  {id:"pork",label:"Schweinefleisch"},
+  {id:"seasoned",label:"Deutlich gewürzt"}
 ];
 function allEntryCategories(){
   const custom=(state.settings.customEntryCategories||[]).map(x=>({id:x.id,label:x.label}));
@@ -5379,8 +5387,81 @@ function renderMonth(){
   }
   const filtered=entries.filter(e=>matchesFilter(e,filter)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)),by={};filtered.forEach(e=>(by[e.date]??=[]).push(e));renderWeightChart();document.querySelector("#monthList").innerHTML=Object.keys(by).map(date=>`<div class="month-day"><h3>${parseDate(date).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</h3>${by[date].map(e=>`<div class="entry-card ${e.type==="period"?"period-entry":e.type==="weight"?"weight-entry":""}"><b>${e.time}</b> · ${escapeHtml(e.type==="period"?`Periode${e.periodFlow?" · "+e.periodFlow:""}`:e.value)} <span class="entry-meta">${typeLabel(e.type)}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Für diesen Filter keine Einträge.</div>';
 }
+// v71: Ein Nahrungsmittel wird je Tag nur einmal gezählt. Nicht abschließend
+// beobachtete 8-Stunden-Fenster werden nicht als "ohne Eintrag" gewertet.
+function patternTimestamp(e){
+  const t=new Date(String(e.date||"")+"T"+String(e.time||"12:00"));
+  return Number.isFinite(t.getTime())?t.getTime():NaN;
+}
+function patternObservations(entries,nowMs=Date.now()){
+  const foods=entries.filter(e=>e.type==="food"&&String(e.value||"").trim()&&Number.isFinite(patternTimestamp(e))&&patternTimestamp(e)<=nowMs);
+  const signals=new Map();
+  entries.filter(e=>(e.type==="symptom"||e.type==="medicine")&&String(e.value||"").trim()).forEach(e=>{
+    const time=patternTimestamp(e);
+    if(!Number.isFinite(time)||time>nowMs)return;
+    const key=e.type+"|"+normalizedItem(e.value);
+    if(!signals.has(key))signals.set(key,{label:String(e.value).trim(),type:e.type,times:[]});
+    signals.get(key).times.push(time);
+  });
+  const groups=new Map();
+  function addCandidate(key,label,kind,e){
+    if(!groups.has(key))groups.set(key,{key,label,kind,days:new Map()});
+    const group=groups.get(key);
+    if(!group.days.has(e.date))group.days.set(e.date,[]);
+    group.days.get(e.date).push(patternTimestamp(e));
+  }
+  const catMap=new Map(allEntryCategories().map(c=>[c.id,c.label]));
+  for(const e of foods){
+    const key=normalizedItem(e.value);
+    addCandidate("food:"+key,String(e.value).trim(),"food",e);
+    // Für Kategorien zählt die Mahlzeit, nicht jedes einzelne darin erfasste Element.
+    const tags=new Set((e.tags||[]).filter(x=>typeof x==="string"&&x.startsWith("cat:")).map(x=>x.slice(4)));
+    for(const id of tags)if(catMap.has(id)&&id!=="beer"&&id!=="alcohol")
+      addCandidate("category:"+id,catMap.get(id),"category",e);
+  }
+  const results=[];
+  for(const signal of signals.values()){
+    const events=signal.times.sort((a,b)=>a-b);
+    for(const group of groups.values()){
+      let hits=0,without=0,pending=0;
+      for(const times of group.days.values()){
+        if(times.some(t=>events.some(st=>st>=t&&st<=t+8*3600000)))hits++;
+        else if(times.some(t=>t+8*3600000>nowMs))pending++;
+        else without++;
+      }
+      if(!hits)continue;
+      const total=hits+without;
+      const section=without>=3&&without>hits?"usually"
+        :hits>=2?"repeated":"single";
+      results.push({label:group.label,kind:group.kind,signal:signal.label,signalType:signal.type,hits,without,pending,total,section});
+    }
+  }
+  return results;
+}
 function renderPatterns(){
-  const signals=[{type:"symptom",value:"Bauchschmerzen",label:"Bauchschmerzen"},{type:"symptom",value:"Durchfall",label:"Durchfall"},{type:"symptom",value:"Sodbrennen",label:"Sodbrennen"},{type:"medicine",value:"Sodbrennenmittel",label:"Sodbrennenmittel"}],foods=state.entries.filter(e=>e.type==="food"),rows=[];signals.forEach(signal=>{const events=state.entries.filter(e=>e.type===signal.type&&e.value===signal.value),counts=new Map();events.forEach(s=>{const st=new Date(`${s.date}T${s.time}`);foods.forEach(f=>{const ft=new Date(`${f.date}T${f.time}`),h=(st-ft)/36e5;if(h>=0&&h<=8)counts.set(f.value,(counts.get(f.value)||0)+1)})});[...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([food,count])=>rows.push(`<div class="pattern-card"><strong>${escapeHtml(food)}</strong><br><small>${count}× innerhalb von 8 Std. vor „${signal.label}“ erfasst.</small></div>`))});document.querySelector("#patternList").innerHTML=rows.join("")||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
+  const box=document.querySelector("#patternList");
+  if(!box)return;
+  const rows=patternObservations(state.entries);
+  const card=x=>{
+    const label=x.kind==="category"?"Kategorie: "+x.label:x.label;
+    const signal=x.signalType==="medicine"?"Mittel „"+x.signal+"“":"Beschwerde „"+x.signal+"“";
+    return `<div class="pattern-card"><strong>${escapeHtml(label)}</strong><small>${x.hits} ${x.hits===1?"Tag":"Tage"} mit zeitlichem Treffer vor ${escapeHtml(signal)} · ${x.without} ${x.without===1?"Tag":"Tage"} ohne entsprechenden Eintrag im 8-Stunden-Fenster${x.pending?" · "+x.pending+" noch nicht auswertbar":""}</small></div>`;
+  };
+  const sort=(a,b)=>b.hits-a.hits||b.without-a.without||a.label.localeCompare(b.label,"de");
+  const repeated=rows.filter(x=>x.section==="repeated").sort(sort);
+  const usually=rows.filter(x=>x.section==="usually").sort((a,b)=>b.without-a.without||b.hits-a.hits);
+  const single=rows.filter(x=>x.section==="single").sort(sort);
+  let html="";
+  if(repeated.length){
+    html+='<h3 class="patterns-title">Mehrfach beobachtet</h3>'+repeated.map(card).join("");
+  }
+  if(usually.length){
+    html+=`<details class="patterns-fold"><summary>Häufig ohne Beschwerde-Eintrag (${usually.length})</summary><p>Diese Lebensmittel oder Kategorien kamen öfter auch ohne entsprechenden Eintrag vor. Das spricht gegen einen einfachen Zusammenhang, schließt Unverträglichkeiten aber nicht aus.</p>${usually.map(card).join("")}</details>`;
+  }
+  if(single.length){
+    html+=`<details class="patterns-fold"><summary>Einmalige Beobachtungen (${single.length})</summary><p>Ein einzelner zeitlicher Treffer reicht nicht, um ein Lebensmittel als Auslöser einzuordnen.</p>${single.map(card).join("")}</details>`;
+  }
+  box.innerHTML=html||'<div class="empty">Noch keine passenden Zusammenhänge gefunden.</div>';
 }
 function freeGoalCategoryOptions(selected){
   const cats=allEntryCategories();
@@ -5925,7 +6006,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=70",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=71",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
@@ -5937,6 +6018,6 @@ initDayPageSwipe();renderAll();initServiceWorker();requestPersistentStorage();
 
 
 </script>
-<script src="./herb-knowledge-v64.js?v=70"></script>
+<script src="./herb-knowledge-v64.js?v=71"></script>
 </body>
 </html>
