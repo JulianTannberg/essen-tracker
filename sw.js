@@ -1,12 +1,13 @@
-const CACHE="essen-tracker-pages-v85";
-const VERSION="85";
+const CACHE="essen-tracker-pages-v88";
+const VERSION="88";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
   "./icon.svg",
   "./top-branch.png",
   "./kueche.html",
-  "./kitchen-block-library-v84.js?v=84",
+  "./rezeptkarte.html",
+  "./kitchen-block-library-v85.js?v=85",
   "./assets/mineralwasser-neutral.webp",
   "./assets/lidl-vegan-symbolbilder.webp",
   "./assets/lidl-basics-4.webp",
@@ -79,16 +80,17 @@ self.addEventListener("fetch",event=>{
 
   if(event.request.mode==="navigate"){
     const kitchen=url.pathname.endsWith("/kueche.html");
-    const pageKey=kitchen?"./kueche.html":INDEX_KEY;
+    const recipeCard=url.pathname.endsWith("/rezeptkarte.html");
+    const pageKey=kitchen?"./kueche.html":recipeCard?"./rezeptkarte.html":INDEX_KEY;
     event.respondWith((async()=>{
       try{
         const raw=await fetch(event.request,{cache:"no-store"});
-        const response=kitchen?raw:await withRuntimePatches(raw);
+        const response=(kitchen||recipeCard)?raw:await withRuntimePatches(raw);
         const copy=response.clone();
         caches.open(CACHE).then(cache=>cache.put(pageKey,copy)).catch(()=>{});
         return response;
       }catch(_){
-        return (await caches.match(pageKey))||(await caches.match(kitchen?"./kueche.html":"./index.html"));
+        return (await caches.match(pageKey))||(await caches.match(kitchen?"./kueche.html":recipeCard?"./rezeptkarte.html":"./index.html"));
       }
     })());
     return;
