@@ -6,13 +6,34 @@
 <title>Küchenplaner · Essen-Tracker</title>
 <style>
 :root{--paper:#f8f7f1;--mist:#eef2e7;--sage:#527457;--deep:#334e3c;--line:#dce4d7;--text:#343a34;--muted:#717c72;--white:#fff}
-*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--paper);color:var(--text);margin:0;padding-bottom:95px;font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--sage)}
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--paper);color:var(--text);margin:0;padding-bottom:calc(94px + env(safe-area-inset-bottom));font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--sage)}
 .top{background:linear-gradient(120deg,#e6eee0,#f7f4e8);padding:22px max(16px,calc((100vw - 780px)/2));border-bottom:1px solid var(--line)}.top a{text-decoration:none;font-size:12px}.top h1{font:700 28px Georgia,serif;color:var(--deep);margin:9px 0 4px}.top p{margin:0;color:var(--muted);font-size:12px}
 .wrap{max-width:780px;margin:0 auto;padding:15px}.nav{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(248,247,241,.98);padding:9px max(12px,calc((100vw - 780px)/2));border-bottom:1px solid var(--line)}.nav button{border:none;background:transparent;color:var(--muted);padding:10px 2px;border-radius:12px;font-size:12px}.nav button.active{background:#dce9d7;color:var(--deep);font-weight:800}
 .tab{display:none}.tab.active{display:block}h2{font:700 22px Georgia,serif;color:var(--deep);margin:12px 0 12px}h3{font-size:16px;color:var(--deep);margin:0 0 10px}p{line-height:1.55}.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:0 3px 14px rgba(55,85,65,.035)}.soft{background:var(--mist)}.muted{color:var(--muted);font-size:12px}.small{font-size:12px}.row{display:flex;align-items:center;gap:9px}.between{justify-content:space-between}.grow{flex:1}.wraprow{display:flex;flex-wrap:wrap;gap:8px}.btn{border:0;background:var(--sage);color:white;padding:11px 14px;border-radius:12px;font-weight:650}.btn.alt{color:var(--deep);border:1px solid var(--line);background:#f4f7f1}.btn.ghost{background:transparent;color:var(--sage);padding:8px}.btn.warn{background:#f8ece8;color:#a34d36}.btn:disabled{opacity:.45}.tiny{font-size:12px;padding:7px 10px}.pill{font-size:11px;padding:5px 9px;border-radius:30px;background:#eef1e7;color:#536e57;border:1px solid #dce7d9}
 input[type=text],input[type=search],input[type=date],input[type=time],select,textarea{width:100%;background:#fff;border:1px solid #cdd9cb;border-radius:10px;padding:10px;color:var(--text);outline-color:var(--sage)}textarea{min-height:85px;resize:vertical}label{display:block;font-size:12px;color:var(--muted);margin:11px 0 5px}input[type=checkbox]{accent-color:var(--sage);width:17px;height:17px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}.weekhead{display:flex;align-items:center;gap:9px;justify-content:space-between}.dayline{display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:9px}.daydate{display:flex;flex-direction:column;align-items:center;color:var(--deep);background:var(--mist);padding:9px 4px;border-radius:13px}.daydate strong{font-size:19px}.daydate small{font-size:10px}.daymain{min-width:0}.daymain strong{display:block;overflow-wrap:anywhere}.daysub{color:var(--muted);font-size:12px;margin-top:4px}.select-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 20px);max-height:90dvh;overflow:auto;border-radius:21px;padding:20px;background:var(--paper);box-shadow:0 20px 60px #18281b55}dialog::backdrop{background:#1727199c}.dialogtop{display:flex;align-items:center;justify-content:space-between}.dialogtop h2{margin:0}.entry{display:flex;align-items:center;gap:9px;border-bottom:1px solid #edf0ea;padding:9px 0}.entry:last-child{border-bottom:0}.foodicon{flex-shrink:0;width:48px;height:48px;display:grid;place-items:center;font-size:26px;background:#edf1e7;border-radius:12px;position:relative;overflow:hidden}.foodicon img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;display:none}.foodicon.food-photo{background-image:url("./assets/kitchen-food-sprite.webp");background-size:300% 300%;background-repeat:no-repeat;color:transparent}.foodicon.food-photo-alt{background-image:url("./assets/kitchen-food-sprite-2.webp")}.foodicon.food-photo-third{background-image:url("./assets/kitchen-food-sprite-3.webp");background-size:300% 200%}.foodicon.food-photo-atlas{background-image:url("./assets/kitchen-food-sprite-4.webp");background-size:900% 500%}.foodicon.food-photo-atlas5{background-image:url("./assets/kitchen-food-sprite-5.webp");background-size:800% 600%}.entrymain{flex:1;min-width:0}.entrymain b{font-size:14px}.entrymain small{display:block;color:var(--muted);line-height:1.4}.searchlist{max-height:160px;overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:7px;background:#fff}.searchlist button{display:block;border:0;background:transparent;padding:11px;width:100%;text-align:left;border-bottom:1px solid #eee}.searchlist button:last-child{border:0}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{background:#eaf1e5;border:1px solid #d3e2d1;border-radius:30px;padding:7px 10px;color:var(--deep)}.chip button{border:0;background:transparent;color:var(--muted);margin-left:6px}.hint{background:#f0f4ea;border-radius:12px;padding:11px;font-size:12px;color:#60705f;margin:10px 0}.star{border:0;background:transparent;padding:4px;color:#b8bbaf;font-size:25px}.star.on{color:#ce9b36}.sectionbar{display:flex;justify-content:space-between;align-items:center;gap:9px;margin:14px 0 9px}.empty{padding:17px;text-align:center;color:var(--muted)}.line{border-top:1px solid var(--line);margin:12px 0}.checkrow{display:flex;align-items:center;gap:7px}.checkrow input{width:auto}.fixedhint{margin-bottom:10px}.filename{font-size:11px;overflow-wrap:anywhere}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#354c3b;color:white;border-radius:12px;padding:11px 20px;z-index:100;display:none;max-width:95%;text-align:center}.toast.show{display:block}.storeheading{font-size:15px;font-weight:800;color:var(--deep);margin:16px 0 6px}.rowbuttons{display:flex;gap:4px}.stats{font-size:12px;color:var(--muted)}.product-checkbox{display:flex;align-items:center;gap:8px;flex:1}.product-checkbox label{margin:0;color:var(--text);font-size:14px}.right{text-align:right}.subtle{color:#536653}.photo-note{font-size:11px;color:var(--muted)}.labelstack{display:grid;gap:2px}
 @media(max-width:480px){.wrap{padding:12px}.card{padding:12px}.dayline{grid-template-columns:48px 1fr auto;gap:7px}.btn{padding:9px 11px}.tiny{padding:7px 8px}.cols{grid-template-columns:1fr}.nav button{font-size:11px}.daydate strong{font-size:17px}.select-grid{grid-template-columns:1fr}}
+
+/* v82: Dieselbe dauerhaft sichtbare Hauptnavigation wie im Essen-Tracker. */
+.app-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:90;display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;height:calc(68px + env(safe-area-inset-bottom));
+  padding:5px 8px calc(5px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);
+  border-top:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -3px 18px rgba(35,50,37,.07);}
+.app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-width:0;min-height:0;border-radius:12px;padding:4px 1px;text-align:center;
+  font-size:11px;line-height:1.3;font-weight:600;color:var(--muted);text-decoration:none;}
+.app-bottom-nav a span{font-size:20px;line-height:1.1;}
+.app-bottom-nav a.active{background:#dce9d7;color:var(--deep);font-weight:800;}
+.app-bottom-nav a:focus-visible{outline:2px solid var(--sage);outline-offset:-2px;}
+.week-range-line{margin:-5px 2px 12px;font-size:12px;color:var(--muted);}
+.week-settings{margin:18px 0 12px;border:1px solid var(--line);border-radius:16px;background:#fff;}
+.week-settings>summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:700;color:var(--deep);}
+.week-settings>summary::-webkit-details-marker{display:none;}
+.week-settings>summary::after{content:"⌄";float:right;color:var(--muted);font-size:18px;}
+.week-settings[open]>summary::after{content:"⌃";}
+.week-settings-content{padding:0 15px 16px;}
+@media(max-width:360px){.app-bottom-nav a{font-size:10px}.app-bottom-nav a span{font-size:19px}}
+
 </style>
 </head>
 <body>
@@ -20,8 +41,16 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <nav class="nav" aria-label="Küchenplaner"><button data-tab="week" class="active">▦ Woche</button><button data-tab="blocks">♧ Bausteine</button><button data-tab="menus">♡ Kochbuch</button><button data-tab="shopping">▤ Einkauf</button></nav>
 <main class="wrap">
 <section id="week" class="tab active"><div class="sectionbar"><h2>Wochenplan</h2><div class="row"><button class="btn alt tiny" id="weekPrev" title="Vorherige Woche">‹</button><button class="btn alt tiny" id="weekNext" title="Nächste Woche">›</button></div></div>
-<div class="card"><div class="cols"><div><label for="shopDay">Einkaufstag (änderbar)</label><select id="shopDay"><option value="2">Dienstag</option><option value="4">Donnerstag</option><option value="1">Montag</option><option value="3">Mittwoch</option><option value="5">Freitag</option><option value="6">Samstag</option><option value="0">Sonntag</option></select></div><div><label for="weekJump">Woche mit diesem Datum anzeigen</label><input id="weekJump" type="date"></div></div><p class="muted" id="weekRange"></p></div>
-<div id="weekDays"></div><div class="hint">Tipp: Erst ein Gericht für eine Person planen, dann die anderen zuordnen. Änderungen bleiben nur auf diesem Gerät gespeichert.</div></section>
+<p class="week-range-line" id="weekRange"></p>
+<div id="weekDays"></div>
+<div class="hint">Tipp: Erst ein Gericht für eine Person planen, dann die anderen zuordnen. Änderungen bleiben nur auf diesem Gerät gespeichert.</div>
+<details class="week-settings"><summary>⚙ Einkaufstag und Wochenanzeige</summary>
+  <div class="week-settings-content"><div class="cols">
+    <div><label for="shopDay">Einkaufstag (änderbar)</label>
+      <select id="shopDay"><option value="2">Dienstag</option><option value="4">Donnerstag</option><option value="1">Montag</option><option value="3">Mittwoch</option><option value="5">Freitag</option><option value="6">Samstag</option><option value="0">Sonntag</option></select>
+    </div><div><label for="weekJump">Zu bestimmter Woche springen</label><input id="weekJump" type="date"></div>
+  </div><p class="muted">Die Pfeile oben blättern wochenweise. Deinen Einkaufstag kannst du hier jederzeit ändern.</p></div>
+</details></section>
 <section id="blocks" class="tab"><div class="sectionbar"><h2>Lebensmittelbausteine</h2><button class="btn" id="newBlock">+ Neu</button></div>
 <div class="card"><input type="search" id="blockSearch" placeholder="Suchen, z. B. Kartoffeln"><div class="cols"><div><label for="blockCatFilter">Kategorie</label><select id="blockCatFilter"><option value="">Alle Kategorien</option></select></div><div><label for="blockSort">Sortieren</label><select id="blockSort"><option value="pinned">Angeheftet zuerst</option><option value="recent">Zuletzt verwendet</option><option value="alpha">Alphabetisch</option></select></div></div><p class="muted">♡ Anheften: bleibt oben. Mit ↑ und ↓ lässt sich die Reihenfolge ändern.</p></div>
 <div id="blockList"></div><div class="card soft"><h3>Bausteine übernehmen & sichern</h3><p class="small">Hier kannst du unsere bestätigte Liste als JSON-Datei importieren. Bereits vorhandene Bausteine werden nicht einfach gelöscht.</p><div class="wraprow"><label class="btn alt" for="importKitchen" style="margin:0;color:#334e3c">JSON importieren</label><input id="importKitchen" type="file" accept=".json,application/json" hidden><button class="btn alt" id="exportKitchen">Sicherung exportieren</button></div><p class="photo-note">Eigene Fotos liegen lokal im Bildspeicher. Eine umfassende Fotosicherung ergänzen wir gesondert.</p></div></section>
@@ -31,6 +60,13 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <div class="card"><h3>Artikel schnell ergänzen</h3><input id="shopSearch" type="search" placeholder="Kartoffeln, Äpfel, Milch …"><div id="shopMatches" class="searchlist" hidden></div><div class="sectionbar"><strong class="small">Angeheftet & zuletzt genutzt</strong></div><div id="shopQuick" class="wraprow"></div></div>
 <div id="shoppingLists"></div></section>
 </main>
+<nav class="app-bottom-nav" aria-label="Hauptnavigation Essen-Tracker">
+  <a href="./index.html#todayView"><span>⌂</span>Heute</a>
+  <a href="./index.html#monthView"><span>▦</span>Monat</a>
+  <a href="./index.html#analysisView"><span>⌁</span>Muster</a>
+  <a href="./kueche.html" class="active" aria-current="page"><span>🍲</span>Küche</a>
+  <a href="./index.html#settingsView"><span>⚙</span>Einstellungen</a>
+</nav>
 <dialog id="planDialog"><div class="dialogtop"><h2 id="planTitle">Tag planen</h2><button class="btn ghost" data-close="planDialog">✕</button></div>
 <label for="planMenu">Gespeichertes Menü auswählen (optional)</label><select id="planMenu"></select>
 <label for="planName">Name des Gerichts</label><input id="planName" type="text" placeholder="z. B. Lachs mit Kroketten">
