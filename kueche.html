@@ -72,7 +72,14 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <p><strong>Montag:</strong> Kartoffeln und übriges Gemüse zur Pfanne verarbeiten; Dip nach Wahl.</p>
 <p class="muted"><strong>Wichtig:</strong> Gekochten Reis nicht lange ungekühlt lagern. Für das Freitagsgericht besser frischen Reis statt Reis vom Donnerstag nehmen.</p>
 </div></details>
-<div id="weekDays"></div>
+<div class="card soft" id="householdWeekStatus" style="margin:14px 0">
+ <h3 style="margin-top:0">Gerichte für euch getrennt planen</h3>
+ <p class="small">Gekauft und noch ohne festen Kochtag: <strong>für mich Riesengarnelen und Lachs</strong>; <strong>für meinen Mann Pizza</strong>. Das sind Vorrats-/Menünotizen, keine bereits gekochten Mahlzeiten.</p>
+ <p class="small"><strong>Linsensuppe:</strong> Zutaten laut Rückmeldung vorhanden, Mengen noch nicht geprüft. <strong>Reisgerichte:</strong> vermutlich alles da – vor dem Kochen kontrollieren.</p>
+ <p class="muted">Wähle beim jeweiligen Tag über ✎ getrennte Gerichte für einzelne Personen. Noch nicht zugeteilte Wünsche bleiben hier sichtbar.</p>
+ <div id="personMealAssignments" class="small"></div>
+ </div>
+ <div id="weekDays"></div>
 <div class="hint">Tipp: Erst ein Gericht für eine Person planen, dann die anderen zuordnen. Änderungen bleiben nur auf diesem Gerät gespeichert.</div>
 <details class="week-settings"><summary>⚙ Einkaufstag und Wochenanzeige</summary>
   <div class="week-settings-content"><div class="cols">
@@ -114,7 +121,14 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <label for="planName">Name des Gerichts</label><input id="planName" type="text" placeholder="z. B. Lachs mit Kroketten">
 <label>Weitere einzelne Lebensmittel (optional)</label><input id="planSearch" type="search" placeholder="Baustein suchen und hinzufügen"><div id="planMatches" class="searchlist" hidden></div><div id="planParts" class="chips"></div>
 <label>Wer isst mit?</label><div class="select-grid"><div><label for="personSelf">Ich</label><select id="personSelf"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Koche selbst</option><option value="nicht">Nicht da</option></select></div><div><label for="personHusband">Mann</label><select id="personHusband"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Kocht selbst</option><option value="nicht">Nicht da</option></select></div><div><label for="personDaughter">Tochter</label><select id="personDaughter"><option value="ganz">Ganz</option><option value="teilweise">Teilweise</option><option value="selbst">Kocht selbst</option><option value="nicht">Nicht da</option></select></div></div>
-<label for="planNote">Notiz / weitere Gerichte oder Varianten</label><textarea id="planNote" placeholder="z. B. Tochter macht eine vegane Bowl, Mann bekommt anderes Schnitzel"></textarea>
+<details class="week-settings" id="personMealsDetails"><summary>🍽️ Unterschiedliche Gerichte je Person</summary>
+ <div class="week-settings-content">
+ <p class="muted">Nur eintragen, wenn jemand etwas anderes als das Hauptmenü isst. Leere Felder übernehmen die Auswahl darüber. Ein zusätzlicher Eintrag zählt noch nicht automatisch als „gekocht“.</p>
+ <div><label for="planMealSelf">Ich – eigenes Gericht</label><input id="planMealSelf" type="text" placeholder="z. B. Riesengarnelen oder Lachs"></div>
+ <div><label for="planMealHusband">Mann – eigenes Gericht</label><input id="planMealHusband" type="text" placeholder="z. B. Pizza"></div>
+ <div><label for="planMealDaughter">Tochter – veganes eigenes Gericht</label><input id="planMealDaughter" type="text" placeholder="Noch offen"></div>
+ </div></details>
+ <label for="planNote">Notiz / weitere Gerichte oder Varianten</label><textarea id="planNote" placeholder="z. B. Tochter macht eine vegane Bowl, Mann bekommt anderes Schnitzel"></textarea>
 
 <label class="plan-cooked-check" for="planCooked"><input type="checkbox" id="planCooked"><span>Dieses Gericht wurde gekocht</span></label>
 <p class="muted small" id="planCookedHint"></p>
@@ -517,6 +531,31 @@ db.blocks=Array.isArray(db.blocks)?db.blocks:[];db.menus=Array.isArray(db.menus)
  db.novemberRecipeShoppingVersion=99;
  save();
 })();
+(function noteSeparateHouseholdMealsV102(){
+ if(Number(db.householdMealsVersion||0)>=102)return;
+ let shrimp=db.blocks.find(b=>nkey(b.name)===nkey("Riesengarnelen"));
+ if(!shrimp){
+  shrimp={id:id(),name:"Riesengarnelen",category:"Fleisch, Fisch & Ei",store:"Offen",
+    stock:"vorhanden",pantry:"normal",pinned:false,lastUsed:0,origin:"chat-stock-v102",
+    note:"Bereits gekauft. Nur für mich vorgemerkt; Zustand (frisch/TK) und Kochtag noch offen."};
+  db.blocks.push(shrimp);
+ }else if(shrimp.stock==="unbekannt")shrimp.stock="vorhanden";
+ const salmon=db.blocks.find(b=>nkey(b.name)===nkey("Lachs"));
+ if(salmon&&salmon.stock==="unbekannt")salmon.stock="vorhanden";
+ // Der bisherige automatisch eingetragene Pizza-Tag war als Familienessen angelegt.
+ // Bei einem unveränderten Vorschlag die Zuordnung korrigieren, aber den Kochtag
+ // nicht als verbindlich kennzeichnen. Nichts ändern, was schon gekocht oder selbst geändert ist.
+ const pizza=db.plans["2026-11-11"];
+ if(pizza&&pizza.origin==="chat-week-98"&&!pizza.cooked&&pizza.menuId==="nov-2026-pizza"
+    &&!pizza.personMeals?.husband&&pizza.people?.husband==="ganz"&&pizza.people?.self==="ganz"){
+  pizza.people={...pizza.people,self:"selbst",husband:"ganz",daughter:"selbst"};
+  pizza.note=String(pizza.note||"").trim();
+  if(!pizza.note.includes("nur für den Mann"))pizza.note+="\nPizza nur für den Mann vorgesehen; Tag noch nicht bestätigt.";
+  pizza.personMeals={...pizza.personMeals};
+ }
+ db.householdMealsVersion=102;
+ save();
+})();
 function weekCart(){const k=iso(focus);if(!db.shopWeeks[k])db.shopWeeks[k]={status:{},manual:[]};return db.shopWeeks[k];}
 function menuSignature(parts){return JSON.stringify([...(Array.isArray(parts)?parts:[])].sort());}
 let view="week",focus=weekStart(new Date()),planEditing="",planParts=[],planManualParts=[],planRecipeIds=[],menuParts=[],editingBlock="",editingMenu="",ratings={},menuPhotoFile=null,blockPhotoFile=null;
@@ -792,7 +831,25 @@ function showPlanPicture(img,date,p,menu){
  });
 }
 
+function renderPersonMealAssignments(){
+ const host=$("#personMealAssignments");
+ if(!host)return;
+ const names={self:"Ich",husband:"Mann",daughter:"Tochter"};
+ const namesToDates={self:["Riesengarnelen","Lachs"],husband:["Pizza"],daughter:[]};
+ const planned=[];
+ for(const [date,p] of Object.entries(db.plans)){
+  for(const key of ["self","husband","daughter"]){
+   const val=String(p?.personMeals?.[key]||"").trim();
+   if(val)planned.push({date,key,val});
+  }
+ }
+ host.innerHTML=planned.length
+   ?'<strong>Schon zugeteilte Einzelgerichte:</strong> '+planned.sort((a,b)=>a.date.localeCompare(b.date))
+      .map(x=>esc(day(x.date).toLocaleDateString("de-DE",{day:"numeric",month:"numeric"}))+" · "+names[x.key]+": "+esc(x.val)).join(" · ")
+   :"Noch keine gesonderten Einzelgerichte auf Tage verteilt.";
+}
 function renderWeek(){
+ renderPersonMealAssignments();
  const prep=$("#mealPrepSteps");if(prep)prep.hidden=iso(focus)!=="2026-11-10";
  focus=weekStart(focus);
  $("#shopDay").value=String(db.shoppingDay);
@@ -821,7 +878,7 @@ function renderWeek(){
    open.appendChild(details);
    if(p){
     const peopleInfo=document.createElement("div");peopleInfo.className="daysub";
-    peopleInfo.textContent=people.map(([k,v])=>v+": "+({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"])).join(" · ");
+    peopleInfo.textContent=people.map(([k,v])=>v+": "+(p.personMeals?.[k]||({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"]))).join(" · ");
     open.appendChild(peopleInfo);
     if(hasCard){const hint=document.createElement("span");hint.className="openhint";hint.textContent="Rezept ansehen ›";open.appendChild(hint);}
    }
@@ -890,7 +947,7 @@ function refreshPlanPreview(){
  check.disabled=!!menu;
  if(menu)check.checked=false;
  $("#planMenuStatus").textContent=menu?"Dieses Menü ist bereits im Kochbuch. Du musst es nicht nochmals speichern.":"Neue Zusammenstellung: Hier ankreuzen, damit sie zusätzlich im Kochbuch erscheint.";
- $("#planCookedHint").textContent=(menu?(Number(menu.count)||0)+"× bisher gekocht · ":"")+"Setze das Häkchen, sobald das Gericht gekocht wurde. Es wird nur einmal pro Tag gezählt.";
+ $("#planCookedHint").textContent=(menu?(Number(menu.count)||0)+"× bisher gekocht · ":"")+"Das Häkchen zählt nur das Hauptmenü einmal pro Tag; separate Gerichte werden nicht automatisch mitgezählt.";
  showPlanPicture($("#planPreviewImage"),planEditing,{name},menu);
 }
 
@@ -906,6 +963,10 @@ function editPlan(key){
  $("#planMenu").value=p.menuId||"";
  $("#saveCompositeMenu").checked=false;$("#saveCompositeMenu").disabled=false;
  $("#planCooked").checked=!!p.cooked;
+ $("#planMealSelf").value=p.personMeals?.self||"";
+ $("#planMealHusband").value=p.personMeals?.husband||"";
+ $("#planMealDaughter").value=p.personMeals?.daughter||"";
+ $("#personMealsDetails").open=!!Object.values(p.personMeals||{}).some(Boolean);
  people.forEach(([id])=>$("#person"+(id==="self"?"Self":id==="husband"?"Husband":"Daughter")).value=p.people?.[id]||(id==="daughter"?"selbst":"ganz"));
  $("#planSearch").value="";$("#planMatches").hidden=true;
  fillPlanRecipeChoices();
@@ -933,6 +994,7 @@ $("#savePlan").onclick=()=>{
  const p={...old,name:name||planRecipeIds.map(id=>db.recipes.find(r=>r.id===id)?.shortName).filter(Boolean).join(" mit ")||parts.map(i=>block(i)?.name).filter(Boolean).join(" mit "),
   parts,manualParts:[...planManualParts],recipeIds:[...planRecipeIds],
   people:{self:$("#personSelf").value,husband:$("#personHusband").value,daughter:$("#personDaughter").value},
+  personMeals:{self:$("#planMealSelf").value.trim(),husband:$("#planMealHusband").value.trim(),daughter:$("#planMealDaughter").value.trim()},
   note:$("#planNote").value.trim(),menuId:""};
  const signature=menuSignature(p.recipeIds);
  const selected=db.menus.find(m=>m.id===$("#planMenu").value);
