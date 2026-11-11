@@ -851,6 +851,7 @@ function renderPersonMealAssignments(){
 function renderWeek(){
  renderPersonMealAssignments();
  const prep=$("#mealPrepSteps");if(prep)prep.hidden=iso(focus)!=="2026-11-10";
+ const households=$("#householdWeekStatus");if(households)households.hidden=iso(focus)!=="2026-11-10";
  focus=weekStart(focus);
  $("#shopDay").value=String(db.shoppingDay);
  $("#weekJump").value=iso(focus);
@@ -880,6 +881,7 @@ function renderWeek(){
     const peopleInfo=document.createElement("div");peopleInfo.className="daysub";
     peopleInfo.textContent=people.map(([k,v])=>v+": "+(p.personMeals?.[k]||({ganz:"ganz",teilweise:"teilweise",selbst:"selbst",nicht:"nicht da"}[p.people?.[k]||"nicht"]))).join(" · ");
     open.appendChild(peopleInfo);
+    if(p.origin==="chat-week-98"&&!p.cooked){const status=document.createElement("span");status.className="daysub";status.textContent="Vorschlag · Termin noch nicht bestätigt";open.appendChild(status);}
     if(hasCard){const hint=document.createElement("span");hint.className="openhint";hint.textContent="Rezept ansehen ›";open.appendChild(hint);}
    }
    open.onclick=()=>{
