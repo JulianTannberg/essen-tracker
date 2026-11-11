@@ -4056,7 +4056,7 @@ body{padding-bottom:78px!important}
     </div>
   </section>
 
-<script src="./daily-thoughts-v65.js?v=85"></script>
+<script src="./daily-thoughts-v66.js?v=101"></script>
 <script>
 const KEY="essenTracker.v01";
 const CELEBRATION_KEY="essenTracker.celebrations.v1";
@@ -4600,7 +4600,7 @@ function knownItems(){const m=new Map();state.entries.filter(e=>!["weight","peri
 
 
 
-const DAILY_QUOTES=Object.values(window.DAILY_THOUGHTS_V65||{}).map(item=>item.text);
+const DAILY_QUOTES=Object.values(window.DAILY_THOUGHTS_V66||{}).map(item=>item.text);
 const SCHOOL_HOLIDAYS_NI=[
   {name:"Sommerferien",start:"2026-07-02",end:"2026-08-12"},{name:"Herbstferien",start:"2026-10-12",end:"2026-10-24"},{name:"Weihnachtsferien",start:"2026-12-23",end:"2027-01-09"},
   {name:"Halbjahresferien",start:"2027-02-01",end:"2027-02-02"},{name:"Osterferien",start:"2027-03-22",end:"2027-04-03"},{name:"Tag nach Himmelfahrt",start:"2027-05-07",end:"2027-05-07"},{name:"Pfingstferien",start:"2027-05-18",end:"2027-05-18"},{name:"Sommerferien",start:"2027-07-08",end:"2027-08-18"},{name:"Herbstferien",start:"2027-10-16",end:"2027-10-30"},{name:"Weihnachtsferien",start:"2027-12-23",end:"2028-01-08"},
@@ -4608,24 +4608,11 @@ const SCHOOL_HOLIDAYS_NI=[
   {name:"Halbjahresferien",start:"2029-02-01",end:"2029-02-02"},{name:"Osterferien",start:"2029-03-19",end:"2029-04-03"},{name:"Tag vor dem 1. Mai",start:"2029-04-30",end:"2029-04-30"},{name:"Tag nach Himmelfahrt",start:"2029-05-11",end:"2029-05-11"},{name:"Pfingstferien",start:"2029-05-22",end:"2029-05-22"},{name:"Sommerferien",start:"2029-07-19",end:"2029-08-29"},{name:"Tage nach dem 3. Oktober",start:"2029-10-04",end:"2029-10-05"},{name:"Herbstferien",start:"2029-10-22",end:"2029-11-02"},{name:"Weihnachtsferien",start:"2029-12-21",end:"2030-01-05"},
   {name:"Halbjahresferien",start:"2030-01-31",end:"2030-02-01"},{name:"Osterferien",start:"2030-04-08",end:"2030-04-23"},{name:"Tag nach Himmelfahrt",start:"2030-05-31",end:"2030-05-31"},{name:"Pfingstferien",start:"2030-06-11",end:"2030-06-11"}
 ];
+// Nur weltliche, überlieferte Wetter- und Jahreszeitensprüche; keine kirchlichen Heiligentage.
 const FARMERS_RULES={
-  "01-06":"Ist bis Dreikönig kein Winter, folgt oft keiner mehr dahinter.",
-  "02-02":"Ist's an Lichtmess hell und rein, wird's ein langer Winter sein.",
-  "02-24":"Mattheis bricht's Eis; hat er keins, so macht er eins.",
-  "03-19":"Ist's am Josefstag klar, folgt ein gutes Jahr.",
-  "04-25":"Vor Markus soll man die Bohnen nicht verstecken.",
-  "05-11":"Mamertus ist der erste der Eisheiligen.",
-  "05-12":"Pankratius zählt zu den Eisheiligen.",
-  "05-13":"Servatius ist einer der Eisheiligen.",
-  "05-14":"Bonifatius gehört zu den Eisheiligen.",
-  "05-15":"Die kalte Sophie beschließt die Eisheiligen.",
-  "06-24":"Vor Johanni bitt um Regen, nachher kommt er ungelegen.",
-  "06-27":"Wie das Wetter am Siebenschläfer sich verhält, ist es sieben Wochen lang bestellt.",
-  "08-24":"Wie Bartholomäus sich hält, so ist der ganze Herbst bestellt.",
-  "09-29":"Um Michaelis in der Tat gedeiht die beste Wintersaat.",
-  "11-11":"Ist Martini klar und rein, bricht bald ein kalter Winter ein.",
-  "11-25":"Wie das Wetter um Kathrein, wird's den ganzen Winter sein.",
-  "12-04":"Knospen an St. Barbara, sind zum Christfest Blüten da."
+  "04-01":"April, April, der weiß nicht, was er will.",
+  "05-01":"Mai kühl und nass, füllt dem Bauern Scheun und Fass.",
+  "06-27":"Wie das Wetter am Siebenschläfer sich verhält, ist es sieben Wochen lang bestellt."
 };
 const ZODIAC=["Widder","Stier","Zwillinge","Krebs","Löwe","Jungfrau","Waage","Skorpion","Schütze","Steinbock","Wassermann","Fische"];
 const ZODIAC_NOTES={Widder:"Tatkraft, Anfang und Direktheit",Stier:"Ruhe, Genuss und Beständigkeit",Zwillinge:"Neugier, Austausch und Beweglichkeit",Krebs:"Geborgenheit, Gefühl und Zuhause",Löwe:"Ausdruck, Wärme und Kreativität",Jungfrau:"Ordnung, Alltag und Sorgfalt",Waage:"Ausgleich, Begegnung und Schönheit",Skorpion:"Tiefe, Wandel und Intensität",Schütze:"Weite, Lernen und Zuversicht",Steinbock:"Struktur, Ausdauer und Verantwortung",Wassermann:"Freiheit, Ideen und Eigenständigkeit",Fische:"Fantasie, Mitgefühl und Rückzug"};
@@ -4661,8 +4648,14 @@ function seasonEvents(ds){
   eventMap[s.autumn]=["Herbst-Tagundnachtgleiche","Licht und Dunkel sind ungefähr im Gleichgewicht."];
   eventMap[s.winter]=["Wintersonnenwende","Von nun an werden die Tage langsam wieder länger."];
   if(eventMap[ds])out.push({kind:"Natur",title:eventMap[ds][0],text:eventMap[ds][1]});
-  const firstAdvent=nthSundayBeforeAdvent(y);for(let i=0;i<4;i++){const a=new Date(firstAdvent);a.setDate(firstAdvent.getDate()+7*i);if(localDate(a)===ds)out.push({kind:"Jahreszeit",title:`${i+1}. Advent`,text:"Vielleicht darf heute ein bisschen Licht und Gemütlichkeit einziehen."})}
-  const customs={"12-06":["Nikolaustag","Vielleicht findet heute eine kleine Freude ihren Weg zu dir."],"12-24":["Heiligabend","Heute darf es gemütlich werden – auf deine Art."],"12-31":["Silvester","Du musst das Jahr nicht bewerten. Ein kurzer Blick auf Schönes reicht."],"02-14":["Valentinstag","Auch Freundlichkeit zu dir selbst darf heute dazugehören."]};
+  const adventThoughts=[
+    "Ein Duft nach Tannengrün kann Erinnerungen wecken, lange bevor man an sie gedacht hat.",
+    "Ein einziges Licht im Fenster kann eine ganze Straße wärmer wirken lassen.",
+    "Manche Melodie ist wie ein alter Brief: Mit den ersten Tönen sind viele Erinnerungen wieder da.",
+    "Vorfreude darf leise sein. Sie braucht weder große Pläne noch ein perfektes Fest."
+  ];
+  const firstAdvent=nthSundayBeforeAdvent(y);for(let i=0;i<4;i++){const a=new Date(firstAdvent);a.setDate(firstAdvent.getDate()+7*i);if(localDate(a)===ds)out.push({kind:"Jahreszeit",title:`${i+1}. Advent`,text:adventThoughts[i]})}
+  const customs={"12-24":["Lichter und Erinnerungen","Manchmal erzählen vertraute Düfte, Musik und kleine Gesten mehr als jedes Datum."],"12-31":["Silvester","Du musst das Jahr nicht bewerten. Ein kurzer Blick auf Schönes reicht."],"02-14":["Valentinstag","Auch Freundlichkeit zu dir selbst darf heute dazugehören."]};
   if(customs[ds.slice(5)])out.push({kind:"Kalender",title:customs[ds.slice(5)][0],text:customs[ds.slice(5)][1]});
   return out
 }
@@ -4751,7 +4744,7 @@ function specialEventsFor(ds){
   if(cfg.seasons)out.push(...seasonEvents(ds));
   if(cfg.wheel){const w=wheelEvent(ds);if(w)out.push(w)}
   if(cfg.rauhnacht){const r=rauhnachtEvent(ds);if(r)out.push(r)}
-  if(cfg.farmers){const rule=FARMERS_RULES[ds.slice(5)];if(rule)out.push({kind:"Bauernregel",title:"Alter Lostag",text:rule})}
+  if(cfg.farmers){const rule=FARMERS_RULES[ds.slice(5)];if(rule)out.push({kind:"Wetterweisheit",title:"Überlieferter Wetterspruch",text:rule+" (Eine alte Überlieferung, keine verlässliche Vorhersage.)"})}
   const hol=schoolHolidayFor(ds);
   if(cfg.schoolHolidays&&hol&&schoolHolidayOccasion(ds,hol))out.push({kind:"Ferien",title:`${hol.name} · Niedersachsen`,text:ds===hol.start?"Die Ferien beginnen. Versuch, sie dir auch wirklich ein bisschen zu erlauben. ♡":ds===hol.end?"Letzter Ferientag – vielleicht noch einmal bewusst langsam machen.":"Du hast Ferien. Nicht jeder freie Tag braucht einen Plan."});
 
@@ -4781,7 +4774,7 @@ function quoteForDate(ds){
   const cfg=state.settings.calendar||DEFAULT.settings.calendar,
     custom=Array.isArray(cfg.customQuotes)?cfg.customQuotes.filter(Boolean):[],
     choice=state.quoteChoices?.[ds],
-    daily=window.DAILY_THOUGHTS_V65,
+    daily=window.DAILY_THOUGHTS_V66,
     fresh=daily?.[ds.slice(5)];
   if(cfg.dailyQuotes!==false && fresh){
     let chosen=fresh;
