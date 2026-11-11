@@ -56,7 +56,7 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <p class="week-range-line" id="weekRange"></p>
 <details class="week-settings" id="weekIdeaDetails"><summary>🍲 Wochenplan mit Meal Prep · 10.–16. November</summary>
 <div class="week-settings-content">
-<p class="muted">Die Menüs sind jetzt als vollständige Rezeptkarten im Kochbuch. Reihenfolge: Mittwoch Pizza vor dem Einkauf, Donnerstag Curry mit Gemüsevorbereitung, Freitag Reis, Samstag Steak, Sonntag Suppe, Montag Resteküche. Vorhandene eigene Einträge bleiben erhalten.</p>
+<p class="muted">Jetzt als fertige Rezeptkarten vorhanden: Mittwoch Lachs (wahlweise Garnelen), Donnerstag Curry mit Currypulver, Freitag Reispfanne mit Ei/Kokosmilch, Samstag Steak unter Einkaufsvorbehalt, Sonntag Suppe und Montag Resteküche. Vorhandene selbst geänderte Tage bleiben erhalten.</p>
 <div id="weekIdeaList"></div>
 <div class="wraprow"><button type="button" class="btn" id="applyWeekIdeas">Alle freien Tage vormerken</button></div>
 <p class="muted" id="weekIdeaStatus" aria-live="polite"></p>
@@ -75,9 +75,9 @@ select,button{min-height:36px}dialog{border:0;max-width:600px;width:calc(100% - 
 <details class="week-settings" id="householdWeekStatus">
  <summary>🧺 Noch nicht fest zugeordnete Einkäufe</summary>
  <div class="week-settings-content">
- <p><strong>Riesengarnelen und Lachs:</strong> für mich gekauft, noch kein Kochtag festgelegt.</p>
+ <p><strong>Lachs und Riesengarnelen:</strong> für dich gekauft. Lachs ist für Mittwoch vorgeschlagen; Riesengarnelen gibt es als auswählbares Alternativmenü, noch ohne festen Kochtag.</p>
  <p><strong>Pizza:</strong> für meinen Mann vorgesehen, Tag noch offen.</p>
- <p><strong>Linsensuppe:</strong> Zutaten vorhanden, Mengen nicht geprüft. <strong>Reisgerichte:</strong> Zutaten wahrscheinlich da, bitte vor dem Kochen prüfen.</p>
+ <p><strong>Linsensuppe:</strong> Zutaten vorhanden, Mengen nicht geprüft. <strong>Reisgerichte:</strong> Zutaten wahrscheinlich da, bitte vor dem Kochen prüfen. Currypulver statt Currypaste verwenden, sofern dein Gewürz tatsächlich ein Pulver ist.</p>
  <p class="muted">Es bleibt bei genau einem Menü pro Tag. Unter „Wer isst mit?“ kannst du auswählen, für wen es gedacht ist.</p>
  </div></details>
  <div id="weekDays"></div>
@@ -1240,9 +1240,15 @@ function editMenu(key){
 }
 
 const NOVEMBER_WEEK_ID="2026-11-10";
-const weekIdeasNovember=(window.KITCHEN_RECIPE_PACK_V98?.menus||[]).map(m=>({
- date:m.date,name:m.name,parts:m.recipeParts,note:m.prep,menuId:m.id
-}));
+const weekIdeasNovember=(window.KITCHEN_RECIPE_PACK_V98?.menus||[]).map(spec=>{
+ const menuId=spec.id==="nov-2026-pizza"?"nov-2026-salmon":spec.id;
+ const menu=db.menus.find(m=>m.id===menuId);
+ const itemNames=(menu?.parts||[]).map(id=>block(id)?.name).filter(Boolean);
+ const note=menuId==="nov-2026-salmon"?"Lachs für dich, Garnelen als Alternative; Pizza für deinen Mann separat, noch ohne Tag."
+  :menuId==="nov-2026-curry"?"Kokos-Curry mit Currypulver. Gemüse für morgen schneiden."
+  :menuId==="nov-2026-fried-rice"?"Gemüsereis: dein Teil mit Ei, der deiner Tochter mit Kokosmilch.":spec.prep;
+ return {date:spec.date,name:menu?.name||spec.name,parts:itemNames,note,menuId};
+});
 const novemberOfferNotes=[
  {id:"emsland-wasser",name:"Emsland Quelle Mineralwasser",group:"Getränke & Vorrat",store:"Combi",details:"12 × 0,7/0,75 l · 3,99 € + 3,30 € Pfand · 0,48/0,44 €/l laut Notiz",price:"3,99 € + 3,30 € Pfand",replaces:["Mineralwasser"]},
  {id:"rumpsteak",name:"Roastbeef oder Rumpsteak",group:"Combi",store:"Combi",details:"2,49 € / 100 g · 24,90 € / kg · Do–Sa laut Notiz (12.–14.11. vermutet; bitte prüfen)",price:"2,49 €/100 g",replaces:["Rumpsteak"]},
