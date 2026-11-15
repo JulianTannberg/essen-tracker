@@ -3681,6 +3681,11 @@ body{padding-bottom:78px!important}
 .pattern-item .food-sprite{width:43px;height:43px;border-radius:11px}
 @media(max-width:460px){.meal-food-piece{font-size:10px}.meal-food-piece .food-sprite{width:29px;height:29px}.pattern-item .food-sprite{width:36px;height:36px}}
 
+  /* Festivalzeit: unaufdringlicher Schnellzugang, passend zum Tracker. */
+  .festival-quick-entry{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:11px 0 13px;padding:11px 13px;background:#f0f5ed;color:#355f4c;border:1px solid #d2e1d4;border-radius:15px;text-decoration:none;font-size:13px;font-weight:800;box-shadow:0 3px 11px rgba(47,101,85,.05)}
+  .festival-quick-entry small{display:block;color:#6b8372;font-size:11px;font-weight:550;margin-top:3px}
+  .festival-quick-entry .festival-arrow{font-size:23px;font-weight:500}
+  @media print{.festival-quick-entry{display:none!important}}
 </style>
 </head>
 <body data-app-build="85">
@@ -3697,6 +3702,7 @@ body{padding-bottom:78px!important}
   <main>
     <section id="todayView" class="view active">
       <div id="weekStrip" class="week-strip" aria-label="Tage auswählen"></div>
+      <a class="festival-quick-entry" href="./festivalzeit.html" aria-label="Festivalzeit erfassen"><span>⏱ Festivalzeit erfassen<small>Sturmflut · Timer und Stundenübersicht</small></span><span class="festival-arrow" aria-hidden="true">›</span></a>
        
 
       <div id="todayTopGrid" class="today-top-grid">
@@ -3805,6 +3811,7 @@ body{padding-bottom:78px!important}
 
     <section id="settingsView" class="view">
       <div class="section-title"><h2>Einstellungen</h2><small>Planer</small></div>
+      <div class="settings-card"><h3>⏱ Festivalzeit · Sturmflut</h3><p>Ehrenamtliche Arbeitszeit erfassen, rückwirkend nachtragen und auswerten. Mit Timer und Export.</p><a href="./festivalzeit.html" class="secondary-btn" style="display:inline-block;text-decoration:none">Festivalzeit öffnen →</a></div>
       <div class="settings-card"><h3>🍲 Küchenplaner</h3><p>Wochenplan, Lebensmittelbausteine, Kochbuch und Einkaufsübersicht.</p><a href="./kueche.html" class="secondary-btn" style="display:inline-block;text-decoration:none">Küchenplaner öffnen →</a></div>
       <div class="settings-card">
         <h3>Startseite</h3>
@@ -6408,7 +6415,28 @@ document.querySelector("#saveFreeGoals").onclick=()=>{collectFreeGoalSettings();
 document.querySelector("#addFreeGoal").onclick=()=>{collectFreeGoalSettings();const label=document.querySelector("#newFreeGoalLabel").value.trim(),categoryId=document.querySelector("#newFreeGoalCategory").value,start=document.querySelector("#newFreeGoalStart").value||localDate();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.freeGoals=state.settings.freeGoals||[];state.settings.freeGoals.push({id:"free-"+uid(),label,start,categoryId,enabled:true});document.querySelector("#newFreeGoalLabel").value="";renderFreeGoalSettings();showToast("Serie hinzugefügt")};
 document.querySelector("#saveHomeSettings").onclick=()=>{const v=state.settings.homeVisibility||{};[["showMoon","moon"],["showWeight","weight"],["showWater","water"],["showFreeDays","freeDays"],["showCalendarSpecial","calendarSpecial"],["showQuick","quick"],["showWellbeing","wellbeing"],["showSticky","sticky"]].forEach(([id,key])=>v[key]=document.querySelector("#"+id).checked);state.settings.homeVisibility=v;save();showToast("Startseite gespeichert")};
 document.querySelector("#addEntryCategory").onclick=()=>{const input=document.querySelector("#newEntryCategory"),label=input.value.trim();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.customEntryCategories=state.settings.customEntryCategories||[];const id="custom-"+uid();state.settings.customEntryCategories.push({id,label});input.value="";renderCustomEntryCategorySettings();showToast("Kategorie hinzugefügt")};
-document.querySelector("#exportData").onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};document.querySelector("#importData").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());state={...cloneDefault(),...x,settings:{...DEFAULT.settings,...x.settings}};save();showToast("Sicherung importiert")}catch(err){alert("Datei konnte nicht gelesen werden.")}};
+document.querySelector("#exportData").onclick=()=>{
+  // Festivaldaten bleiben separat gespeichert, werden aber gemeinsam gesichert.
+  let festivalTime=null;
+  try{festivalTime=JSON.parse(localStorage.getItem("sfoFestivalzeit.v1"))}catch(_){festivalTime=null}
+  const backup={...state,festivalTime};
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+};
+document.querySelector("#importData").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const x=JSON.parse(await f.text());
+    if(!x||typeof x!=="object"||Array.isArray(x)||!Array.isArray(x.entries))throw new Error("Ungültige Essen-Tracker-Sicherung");
+    const {festivalTime,...mainBackup}=x;
+    if(festivalTime&&Array.isArray(festivalTime.entries)){
+      localStorage.setItem("sfoFestivalzeit.v1",JSON.stringify(festivalTime));
+    }
+    state={...cloneDefault(),...mainBackup,settings:{...DEFAULT.settings,...mainBackup.settings}};
+    save();showToast("Sicherung importiert")
+  }catch(err){alert("Datei konnte nicht gelesen werden.")}
+  e.target.value="";
+};
 
 document.querySelector("#moonChip").onclick=()=>{renderMoon();document.querySelector("#moonDialog").showModal()};
 document.querySelector("#closeMoonDialog").onclick=()=>document.querySelector("#moonDialog").close();
@@ -6420,7 +6448,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=103",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=104",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);

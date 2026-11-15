@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f6f0e6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Festivalzeit · Mein Tracker</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--bg:#f6f0e6;--paper:#fffdf8;--ink:#272722;--muted:#76736c;--line:#e5ddcf;--accent:#2f6555;--accent-dark:#224c3e;--accent-soft:#e6f0eb;--gold:#a47b31;--shadow:0 6px 22px rgba(72,58,42,.07)}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:linear-gradient(rgba(255,255,255,.36),rgba(255,255,255,.36)),repeating-linear-gradient(0deg,transparent 0 31px,rgba(82,73,61,.035) 31px 32px),var(--bg);min-height:100vh;padding-bottom:calc(82px + env(safe-area-inset-bottom))}button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.42;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #8eb5a7;outline-offset:3px}a{color:var(--accent-dark)}
+    header{background:rgba(246,240,230,.95);border-bottom:1px solid var(--line);padding:16px max(16px,calc((100vw - 780px)/2));position:sticky;top:0;z-index:4;backdrop-filter:blur(12px)}header a{font-size:12px;text-decoration:none;font-weight:750;color:var(--accent)}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.17em;font-weight:800;color:var(--muted);margin-top:10px}h1{font-size:30px;line-height:1.1;margin:3px 0 5px}header p{font-size:12px;color:var(--muted);margin:0}main{max-width:780px;margin:0 auto;padding:15px 14px}h2{font-size:19px;margin:0 0 10px}h3{font-size:15px;margin:0 0 8px}
+    .card{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:16px;margin:0 0 13px}.muted{color:var(--muted);font-size:12px;line-height:1.5}.badge{display:inline-flex;align-items:center;background:#ecf3ed;color:var(--accent-dark);border-radius:30px;padding:5px 10px;font-size:11px;font-weight:800}.timer-time{font-size:clamp(39px,11vw,62px);font-weight:850;font-variant-numeric:tabular-nums;letter-spacing:-.05em;line-height:1.2;margin:10px 0 0;color:var(--accent-dark)}.timer-state{font-size:12px;color:var(--muted);margin-bottom:15px}.timer-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.field{display:grid;gap:5px;color:#494840;font-size:13px;font-weight:750;margin-bottom:11px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;color:var(--ink);min-height:45px}textarea{min-height:75px;resize:vertical}.control-row{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}.btn{border:0;border-radius:13px;padding:12px 13px;min-height:48px;font-weight:800}.btn.primary{background:var(--accent);color:#fff}.btn.secondary{background:#f1f4ee;color:var(--accent-dark);border:1px solid #c8d9ce}.btn.stop{background:#f8e6e2;color:#954a39;border:1px solid #e8c4b9}.btn.outline{background:#fff;color:var(--accent-dark);border:1px solid var(--line)}.btn.small{padding:8px 10px;min-height:36px;font-size:12px}.notice{background:#f4f0e5;border-left:4px solid #c7ad79;padding:10px 12px;border-radius:9px;color:#655e51;font-size:12px;line-height:1.55;margin-top:13px}
+    .stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{border:1px solid #e4e7de;background:#f8faf5;padding:13px;border-radius:14px}.stat strong{display:block;font-size:25px;color:var(--accent-dark);font-variant-numeric:tabular-nums}.stat span{display:block;font-size:12px;color:var(--muted);margin-top:3px}.progress-line{display:grid;grid-template-columns:130px 1fr auto;gap:8px;align-items:center;font-size:12px;margin:11px 0}.progress-line .track{height:8px;background:#e6ece3;overflow:hidden;border-radius:12px}.progress-line .fill{height:100%;background:#79a48f;border-radius:12px}.progress-line strong{white-space:nowrap}.filter-row{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-bottom:11px}.filter-row select{width:150px;max-width:60%;min-height:40px;padding:7px 9px}.entry{border-top:1px solid var(--line);padding:13px 0 4px}.entry:first-child{border:0;padding-top:0}.entry-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.entry-main{min-width:0}.entry-main strong{font-size:14px;display:block;overflow-wrap:anywhere}.entry-duration{font-size:16px;font-weight:850;color:var(--accent-dark);white-space:nowrap}.entry-meta{font-size:12px;color:var(--muted);margin-top:3px}.entry-note{font-size:12px;margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}.entry-actions{display:flex;gap:8px;margin:9px 0 2px}.entry-actions button{font-size:12px;min-height:34px;border:1px solid var(--line);background:#fff;color:var(--accent);border-radius:9px;padding:6px 10px}.empty{border:1px dashed #d8d4c9;border-radius:12px;padding:18px;color:var(--muted);font-size:12px;text-align:center}.button-row{display:flex;gap:8px;flex-wrap:wrap}.button-row>*{flex:1 1 135px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.help{font-size:12px;color:var(--muted);line-height:1.55}.footer-nav{position:fixed;left:0;right:0;bottom:0;z-index:10;border-top:1px solid var(--line);background:rgba(255,255,255,.97);padding:10px 15px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:center}.footer-nav a{text-decoration:none;background:var(--accent-soft);color:var(--accent-dark);padding:12px 20px;border-radius:13px;font-size:13px;font-weight:850}dialog{border:0;width:min(92vw,500px);max-height:88dvh;overflow:auto;border-radius:20px;padding:20px;box-shadow:0 20px 60px #0003}dialog::backdrop{background:#1e241e83}dialog h2{margin-bottom:13px}.dialog-actions{display:flex;gap:8px;justify-content:space-between}.dialog-actions>*{flex:1}#notice[hidden]{display:none}#notice{border:1px solid #c8d9c6;background:#eef5ea;border-radius:12px;padding:9px 12px;font-size:12px;line-height:1.4;margin:0 0 14px}#notice.error{border-color:#e9bfb7;background:#fbefeb;color:#8f4536}
+    @media(max-width:410px){.control-row{grid-template-columns:1fr 1fr}.control-row .primary{grid-column:span 2;grid-row:1}.progress-line{grid-template-columns:100px 1fr auto;gap:5px;font-size:11px}.card{padding:13px}.two{gap:7px}}
+  </style>
+  <script src="./festivalzeit.js?v=1" defer></script>
+</head>
+<body>
+<header><a href="./index.html#todayView">‹ Zurück zu meinem Tracker</a><div class="eyebrow">Ehrenamt · Sturmflut Festival</div><h1>Festivalzeit</h1><p>Jede Stunde zählt – auch die kleinen Aufgaben zwischendurch.</p></header>
+<main>
+  <div id="notice" role="status" hidden></div>
+  <section class="card" aria-label="Zeiterfassung">
+    <div class="timer-top"><h2 style="margin:0">Arbeitszeit stoppen</h2><span class="badge" id="timerBadge">Bereit</span></div>
+    <div class="timer-time" id="timerClock" aria-label="Erfasste Zeit">00:00:00</div>
+    <div class="timer-state" id="timerState">Noch kein Timer gestartet.</div>
+    <label class="field">Woran arbeitest du?<select id="timerCategory"></select></label>
+    <label class="field">Notiz (optional)<textarea id="timerNote" maxlength="300" placeholder="Zum Beispiel: Ticketlayout überarbeitet"></textarea></label>
+    <div class="control-row"><button id="startBtn" class="btn primary" type="button">▶ Starten</button><button id="pauseBtn" class="btn secondary" type="button" disabled>Ⅱ Pause</button><button id="stopBtn" class="btn stop" type="button" disabled>■ Beenden</button></div>
+    <div class="notice">Der Timer zählt über die gespeicherte Startzeit weiter, auch wenn du diese Seite schließt. Die Aufzeichnungen werden zunächst nur auf diesem Gerät gespeichert.</div>
+  </section>
+  <section class="card">
+    <div class="filter-row"><h2 style="margin:0">Deine Stunden</h2><span class="badge">abgeschlossene Einträge</span></div>
+    <div class="stat-grid"><div class="stat"><strong id="statToday">0:00</strong><span>Heute</span></div><div class="stat"><strong id="statWeek">0:00</strong><span>Diese Woche</span></div><div class="stat"><strong id="statMonth">0:00</strong><span>Dieser Monat</span></div><div class="stat"><strong id="statAll">0:00</strong><span>Insgesamt</span></div></div>
+    <h3 style="margin-top:19px">Nach Tätigkeiten</h3><div id="categoryStats" class="muted"></div>
+  </section>
+  <section class="card">
+    <h2>Zeit nachtragen</h2><p class="muted">Auch für ältere Festivalaufgaben. Geschätzte Stunden kannst du als solche kennzeichnen.</p>
+    <button type="button" id="newManualBtn" class="btn secondary" style="width:100%">+ Manuellen Eintrag hinzufügen</button>
+  </section>
+  <section class="card">
+    <div class="filter-row"><h2 style="margin:0">Einträge</h2><select id="historyFilter" aria-label="Einträge filtern"><option value="all">Alle Zeiträume</option><option value="month">Dieser Monat</option><option value="week">Diese Woche</option></select></div>
+    <div id="entryList" aria-live="polite"></div>
+  </section>
+  <section class="card">
+    <h2>Daten sichern</h2>
+    <p class="help">Deine Festivalstunden werden in der Datensicherung des Essen-Trackers mitgesichert. Zusätzlich kannst du die Festivalzeit separat exportieren und später wieder importieren.</p>
+    <div class="button-row"><button type="button" class="btn secondary" id="csvExport">CSV für Excel</button><button type="button" class="btn secondary" id="jsonExport">JSON-Sicherung</button><button type="button" class="btn outline" id="jsonImportButton">JSON importieren</button></div>
+    <input type="file" id="jsonImport" accept=".json,application/json" hidden>
+    <p class="muted" style="margin-bottom:0">Wichtig: Ohne Synchronisierung erscheinen die Zeiten nicht automatisch auf anderen Geräten. Bitte regelmäßig sichern.</p>
+  </section>
+</main>
+<nav class="footer-nav"><a href="./index.html#todayView">⌂ Zurück zum Essen-Tracker</a></nav>
+<dialog id="manualDialog" aria-labelledby="manualTitle"><form id="manualForm" method="dialog"><h2 id="manualTitle">Zeit nachtragen</h2><label class="field">Datum<input id="manualDate" type="date" required></label><label class="field">Tätigkeit<select id="manualCategory" required></select></label><div class="two"><label class="field">Stunden<input type="number" id="manualHours" inputmode="numeric" min="0" max="48" value="1" required></label><label class="field">Minuten<input type="number" id="manualMinutes" inputmode="numeric" min="0" max="59" value="0" required></label></div><label class="field">Notiz<textarea id="manualNote" maxlength="300" placeholder="Was hast du gemacht?"></textarea></label><label style="display:flex;align-items:center;gap:8px;margin-bottom:15px;font-size:13px"><input id="manualEstimated" type="checkbox" style="width:18px;min-height:18px" checked> Zeit geschätzt (rückwirkend)</label><div class="dialog-actions"><button type="button" id="manualCancel" class="btn outline">Abbrechen</button><button type="submit" class="btn primary">Speichern</button></div></form></dialog>
+</body>
+</html>

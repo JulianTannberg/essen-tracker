@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v103";
-const VERSION="103";
+const CACHE="essen-tracker-pages-v104";
+const VERSION="104";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
@@ -7,6 +7,8 @@ const ASSETS=[
   "./top-branch.png",
   "./kueche.html",
   "./rezeptkarte.html",
+  "./festivalzeit.html",
+  "./festivalzeit.js?v=1",
   "./kitchen-block-library-v85.js?v=85",
   "./assets/mineralwasser-neutral.webp",
   "./assets/lidl-vegan-symbolbilder.webp",
@@ -81,16 +83,17 @@ self.addEventListener("fetch",event=>{
   if(event.request.mode==="navigate"){
     const kitchen=url.pathname.endsWith("/kueche.html");
     const recipeCard=url.pathname.endsWith("/rezeptkarte.html");
-    const pageKey=kitchen?"./kueche.html":recipeCard?"./rezeptkarte.html":INDEX_KEY;
+    const festival=url.pathname.endsWith("/festivalzeit.html");
+    const pageKey=kitchen?"./kueche.html":recipeCard?"./rezeptkarte.html":festival?"./festivalzeit.html":INDEX_KEY;
     event.respondWith((async()=>{
       try{
         const raw=await fetch(event.request,{cache:"no-store"});
-        const response=(kitchen||recipeCard)?raw:await withRuntimePatches(raw);
+        const response=(kitchen||recipeCard||festival)?raw:await withRuntimePatches(raw);
         const copy=response.clone();
         caches.open(CACHE).then(cache=>cache.put(pageKey,copy)).catch(()=>{});
         return response;
       }catch(_){
-        return (await caches.match(pageKey))||(await caches.match(kitchen?"./kueche.html":recipeCard?"./rezeptkarte.html":"./index.html"));
+        return (await caches.match(pageKey))||(await caches.match(kitchen?"./kueche.html":recipeCard?"./rezeptkarte.html":festival?"./festivalzeit.html":"./index.html"));
       }
     })());
     return;
