@@ -3686,6 +3686,14 @@ body{padding-bottom:78px!important}
   .festival-quick-entry small{display:block;color:#6b8372;font-size:11px;font-weight:550;margin-top:3px}
   .festival-quick-entry .festival-arrow{font-size:23px;font-weight:500}
   @media print{.festival-quick-entry{display:none!important}}
+/* Unauffällige Gewichtsrekorde – v104. Auf der vorhandenen Gewichtskarte. */
+.weight-extremes{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
+.weight-extremes[hidden]{display:none!important}
+.weight-extreme{display:flex;flex-wrap:wrap;column-gap:7px;row-gap:1px;align-items:baseline;min-width:0}
+.weight-extreme>span{font-size:11px;color:var(--muted);font-weight:650;white-space:nowrap}
+.weight-extreme>strong{font-size:14px;color:var(--accent-dark);font-weight:750;white-space:nowrap}
+.weight-extreme>small{display:block;width:100%;font-size:10px;color:var(--muted)}
+@media(max-width:390px){.weight-extremes{gap:8px}.weight-extreme>strong{font-size:13px}}
 </style>
 </head>
 <body data-app-build="85">
@@ -3744,6 +3752,10 @@ body{padding-bottom:78px!important}
             <div class="delta-row"><span class="label">seit letztem Mal</span><strong id="weightTodayDelta">–</strong></div>
             <div class="delta-row"><span class="label">insgesamt</span><strong id="weightTodayDeltaFirst">–</strong></div>
           </div>
+        </div>
+        <div class="weight-extremes" id="weightExtremes" hidden aria-label="Bisheriger höchster und niedrigster Gewichtswert">
+          <div class="weight-extreme"><span>Tiefstwert</span><strong id="weightLowestValue">–</strong><small id="weightLowestDate"></small></div>
+          <div class="weight-extreme"><span>Höchstwert</span><strong id="weightHighestValue">–</strong><small id="weightHighestDate"></small></div>
         </div>
       </div>
 
@@ -5028,9 +5040,31 @@ function renderWeightToday(){
   document.querySelector("#weightTodayTime").textContent=`${parseDate(latest.date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})} · ${latest.time}`;
   document.querySelector("#weightTodayDelta").textContent=prev?formatWeightDelta(Number(latest.weightKg)-Number(prev.weightKg)):"–";
   document.querySelector("#weightTodayDeltaFirst").textContent=first?formatWeightDelta(Number(latest.weightKg)-Number(first.weightKg)):"–";
+  renderWeightExtremes(all);
   renderWeightMiniChart(upto.slice(-6));
 }
 
+function renderWeightExtremes(entries){
+  const box=document.querySelector("#weightExtremes");
+  if(!box)return;
+  const measurements=(entries||[]).filter(e=>Number.isFinite(Number(e.weightKg)));
+  if(!measurements.length){box.hidden=true;return;}
+  // weightEntriesSorted ist bereits chronologisch sortiert: bei Gleichstand
+  // zeigen wir das erste Datum, an dem der Rekord erreicht wurde.
+  let lowest=measurements[0],highest=measurements[0];
+  for(const e of measurements){
+    const w=Number(e.weightKg);
+    if(w<Number(lowest.weightKg))lowest=e;
+    if(w>Number(highest.weightKg))highest=e;
+  }
+  const weight=e=>Number(e.weightKg).toFixed(1).replace(".",",")+" kg";
+  const date=e=>parseDate(e.date).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  document.querySelector("#weightLowestValue").textContent=weight(lowest);
+  document.querySelector("#weightLowestDate").textContent="erstmals am "+date(lowest);
+  document.querySelector("#weightHighestValue").textContent=weight(highest);
+  document.querySelector("#weightHighestDate").textContent="erstmals am "+date(highest);
+  box.hidden=false;
+}
 function renderWeightMiniChart(points){
   const svg=document.querySelector("#weightMiniChart");if(!svg)return;
   const vals=(points||[]).map(e=>Number(e.weightKg)).filter(Number.isFinite);
