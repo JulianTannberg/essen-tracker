@@ -12,6 +12,9 @@ button,a{font:inherit}
 .toolbar a{color:var(--dark);font-weight:700;text-decoration:none}
 .toolbar .hint{color:#63705f;font-size:12px;flex:1}
 .toolbar button{padding:10px 15px;border:0;border-radius:10px;background:var(--dark);color:#fff;font-weight:650;cursor:pointer}
+.toolbar #photoCardSave{background:#e4eddf;color:#2c4936;border:1px solid #bdcfb8}
+.toolbar button:disabled{opacity:.6;cursor:wait}
+#photoCardStatus{width:100%;font-size:12px;color:#58705b}#photoCardStatus:empty{display:none}
 .recipe{max-width:1160px;margin:0 auto 24px;padding:16px;background:var(--paper);border:1px solid #ced1c4;box-shadow:0 10px 32px #2137281c}
 .frame{border:1px solid #bdcbb7;border-radius:17px;padding:12px}
 .head{background:var(--dark);color:#f9f6e8;padding:18px 25px;border-radius:12px}
@@ -105,7 +108,7 @@ li::marker{color:var(--sage);font-weight:800}
 </style>
 </head>
 <body>
-<div class="toolbar"><a href="./kueche.html">← Zurück zum Kochbuch</a><span class="hint">Karte ansehen oder im A4-Querformat drucken</span><button id="print" type="button">Drucken / als PDF speichern</button></div>
+<div class="toolbar"><a href="./kueche.html">← Zurück zum Kochbuch</a><span class="hint">Fotokärtchen für die Wochenübersicht oder vollständiges Rezept drucken</span><button id="photoCardSave" type="button">Fotokärtchen 10 × 15 speichern</button><button id="print" type="button">A4-Rezept drucken / PDF</button><small id="photoCardStatus" role="status" aria-live="polite"></small></div>
 <main class="recipe"><div class="frame" id="content">
  <header class="head"><div class="kicker">Mein Kochbuch / Aus meiner Küche</div><h1 id="title">Rezept</h1></header>
  <p class="subtitle" id="subtitle">Ein Rezept aus meinem Kochbuch</p>
@@ -180,7 +183,7 @@ function displayRecipePhoto(src,example=false,sourceUrl="",credit=""){
 }
 if(!name){
  el("content").innerHTML='<p class="error">Dieses Rezept wurde auf diesem Gerät nicht gefunden. Öffne es zuerst aus dem Kochbuch.</p>';
- el("print").disabled=true;return;
+ el("print").disabled=true;el("photoCardSave").disabled=true;return;
 }
 const photoCard=(r
  ?menus.find(x=>Array.isArray(x.recipeIds)&&x.recipeIds[0]===r.id)?.card
@@ -231,6 +234,140 @@ if(Array.isArray(card.notes)&&card.notes.length){
  el("notice").innerHTML="<strong>HINWEIS:</strong> "+card.notes.map(esc).join(" ");
 }
 el("print").addEventListener("click",()=>window.print());
+// Fotokarten sind für die gemeinsame Menüwahl: kein QR-Code, keine Veröffentlichung.
+const photoCardButton=el("photoCardSave"),photoCardStatus=el("photoCardStatus");
+const PHOTO_CARD_WIDTH=1800,PHOTO_CARD_HEIGHT=1200; // 15 × 10 cm quer bei ca. 300 dpi
+function drawRounded(g,x,y,w,h,r){
+ r=Math.min(r,w/2,h/2);g.beginPath();
+ g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.quadraticCurveTo(x+w,y,x+w,y+r);
+ g.lineTo(x+w,y+h-r);g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ g.lineTo(x+r,y+h);g.quadraticCurveTo(x,y+h,x+r,y);
+ g.lineTo(x,y+r);g.quadraticCurveTo(x,y,x+r,y);g.closePath();
+}
+function wrapPhotoText(g,text,x,y,maxWidth,lineHeight,maxLines){
+ const words=String(text||"").trim().split(/\s+/).filter(Boolean),lines=[];
+ let line="";
+ for(const word of words){
+  const next=line?line+" "+word:word;
+  if(g.measureText(next).width>maxWidth&&line){lines.push(line);line=word;}
+  else line=next;
+ }
+ if(line)lines.push(line);
+ if(lines.length>maxLines){
+  lines.length=maxLines;
+  let last=lines[maxLines-1];
+  while(last.length>1&&g.measureText(last+"…").width>maxWidth)last=last.slice(0,-1);
+  lines[maxLines-1]=last+"…";
+ }
+ for(let i=0;i<lines.length;i++)g.fillText(lines[i],x,y+i*lineHeight);
+ return y+lines.length*lineHeight;
+}
+function loadPhotoForCard(){
+ // Bei persönlichen Fotos wird die geladene Objekt-URL übernommen.
+ // Fremde Beispielfotos nur mit CORS verwenden, sonst keine Canvas-Freigabe.
+ const src=el("photo").getAttribute("src");
+ if(!src||el("photo").style.display==="none")return Promise.resolve(null);
+ return new Promise(resolve=>{
+   const img=new Image();
+   if(/^https?:/i.test(src))img.crossOrigin="anonymous";
+   img.onload=()=>resolve(img);
+   img.onerror=()=>resolve(null);
+   img.src=src;
+ });
+}
+function photoCardCanvas(photo){
+ const cv=document.createElement("canvas");
+ cv.width=PHOTO_CARD_WIDTH;cv.height=PHOTO_CARD_HEIGHT;
+ const g=cv.getContext("2d");if(!g)throw Error("Kein Bildexport");
+ const green="#294937",muted="#6a7c65";
+ g.fillStyle="#fcfaf2";g.fillRect(0,0,PHOTO_CARD_WIDTH,PHOTO_CARD_HEIGHT);
+ g.fillStyle="#eff3e9";drawRounded(g,86,96,755,1006,28);g.fill();
+ g.save();drawRounded(g,86,96,755,1006,28);g.clip();
+ if(photo&&photo.naturalWidth&&photo.naturalHeight){
+  const scale=Math.max(755/photo.naturalWidth,1006/photo.naturalHeight);
+  const pw=photo.naturalWidth*scale,ph=photo.naturalHeight*scale;
+  g.drawImage(photo,86+(755-pw)/2,96+(1006-ph)/2,pw,ph);
+ }else{
+  const grad=g.createLinearGradient(100,100,750,1100);
+  grad.addColorStop(0,"#e2e9dc");grad.addColorStop(1,"#c4d3c1");
+  g.fillStyle=grad;g.fillRect(86,96,755,1006);
+  g.textAlign="center";g.fillStyle=green;g.font="bold 52px Georgia,serif";
+  g.fillText("Aus unserer Küche",463,580);g.textAlign="left";
+ }
+ g.restore();
+ g.fillStyle=muted;g.font="bold 25px system-ui,sans-serif";
+ g.fillText("UNSER KOCHBUCH",913,191);
+ g.fillStyle=green;g.font="bold 72px Georgia,serif";
+ let y=wrapPhotoText(g,name,913,300,790,89,3);
+ y=Math.max(y+20,430);
+ if(card.time){
+  g.fillStyle=muted;g.font="bold 33px system-ui,sans-serif";
+  y=wrapPhotoText(g,"⏱ "+card.time,915,y,785,45,2)+35;
+ }
+ if(card.category){
+  g.font="26px system-ui,sans-serif";g.fillStyle="#49634e";
+  y=wrapPhotoText(g,String(card.category),915,y,780,37,2)+30;
+ }
+ g.strokeStyle="#c9d6c2";g.lineWidth=3;g.beginPath();g.moveTo(915,y);g.lineTo(1690,y);g.stroke();
+ y+=63;
+ const ingredients=(groups||[]).flatMap(g=>Array.isArray(g.items)?g.items:[]).map(x=>String(x).trim()).filter(Boolean);
+ if(ingredients.length){
+  g.fillStyle=green;g.font="bold 30px system-ui,sans-serif";g.fillText("Dafür brauchst du",915,y);y+=52;
+  g.fillStyle="#344938";g.font="28px system-ui,sans-serif";
+  const limit=Math.max(0,Math.min(5,Math.floor((1015-y)/61)));
+  for(const item of ingredients.slice(0,limit)){
+   g.fillStyle="#71946f";g.beginPath();g.arc(929,y-11,6,0,Math.PI*2);g.fill();
+   g.fillStyle="#344938";
+   let shown=item;
+   while(shown.length>1&&g.measureText(shown).width>724)shown=shown.slice(0,-1);
+   if(shown!==item)shown=shown.trimEnd()+"…";
+   g.fillText(shown,950,y);y+=61;
+  }
+  if(ingredients.length>limit&&y<1040){
+   g.fillStyle=muted;g.font="italic 24px system-ui,sans-serif";
+   g.fillText("… weitere Zutaten im Rezept",950,y);
+  }
+ }
+ g.strokeStyle="#c9d6c2";g.lineWidth=2;g.beginPath();g.moveTo(915,1064);g.lineTo(1690,1064);g.stroke();
+ g.fillStyle=muted;g.font="26px system-ui,sans-serif";
+ g.fillText("Was kochen wir als Nächstes?",915,1115);
+ return cv;
+}
+function fileNameForPhotoCard(){
+ const base=String(name||"Rezept").normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
+ .replace(/ß/g,"ss").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,65);
+ return "Fotokarte-"+(base||"Rezept")+".jpg";
+}
+function downloadPhotoCanvas(cv){
+ return new Promise((resolve,reject)=>{
+  cv.toBlob(blob=>{
+   if(!blob){reject(Error("JPG konnte nicht erzeugt werden"));return;}
+   const href=URL.createObjectURL(blob),a=document.createElement("a");
+   a.href=href;a.download=fileNameForPhotoCard();
+   document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(href),30000);
+   resolve();
+  },"image/jpeg",.93);
+ });
+}
+photoCardButton.addEventListener("click",async()=>{
+ photoCardButton.disabled=true;photoCardStatus.textContent="Fotokärtchen wird vorbereitet …";
+ try{
+  const image=await loadPhotoForCard();
+  let withoutPhoto=!image;
+  try{await downloadPhotoCanvas(photoCardCanvas(image));}
+  catch(e){
+   if(!image)throw e;
+   withoutPhoto=true;
+   await downloadPhotoCanvas(photoCardCanvas(null));
+  }
+  photoCardStatus.textContent=withoutPhoto
+   ?"JPG gespeichert – Foto konnte nicht exportiert werden; neutraler Hintergrund verwendet. Eigene Fotos funktionieren meist."
+   :"JPG im Querformat 15 × 10 cm gespeichert. Bei Fotoabzügen auf passenden Zuschnitt achten.";
+ }catch(e){
+  photoCardStatus.textContent="Export nicht möglich. Bitte die Rezeptkarte im normalen Handy-Browser öffnen.";
+ }finally{photoCardButton.disabled=false;}
+});
 if(photoKey){
  const diary=diaryMenuPhoto(planKey||"",name);
  if(diary)displayRecipePhoto(diary);
