@@ -3912,8 +3912,9 @@ body{padding-bottom:78px!important}
       </div>
       <div class="settings-card">
         <h3>Daten</h3>
-        <button id="exportData" class="secondary-btn">Sicherung exportieren</button>
+        <button id="exportData" class="secondary-btn">Gesamtsicherung exportieren</button>
         <label class="file-label">Sicherung importieren<input id="importData" type="file" accept=".json,application/json"></label>
+        <p class="settings-subnote">Sichert Essen- und Gewichtseinträge, Küchenplan, Rezepte und eigene Küchenfotos in einer Datei. Die Datei bitte zusätzlich auf Google Drive oder einem anderen sicheren Speicherplatz außerhalb des Handys aufbewahren. Keine automatische Sicherung.</p>
       </div>
     </section>
   </main>
@@ -6449,27 +6450,105 @@ document.querySelector("#saveFreeGoals").onclick=()=>{collectFreeGoalSettings();
 document.querySelector("#addFreeGoal").onclick=()=>{collectFreeGoalSettings();const label=document.querySelector("#newFreeGoalLabel").value.trim(),categoryId=document.querySelector("#newFreeGoalCategory").value,start=document.querySelector("#newFreeGoalStart").value||localDate();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.freeGoals=state.settings.freeGoals||[];state.settings.freeGoals.push({id:"free-"+uid(),label,start,categoryId,enabled:true});document.querySelector("#newFreeGoalLabel").value="";renderFreeGoalSettings();showToast("Serie hinzugefügt")};
 document.querySelector("#saveHomeSettings").onclick=()=>{const v=state.settings.homeVisibility||{};[["showMoon","moon"],["showWeight","weight"],["showWater","water"],["showFreeDays","freeDays"],["showCalendarSpecial","calendarSpecial"],["showQuick","quick"],["showWellbeing","wellbeing"],["showSticky","sticky"]].forEach(([id,key])=>v[key]=document.querySelector("#"+id).checked);state.settings.homeVisibility=v;save();showToast("Startseite gespeichert")};
 document.querySelector("#addEntryCategory").onclick=()=>{const input=document.querySelector("#newEntryCategory"),label=input.value.trim();if(!label)return showToast("Bitte einen Namen eingeben");state.settings.customEntryCategories=state.settings.customEntryCategories||[];const id="custom-"+uid();state.settings.customEntryCategories.push({id,label});input.value="";renderCustomEntryCategorySettings();showToast("Kategorie hinzugefügt")};
-document.querySelector("#exportData").onclick=()=>{
-  // Festivaldaten bleiben separat gespeichert, werden aber gemeinsam gesichert.
-  let festivalTime=null;
-  try{festivalTime=JSON.parse(localStorage.getItem("sfoFestivalzeit.v1"))}catch(_){festivalTime=null}
-  const backup={...state,festivalTime};
-  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"}),a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download=`essen-tracker-${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+// Gesamtsicherung (v106): Tracker + Küchenrezepte + selbst fotografierte Bilder.
+// Die JSON-Datei verbleibt beim Nutzer; keine automatische Cloud-Synchronisierung.
+function kitchenPhotoDb(){
+ return new Promise((resolve,reject)=>{
+  if(!("indexedDB" in window))return reject(Error("Bildspeicher nicht verfügbar"));
+  const req=indexedDB.open("essenTracker.kitchen.images",1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("photos"))req.result.createObjectStore("photos");};
+  req.onerror=()=>reject(req.error||Error("Bildspeicher nicht lesbar"));
+  req.onsuccess=()=>resolve(req.result);
+ });
+}
+function blobAsDataUrl(blob){
+ return new Promise((resolve,reject)=>{
+  const file=new FileReader();
+  file.onload=()=>resolve(String(file.result||""));
+  file.onerror=()=>reject(file.error||Error("Bild konnte nicht gelesen werden"));
+  file.readAsDataURL(blob);
+ });
+}
+async function backupKitchenPhotos(){
+ const db=await kitchenPhotoDb();
+ try{
+  const rows=await new Promise((resolve,reject)=>{
+   const tx=db.transaction("photos","readonly"),store=tx.objectStore("photos"),
+    keys=store.getAllKeys(),blobs=store.getAll();
+   tx.oncomplete=()=>resolve({keys:keys.result||[],blobs:blobs.result||[]});
+   tx.onerror=()=>reject(tx.error||Error("Bilddaten nicht lesbar"));
+  });
+  return await Promise.all(rows.keys.map(async(key,i)=>({
+   key:String(key),data:await blobAsDataUrl(rows.blobs[i])
+  })));
+ }finally{db.close();}
+}
+async function restoreKitchenPhotos(photos){
+ if(!Array.isArray(photos)||!photos.length)return;
+ const blobs=photos.map(record=>{
+  if(!record||typeof record.key!=="string"||!record.key||!/^data:image\/(?:png|jpeg|jpg|webp);base64,/i.test(record.data||""))
+   throw Error("Ungültiges Rezeptfoto in der Sicherung");
+  const comma=record.data.indexOf(",");
+  const type=record.data.slice(5,record.data.indexOf(";")).toLowerCase();
+  const decoded=atob(record.data.slice(comma+1)),bytes=new Uint8Array(decoded.length);
+  for(let i=0;i<decoded.length;i++)bytes[i]=decoded.charCodeAt(i);
+  return {key:record.key,blob:new Blob([bytes],{type})};
+ });
+ const db=await kitchenPhotoDb();
+ try{
+  await new Promise((resolve,reject)=>{
+   const tx=db.transaction("photos","readwrite"),store=tx.objectStore("photos");
+   for(const p of blobs)store.put(p.blob,p.key);
+   tx.oncomplete=()=>resolve();
+   tx.onerror=()=>reject(tx.error||Error("Rezeptfotos konnten nicht wiederhergestellt werden"));
+  });
+ }finally{db.close();}
+}
+document.querySelector("#exportData").onclick=async()=>{
+ const button=document.querySelector("#exportData");
+ if(button.disabled)return;
+ button.disabled=true;
+ const oldLabel=button.textContent;button.textContent="Sicherung wird erstellt …";
+ try{
+  const kitchen=JSON.parse(localStorage.getItem("essenTracker.kitchen.v1")||"null");
+  let festivalTime=null,celebrations=null;
+  try{festivalTime=JSON.parse(localStorage.getItem("sfoFestivalzeit.v1"))}catch(_){}
+  try{celebrations=JSON.parse(localStorage.getItem(CELEBRATION_KEY))}catch(_){}
+  const kitchenPhotos=await backupKitchenPhotos();
+  const backup={...state,festivalTime,kitchenBackup:kitchen,celebrations,kitchenPhotos};
+  const blob=new Blob([JSON.stringify(backup)],{type:"application/json"}),a=document.createElement("a");
+  const u=URL.createObjectURL(blob);a.href=u;
+  a.download="essen-tracker-gesamtsicherung-"+localDate()+".json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),30000);
+  showToast("Gesamtsicherung gespeichert – bitte außerhalb des Handys aufbewahren");
+ }catch(err){
+  alert("Sicherung fehlgeschlagen: "+String(err?.message||err)+". Bestehende Daten bleiben unverändert.");
+ }finally{button.disabled=false;button.textContent=oldLabel;}
 };
 document.querySelector("#importData").onchange=async e=>{
-  const f=e.target.files[0];if(!f)return;
-  try{
-    const x=JSON.parse(await f.text());
-    if(!x||typeof x!=="object"||Array.isArray(x)||!Array.isArray(x.entries))throw new Error("Ungültige Essen-Tracker-Sicherung");
-    const {festivalTime,...mainBackup}=x;
-    if(festivalTime&&Array.isArray(festivalTime.entries)){
-      localStorage.setItem("sfoFestivalzeit.v1",JSON.stringify(festivalTime));
-    }
-    state={...cloneDefault(),...mainBackup,settings:{...DEFAULT.settings,...mainBackup.settings}};
-    save();showToast("Sicherung importiert")
-  }catch(err){alert("Datei konnte nicht gelesen werden.")}
-  e.target.value="";
+ const f=e.target.files?.[0];if(!f)return;
+ try{
+  const x=JSON.parse(await f.text());
+  if(!x||typeof x!=="object"||Array.isArray(x)||!Array.isArray(x.entries))
+    throw Error("Ungültige Essen-Tracker-Sicherung");
+  const {festivalTime,kitchenBackup,kitchenPhotos,celebrations,...mainBackup}=x;
+  if(kitchenBackup!=null&&(!kitchenBackup||!Array.isArray(kitchenBackup.blocks)
+     ||!Array.isArray(kitchenBackup.recipes||[])||!Array.isArray(kitchenBackup.menus||[])))
+    throw Error("Ungültige Küchenplanung in der Sicherung");
+  if(kitchenPhotos!=null&&!Array.isArray(kitchenPhotos))
+    throw Error("Ungültige Rezeptfotos in der Sicherung");
+  if(!confirm("Sicherung einspielen? Bestehende Einträge werden durch den Sicherungsstand ersetzt."))
+    return;
+  // Fotobackup zuerst prüfen; bei Fehlern keine Tracker-Daten überschreiben.
+  if(kitchenPhotos)await restoreKitchenPhotos(kitchenPhotos);
+  if(kitchenBackup)localStorage.setItem("essenTracker.kitchen.v1",JSON.stringify(kitchenBackup));
+  if(festivalTime&&Array.isArray(festivalTime.entries))localStorage.setItem("sfoFestivalzeit.v1",JSON.stringify(festivalTime));
+  if(celebrations&&typeof celebrations==="object")localStorage.setItem(CELEBRATION_KEY,JSON.stringify(celebrations));
+  state={...cloneDefault(),...mainBackup,settings:{...DEFAULT.settings,...mainBackup.settings}};
+  save();showToast("Sicherung wiederhergestellt – Küchenplan beim nächsten Öffnen aktualisiert");
+ }catch(err){alert("Sicherung konnte nicht eingespielt werden: "+String(err?.message||err));}
+ finally{e.target.value="";}
 };
 
 document.querySelector("#moonChip").onclick=()=>{renderMoon();document.querySelector("#moonDialog").showModal()};
