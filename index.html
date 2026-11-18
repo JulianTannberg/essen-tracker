@@ -6545,7 +6545,7 @@ document.querySelector("#importData").onchange=async e=>{
   if(kitchenBackup)localStorage.setItem("essenTracker.kitchen.v1",JSON.stringify(kitchenBackup));
   if(festivalTime&&Array.isArray(festivalTime.entries))localStorage.setItem("sfoFestivalzeit.v1",JSON.stringify(festivalTime));
   if(celebrations&&typeof celebrations==="object")localStorage.setItem(CELEBRATION_KEY,JSON.stringify(celebrations));
-  state={...cloneDefault(),...mainBackup,settings:{...DEFAULT.settings,...mainBackup.settings}};
+  state={...cloneDefault(),...mainBackup,settings:{...DEFAULT.settings,...(mainBackup.settings||{})}};
   save();showToast("Sicherung wiederhergestellt – Küchenplan beim nächsten Öffnen aktualisiert");
  }catch(err){alert("Sicherung konnte nicht eingespielt werden: "+String(err?.message||err));}
  finally{e.target.value="";}
@@ -6561,7 +6561,7 @@ document.querySelector("#saveCalendarSettings").onclick=()=>{const c=state.setti
 window.addEventListener("resize",()=>{if(document.querySelector("#monthView")?.classList.contains("active"))renderWeightChart();renderMoon()});
 
 async function initServiceWorker(){
-  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=105",{updateViaCache:"none"});await reg.update()}catch(e){}
+  if(!("serviceWorker" in navigator))return;try{const reg=await navigator.serviceWorker.register("./sw.js?v=106",{updateViaCache:"none"});await reg.update()}catch(e){}
 }
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist()}catch(e){}}
 document.querySelector("#dailySticky")?.addEventListener("click",toggleDailyThought);
