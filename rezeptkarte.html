@@ -108,7 +108,7 @@ li::marker{color:var(--sage);font-weight:800}
 </style>
 </head>
 <body>
-<div class="toolbar"><a href="./kueche.html">← Zurück zum Kochbuch</a><span class="hint">Fotokärtchen für die Wochenübersicht oder vollständiges Rezept drucken</span><button id="photoCardSave" type="button">Fotokärtchen 10 × 15 speichern</button><button id="print" type="button">A4-Rezept drucken / PDF</button><small id="photoCardStatus" role="status" aria-live="polite"></small></div>
+<div class="toolbar"><a href="./kueche.html">← Zurück zum Kochbuch</a><span class="hint">Fotokärtchen für die Wochenübersicht oder vollständiges Rezept drucken</span><button id="photoCardSave" type="button">Fotokärtchen 10 × 15 mit QR speichern</button><button id="print" type="button">A4-Rezept drucken / PDF</button><small id="photoCardStatus" role="status" aria-live="polite"></small></div>
 <main class="recipe"><div class="frame" id="content">
  <header class="head"><div class="kicker">Mein Kochbuch / Aus meiner Küche</div><h1 id="title">Rezept</h1></header>
  <p class="subtitle" id="subtitle">Ein Rezept aus meinem Kochbuch</p>
@@ -120,6 +120,7 @@ li::marker{color:var(--sage);font-weight:800}
  <div class="steps" id="steps"></div>
  <aside class="notice" id="notice" hidden></aside><div class="sources" id="recipeSources" style="margin:14px 4px;font-size:12px;color:var(--sage)"></div>
 </div></main>
+<script src="./qrcode.min.js"></script>
 <script>
 (function(){
 "use strict";
@@ -234,7 +235,7 @@ if(Array.isArray(card.notes)&&card.notes.length){
  el("notice").innerHTML="<strong>HINWEIS:</strong> "+card.notes.map(esc).join(" ");
 }
 el("print").addEventListener("click",()=>window.print());
-// Fotokarten sind für die gemeinsame Menüwahl: kein QR-Code, keine Veröffentlichung.
+// QR enthält nur die URL zur persönlichen Rezeptkennung auf diesem Gerät. Kein Rezeptinhalt wird veröffentlicht.
 const photoCardButton=el("photoCardSave"),photoCardStatus=el("photoCardStatus");
 const PHOTO_CARD_WIDTH=1800,PHOTO_CARD_HEIGHT=1200; // 15 × 10 cm quer bei ca. 300 dpi
 function drawRounded(g,x,y,w,h,r){
@@ -275,7 +276,27 @@ function loadPhotoForCard(){
    img.src=src;
  });
 }
-function photoCardCanvas(photo){
+function personalRecipeUrl(){
+ // Rezepte ändern sich im Wochenplan; feste Rezept-/Menükennung hat deshalb Vorrang.
+ const u=new URL("./rezeptkarte.html",location.href);
+ u.search="";
+ if(r)u.searchParams.set("recipe",r.id);
+ else if(m)u.searchParams.set("menu",m.id);
+ else if(photoMenu)u.searchParams.set("menu",photoMenu.id);
+ else if(planKey)u.searchParams.set("plan",planKey);
+ else throw Error("QR-Rezeptkennung fehlt");
+ return u.href;
+}
+function recipeQrCanvas(){
+ if(typeof QRCode!=="function")throw Error("QR-Bibliothek nicht geladen");
+ const holder=document.createElement("div");
+ new QRCode(holder,{text:personalRecipeUrl(),width:320,height:320,
+  colorDark:"#193b28",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+ const qr=holder.querySelector("canvas");
+ if(!qr)throw Error("QR-Code nicht gezeichnet");
+ return qr;
+}
+function photoCardCanvas(photo,qr){
  const cv=document.createElement("canvas");
  cv.width=PHOTO_CARD_WIDTH;cv.height=PHOTO_CARD_HEIGHT;
  const g=cv.getContext("2d");if(!g)throw Error("Kein Bildexport");
@@ -314,7 +335,7 @@ function photoCardCanvas(photo){
  if(ingredients.length){
   g.fillStyle=green;g.font="bold 30px system-ui,sans-serif";g.fillText("Dafür brauchst du",915,y);y+=52;
   g.fillStyle="#344938";g.font="28px system-ui,sans-serif";
-  const limit=Math.max(0,Math.min(5,Math.floor((1015-y)/61)));
+  const limit=Math.max(0,Math.min(3,Math.floor((785-y)/61)));
   for(const item of ingredients.slice(0,limit)){
    g.fillStyle="#71946f";g.beginPath();g.arc(929,y-11,6,0,Math.PI*2);g.fill();
    g.fillStyle="#344938";
@@ -323,7 +344,7 @@ function photoCardCanvas(photo){
    if(shown!==item)shown=shown.trimEnd()+"…";
    g.fillText(shown,950,y);y+=61;
   }
-  if(ingredients.length>limit&&y<1040){
+  if(ingredients.length>limit&&y<790){
    g.fillStyle=muted;g.font="italic 24px system-ui,sans-serif";
    g.fillText("… weitere Zutaten im Rezept",950,y);
   }
@@ -331,6 +352,12 @@ function photoCardCanvas(photo){
  g.strokeStyle="#c9d6c2";g.lineWidth=2;g.beginPath();g.moveTo(915,1064);g.lineTo(1690,1064);g.stroke();
  g.fillStyle=muted;g.font="26px system-ui,sans-serif";
  g.fillText("Was kochen wir als Nächstes?",915,1115);
+ // QR-Code am unteren rechten Rand, mit weißer Ruhezone für den Fotoabzug.
+ if(!qr)throw Error("QR-Code fehlt");
+ g.fillStyle="#fff";drawRounded(g,1392,794,314,314,20);g.fill();
+ g.drawImage(qr,1414,816,270,270);
+ g.fillStyle=green;g.font="bold 25px system-ui,sans-serif";
+ g.fillText("Rezept scannen",915,1034);
  return cv;
 }
 function fileNameForPhotoCard(){
@@ -354,16 +381,17 @@ photoCardButton.addEventListener("click",async()=>{
  photoCardButton.disabled=true;photoCardStatus.textContent="Fotokärtchen wird vorbereitet …";
  try{
   const image=await loadPhotoForCard();
+  const qr=recipeQrCanvas();
   let withoutPhoto=!image;
-  try{await downloadPhotoCanvas(photoCardCanvas(image));}
+  try{await downloadPhotoCanvas(photoCardCanvas(image,qr));}
   catch(e){
    if(!image)throw e;
    withoutPhoto=true;
-   await downloadPhotoCanvas(photoCardCanvas(null));
+   await downloadPhotoCanvas(photoCardCanvas(null,qr));
   }
   photoCardStatus.textContent=withoutPhoto
-   ?"JPG gespeichert – Foto konnte nicht exportiert werden; neutraler Hintergrund verwendet. Eigene Fotos funktionieren meist."
-   :"JPG im Querformat 15 × 10 cm gespeichert. Bei Fotoabzügen auf passenden Zuschnitt achten.";
+   ?"Fotokärtchen mit QR-Code gespeichert; Beispielfoto nicht exportierbar, daher neutrale Bildfläche."
+   :"15 × 10 cm JPG mit QR-Code gespeichert. Beim Fotodruck Code nicht abschneiden.";
  }catch(e){
   photoCardStatus.textContent="Export nicht möglich. Bitte die Rezeptkarte im normalen Handy-Browser öffnen.";
  }finally{photoCardButton.disabled=false;}
