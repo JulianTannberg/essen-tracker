@@ -1,5 +1,5 @@
-const CACHE="essen-tracker-pages-v105";
-const VERSION="105";
+const CACHE="essen-tracker-pages-v106";
+const VERSION="106";
 const INDEX_KEY=`./index.html?v=${VERSION}`;
 const ASSETS=[
   "./manifest.webmanifest",
@@ -7,6 +7,7 @@ const ASSETS=[
   "./top-branch.png",
   "./kueche.html",
   "./rezeptkarte.html",
+  "./qrcode.min.js",
   "./festivalzeit.html",
   "./festivalzeit.js?v=1",
   "./kitchen-block-library-v85.js?v=85",
@@ -22,7 +23,7 @@ const ASSETS=[
   `./sleep-mode.js?v=${VERSION}`,
   `./v63-weight-start.js?v=${VERSION}`,
   `./herb-knowledge-v64.js?v=${VERSION}`,
-  `./daily-thoughts-v65.js?v=${VERSION}`
+  `./daily-thoughts-v66.js?v=${VERSION}`
 ];
 
 async function withRuntimePatches(response){
