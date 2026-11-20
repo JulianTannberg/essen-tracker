@@ -5642,9 +5642,12 @@ function drawWeightChart(canvas,pts,height=175){
   const vals=pts.map(p=>Number(p.weightKg)),
     min=Math.min(...vals),
     max=Math.max(...vals),
-    padY=Math.max(.5,(max-min)*.25),
-    lo=min-padY,
-    hi=max+padY,
+    padY=Math.max(.25,(max-min)*.07),
+    rawStep=Math.max(1,(max-min+2*padY)/5),
+    magnitude=10**Math.floor(Math.log10(rawStep)),
+    tickStep=[1,2,5,10].find(step=>step*magnitude>=rawStep)*magnitude,
+    lo=Math.floor((min-padY)/tickStep)*tickStep,
+    hi=Math.ceil((max+padY)/tickStep)*tickStep,
     left=38,right=10,top=12,bottom=24,
     cw=w-left-right,
     ch=h-top-bottom,
@@ -5662,14 +5665,15 @@ function drawWeightChart(canvas,pts,height=175){
   ctx.font="10px system-ui";
   ctx.fillStyle="#777";
 
-  for(let i=0;i<4;i++){
-    const yy=top+i*ch/3,
-      val=hi-i*(hi-lo)/3;
+  const tickCount=Math.round((hi-lo)/tickStep);
+  for(let i=0;i<=tickCount;i++){
+    const val=lo+i*tickStep,
+      yy=y(val);
     ctx.beginPath();
     ctx.moveTo(left,yy);
     ctx.lineTo(w-right,yy);
     ctx.stroke();
-    ctx.fillText(val.toFixed(1).replace(".",","),1,yy+3);
+    ctx.fillText(String(Math.round(val)),1,yy+3);
   }
 
   ctx.strokeStyle="#2f6555";
